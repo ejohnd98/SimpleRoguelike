@@ -26,3 +26,4 @@ ipch
 *.VC.db
 *.VC.opendb
 SimpleRoguelike/.vs/
+*.vcxproj
