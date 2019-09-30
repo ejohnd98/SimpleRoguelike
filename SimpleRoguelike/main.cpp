@@ -4,6 +4,9 @@
 #include <iostream>
 #include <string>
 
+#include "ETexture.h"
+#include "GameLoop.h"
+
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -21,7 +24,7 @@ bool LoadMedia();
 //Frees media and shuts down SDL
 void Close();
 
-void Render(int k);
+void Render();
 void AdvanceGameLogic();
 
 //The window we'll be rendering to
@@ -29,6 +32,12 @@ SDL_Window* SDLWindow = NULL;
 
 //The window renderer
 SDL_Renderer* SDLRenderer = NULL;
+
+//Tileset texture:
+ETexture tileTest;
+
+//Game loop handler
+GameLoop* gameLoop = NULL;
 
 bool Init()
 {
@@ -79,6 +88,9 @@ bool Init()
 			}
 		}
 	}
+
+	gameLoop = new GameLoop();
+
 	if (!success) {
 		printf("Failed to initialize!\n");
 	}
@@ -89,6 +101,13 @@ bool LoadMedia()
 {
 	//Loading success flag
 	bool success = true;
+
+	if (tileTest.LoadFromFile("tileTest.png", SDLRenderer)) {
+		tileTest.SetTileSetInfo(16, 16);
+	}
+	else {
+		success = false;
+	}
 
 	if (!success) {
 		printf("Failed to load media!\n");
@@ -103,6 +122,10 @@ void Close()
 	SDL_DestroyWindow(SDLWindow);
 	SDLWindow = NULL;
 	SDLRenderer = NULL;
+	tileTest.Free();
+
+	//Free up game systems
+	delete gameLoop;
 
 	//Quit SDL subsystems
 	IMG_Quit();
@@ -137,15 +160,12 @@ int main(int argc, char* args[])
 				currentTime = SDL_GetTicks();
 
 				if (currentTime >= nextGameUpdateTime) {
-					gameUpdates++;
-					//-------------------
 					nextGameUpdateTime += MS_PER_UPDATE;
+					AdvanceGameLogic();
 				}
 				if (currentTime >= nextRenderTime) {
-					Render(gameUpdates);
-
-					framesCounted++;
 					nextRenderTime += MS_PER_FRAME;
+					Render();
 				}
 			}
 		}
@@ -154,14 +174,18 @@ int main(int argc, char* args[])
 	return 0;
 }
 
-void Render(int k) {
+void Render() {
 	SDL_SetRenderDrawColor(SDLRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 	SDL_RenderClear(SDLRenderer);
+
+	SDL_Rect renderQuad = { 32, 32, 128, 128 };
+	SDL_Rect texQuad = *tileTest.GetTileRect(33);
+	SDL_RenderCopy(SDLRenderer, tileTest.GetTexture(), &texQuad, &renderQuad);
 
 	//Update screen
 	SDL_RenderPresent(SDLRenderer);
 }
 
 void AdvanceGameLogic() {
-
+	gameLoop->AdvanceLoop();
 }
