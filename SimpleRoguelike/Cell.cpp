@@ -1,18 +1,26 @@
 #include "Cell.h"
+#include "Actor.h"
 #include <iostream>
 
+//Variables:
+Actor* actor = NULL;
+
+//Functions:
 Cell::Cell(){}
 Cell::~Cell(){}
-
-bool Cell::IsOccupied() {
-	return isWall;
-}
 
 void Cell::SetupCell(bool wall) {
 	isWall = wall;
 }
 
-//Entity reference
-//Prop reference
-//Item references
-//
+bool Cell::IsOccupied() {
+	return isWall;
+}
+
+Actor* Cell::GetActor() {
+	return actor;
+}
+
+void Cell::SetActor(Actor* a) {
+	actor = a;
+}
