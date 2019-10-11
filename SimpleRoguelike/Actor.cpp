@@ -1,11 +1,16 @@
+#include <stdio.h>
 #include "Actor.h"
 #include "Commands.h"
+#include "Map.h"
 
 Actor::Actor(){}
 Actor::~Actor(){}
 
+Map* currentMapRef = nullptr;
+int x, int y;
+
 //Public:
-void Actor::Act() {
+void Actor::Act(Map* map) {
 	return;
 }
 void Actor::GiveCommand(Command command ) {
@@ -23,5 +28,8 @@ void Actor::GiveCommand(Command command ) {
 
 //Private:
 void Move(int x, int y) {
+	if (currentMapRef->IsOccupied(x, y)) {
+
+	}
 	return;
 }

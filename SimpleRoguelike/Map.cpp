@@ -46,3 +46,7 @@ void FreeMap() {
 Cell* Map::GetCell(int x, int y) {
 	return cellMap[x][y];
 }
+
+bool Map::IsOccupied(int x, int y) {
+	return cellMap[x][y]->IsOccupied(x,y);
+}

@@ -6,7 +6,7 @@ public:
 	Actor();
 	~Actor();
 
-	void Act();
+	void Act(Map* map);
 	void GiveCommand(Command command);
 };
 
