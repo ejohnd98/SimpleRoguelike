@@ -1,5 +1,5 @@
 #pragma once
-#include "Actor.h"
+
 class Cell
 {
 public:
@@ -8,10 +8,14 @@ public:
 	void SetupCell(bool wall);
 
 	bool IsOccupied();
-	Actor* GetActor();
-	void SetActor(Actor* a);
-	
+	bool ContainsActor();
+	class Actor* GetActor();
+	class Sprite* GetSprite();
+	void SetActor(class Actor* a);
+	void RemoveActor();
 private:
-	bool isWall;
+	bool isWall = false;
+	Actor* actor = nullptr;
+	Sprite* cellSprite = nullptr;
 };
 

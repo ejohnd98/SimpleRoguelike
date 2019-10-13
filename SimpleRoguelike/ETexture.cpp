@@ -1,11 +1,13 @@
+#include <iostream>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <stdio.h>
 #include <string>
 #include <sstream>
+
 #include "ETexture.h";
-#include <iostream>
+
 
 ETexture::ETexture() {
 	texture = NULL;
@@ -26,16 +28,16 @@ bool ETexture::LoadFromFile(std::string path, SDL_Renderer* renderer) {
 	
 	Free(); //Get rid of preexisting texture
 	
-	SDL_Texture* newTexture = NULL; //The final texture
+	SDL_Texture* newTexture = nullptr; //The final texture
 	SDL_Surface* loadedSurface = IMG_Load(path.c_str()); //Load image at specified path
-	if (loadedSurface == NULL)
+	if (loadedSurface == nullptr)
 	{
 		printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
 	}
 	else
 	{
 		newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface); //Create texture from surface pixels
-		if (newTexture == NULL)
+		if (newTexture == nullptr)
 		{
 			printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
 		}
@@ -48,16 +50,16 @@ bool ETexture::LoadFromFile(std::string path, SDL_Renderer* renderer) {
 		SDL_FreeSurface(loadedSurface); //Get rid of old loaded surface
 	}
 	texture = newTexture;
-	return texture != NULL; //Return success
+	return texture != nullptr; //Return success
 }
 
 //Deallocates texture
 void ETexture::Free() {
 	//Free texture if it exists
-	if (texture != NULL)
+	if (texture != nullptr)
 	{
 		SDL_DestroyTexture(texture);
-		texture = NULL;
+		texture = nullptr;
 		width = 0;
 		height = 0;
 		tileW = 0;

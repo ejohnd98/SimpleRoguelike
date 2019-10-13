@@ -1,11 +1,15 @@
 #include <stdio.h>
+#include <list>
 #include "Map.h"
+#include "Actor.h"
 #include "Cell.h"
 
 const int MAP_WIDTH = 10;
 const int MAP_HEIGHT = 10;
 
 Cell* cellMap[MAP_WIDTH][MAP_HEIGHT];
+
+std::list<Actor*> actorList;
 
 void InitMap();
 void FreeMap();
@@ -48,5 +52,28 @@ Cell* Map::GetCell(int x, int y) {
 }
 
 bool Map::IsOccupied(int x, int y) {
-	return cellMap[x][y]->IsOccupied(x,y);
+	return cellMap[x][y]->IsOccupied();
+}
+
+int Map::GetHeight() {
+	return MAP_HEIGHT;
+}
+int Map::GetWidth() {
+	return MAP_WIDTH;
+}
+
+bool Map::PlaceActor(class Actor* actor, int x, int y) {
+	if (cellMap[x][y]->GetActor() == nullptr) {
+		cellMap[x][y]->SetActor(actor);
+		actorList.push_back(actor);
+		actor->SetPos(x, y);
+		return true;
+	}
+	return false;
+}
+bool Map::RemoveActor(Actor* actor) {
+	cellMap[actor->GetX()][actor->GetY()]->RemoveActor();
+	actorList.remove(actor);
+	delete actor;
+	return true;
 }

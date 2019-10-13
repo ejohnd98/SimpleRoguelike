@@ -1,13 +1,17 @@
 #include <stdio.h>
-#include "GameLoop.h"
-#include "Map.h"
-#include "Cell.h"
 #include <iostream>
+#include "GameLoop.h"
+#include "Actor.h"
+#include "Map.h"
+#include "MapGenerator.h"
+#include "Cell.h"
 
 bool gameInitialized = false;
-Map* currentMap = NULL;
+Map* currentMap = nullptr;
+Actor* playerActor = nullptr;
 
 void InitializeGame();
+void TerminateGame();
 
 GameLoop::GameLoop()
 {
@@ -15,28 +19,33 @@ GameLoop::GameLoop()
 }
 GameLoop::~GameLoop()
 {
+	TerminateGame();
 }
 
 void InitializeGame() {
-	currentMap = new Map();
+	MapGenerator* mapGen = new MapGenerator();
+	currentMap = mapGen->GenerateMap(10,10);
+	delete mapGen;
 	
-	for (int y = 0; y < 10; y++) {
-		for (int x = 0; x < 10; x++) {
-			if (currentMap->GetCell(x, y)->IsOccupied()) {
-				std::cout << "X";
-			}
-			else {
-				std::cout << ".";
-			}
-			
-		}
-		std::cout << "\n";
+	playerActor = new Actor();
+	playerActor->SetName("Hero");
+	if (currentMap->PlaceActor(playerActor, 5, 5)) {
+		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully";
 	}
 	gameInitialized = true;
+}
+
+void TerminateGame() {
+	gameInitialized = false;
+	delete currentMap;
 }
 
 void GameLoop::AdvanceLoop() {
 	if (gameInitialized) {
 		//std::cout << "Game loop advanced\n";
 	}
+}
+
+Map** GameLoop::GetMapPointer() {
+	return &currentMap;
 }

@@ -5,5 +5,6 @@ public:
 	GameLoop();
 	~GameLoop();
 	void AdvanceLoop();
+	class Map** GetMapPointer();
 };
 
