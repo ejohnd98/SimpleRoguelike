@@ -4,12 +4,10 @@
 #include "Actor.h"
 #include "Cell.h"
 
-const int MAP_WIDTH = 10;
-const int MAP_HEIGHT = 10;
+const int MAP_WIDTH = 20;
+const int MAP_HEIGHT = 15;
 
 Cell* cellMap[MAP_WIDTH][MAP_HEIGHT];
-
-std::list<Actor*> actorList;
 
 void InitMap();
 void FreeMap();
@@ -20,6 +18,10 @@ Map::Map() {
 
 Map::~Map() {
 	FreeMap();
+	for (Actor* a : actorList) {
+		delete a;
+	}
+	actorList.clear();
 }
 
 void InitMap() {
@@ -61,9 +63,17 @@ int Map::GetHeight() {
 int Map::GetWidth() {
 	return MAP_WIDTH;
 }
-
+bool Map::MoveActor(class Actor* actor, int x, int y) {
+	if (cellMap[x][y]->GetActor() == nullptr && ValidPos(x,y)) {
+		cellMap[actor->GetX()][actor->GetY()]->RemoveActor();
+		cellMap[x][y]->SetActor(actor);
+		actor->SetPos(x, y);
+		return true;
+	}
+	return false;
+}
 bool Map::PlaceActor(class Actor* actor, int x, int y) {
-	if (cellMap[x][y]->GetActor() == nullptr) {
+	if (cellMap[x][y]->GetActor() == nullptr && ValidPos(x, y)) {
 		cellMap[x][y]->SetActor(actor);
 		actorList.push_back(actor);
 		actor->SetPos(x, y);
@@ -76,4 +86,8 @@ bool Map::RemoveActor(Actor* actor) {
 	actorList.remove(actor);
 	delete actor;
 	return true;
+}
+
+bool Map::ValidPos(int x, int y) {
+	return (x >= 0 && x < MAP_WIDTH) && (y >= 0 && y < MAP_HEIGHT);
 }

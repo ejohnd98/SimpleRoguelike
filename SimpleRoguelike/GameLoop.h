@@ -1,4 +1,5 @@
 #pragma once
+#include "Commands.h"
 class GameLoop
 {
 public:
@@ -6,5 +7,6 @@ public:
 	~GameLoop();
 	void AdvanceLoop();
 	class Map** GetMapPointer();
+	void GiveInput(Command command);
 };
 

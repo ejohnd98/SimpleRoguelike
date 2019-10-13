@@ -24,10 +24,13 @@ ETexture tileTest;
 
 Map** mapPntr = nullptr;
 
+bool InitRenderer();
+bool LoadMedia();
 void CloseRenderer();
 void RenderMap(Map* map);
 
 GameRenderer::GameRenderer() {
+	InitRenderer();
 }
 
 GameRenderer::~GameRenderer() {
@@ -44,7 +47,7 @@ void GameRenderer::SetMap(Map** map) {
 }
 
 void RenderMap(Map* map) {
-	SDL_SetRenderDrawColor(SDLRenderer, 0x00, 0x00, 0x00, 0x00);
+	SDL_SetRenderDrawColor(SDLRenderer, 31, 14, 28, 0x00);
 	SDL_RenderClear(SDLRenderer);
 
 	int height = map->GetHeight();
@@ -72,7 +75,7 @@ void RenderMap(Map* map) {
 	SDL_RenderPresent(SDLRenderer);
 }
 
-bool GameRenderer::Init() {
+bool InitRenderer() {
 	bool success = true;
 
 	//Initialize SDL
@@ -119,8 +122,11 @@ bool GameRenderer::Init() {
 				}
 			}
 		}
-		return success;
+		if (!LoadMedia()) {
+			success = false;
+		}
 	}
+	return success;
 }
 
 bool LoadMedia(){

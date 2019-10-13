@@ -8,20 +8,23 @@ public:
 	Actor();
 	~Actor();
 
-	void Act(class Map* map);
+	void Act();
 	void GiveCommand(Command command);
 
 	int GetX();
 	int GetY();
 	class Sprite* GetSprite();
+	void SetSprite(class Sprite* spr);
 	void SetPos(int x2, int y2);
 	std::string GetName();
 	void SetName(std::string newName);
+	void SetMapRef(class Map* mapRef);
 private:
 	Map* currentMapRef = nullptr;
-	int x;
-	int y;
+	int x = 0;
+	int y = 0;
 	std::string name = "";
-	Sprite* actorSprite = nullptr;
+	class Sprite* actorSprite = nullptr;
+	bool Move(int x, int y);
 };
 

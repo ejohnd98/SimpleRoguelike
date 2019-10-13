@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string>
+#include <iostream>
 
 #include "Actor.h"
 #include "Commands.h"
@@ -11,21 +12,28 @@
 Actor::Actor() {
 	actorSprite = new Sprite(2);
 }
-Actor::~Actor() {}
+Actor::~Actor() {
+	delete actorSprite;
+}
 
 //Public:
-void Actor::Act(Map* map) {
+void Actor::Act() {
+	std::cout << "Act called on: " << name << "\n";
 	return;
 }
 void Actor::GiveCommand(Command command ) {
 	switch (command) {
 	case Command::MOVE_UP:
+		Move(x, y - 1);
 		break;
 	case Command::MOVE_DOWN:
+		Move(x, y + 1);
 		break;
 	case Command::MOVE_RIGHT:
+		Move(x + 1, y);
 		break;
 	case Command::MOVE_LEFT:
+		Move(x - 1, y);
 		break;
 	}
 }
@@ -40,6 +48,9 @@ int Actor::GetY() {
 Sprite* Actor::GetSprite() {
 	return actorSprite;
 }
+void Actor::SetSprite(class Sprite* spr) {
+	actorSprite = spr;
+}
 void Actor::SetPos(int x2, int y2) {
 	x = x2;
 	y = y2;
@@ -50,11 +61,16 @@ std::string Actor::GetName() {
 void Actor::SetName(std::string newName) {
 	name = newName;
 }
+void Actor::SetMapRef(Map* mapRef) {
+	currentMapRef = mapRef;
+}
 
 //Private:
-void Move(int x, int y) {
-	//if (currentMapRef->IsOccupied(x, y)) {
-
-	//}
-	return;
+bool Actor::Move(int x, int y) {
+	if (currentMapRef->IsOccupied(x, y)) {
+		return false;
+	}
+	else {
+		currentMapRef->MoveActor(this, x, y);
+	}
 }
