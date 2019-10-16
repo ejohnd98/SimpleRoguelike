@@ -57,12 +57,15 @@ void GameLoop::AdvanceLoop() {
 		if (!pendingCommands.empty()) {
 			Command nextCom = pendingCommands.front();
 			pendingCommands.pop_front();
+			bool validCommand = false;
 			if (playerActor != nullptr) {
-				playerActor->GiveCommand(nextCom);
+				validCommand = playerActor->GiveCommand(nextCom);
 			}
-			for (Actor* a : currentMap->actorList){
-				if (a != playerActor) {
-					a->Act();
+			if (validCommand) {
+				for (Actor* a : currentMap->actorList) {
+					if (a != playerActor) {
+						a->Act();
+					}
 				}
 			}
 			

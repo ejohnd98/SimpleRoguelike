@@ -9,7 +9,7 @@ public:
 	~Actor();
 
 	void Act();
-	void GiveCommand(Command command);
+	bool GiveCommand(Command command);
 
 	int GetX();
 	int GetY();

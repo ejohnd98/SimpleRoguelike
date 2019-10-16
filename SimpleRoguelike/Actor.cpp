@@ -21,21 +21,18 @@ void Actor::Act() {
 	std::cout << "Act called on: " << name << "\n";
 	return;
 }
-void Actor::GiveCommand(Command command ) {
+bool Actor::GiveCommand(Command command ) {
 	switch (command) {
 	case Command::MOVE_UP:
-		Move(x, y - 1);
-		break;
+		return Move(x, y - 1);
 	case Command::MOVE_DOWN:
-		Move(x, y + 1);
-		break;
+		return Move(x, y + 1);
 	case Command::MOVE_RIGHT:
-		Move(x + 1, y);
-		break;
+		return Move(x + 1, y);
 	case Command::MOVE_LEFT:
-		Move(x - 1, y);
-		break;
+		return Move(x - 1, y);
 	}
+	return false;
 }
 
 int Actor::GetX() {
@@ -71,6 +68,6 @@ bool Actor::Move(int x, int y) {
 		return false;
 	}
 	else {
-		currentMapRef->MoveActor(this, x, y);
+		return currentMapRef->MoveActor(this, x, y);
 	}
 }

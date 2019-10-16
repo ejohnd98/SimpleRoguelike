@@ -4,13 +4,6 @@
 #include "Actor.h"
 #include "Cell.h"
 
-const int MAP_WIDTH = 20;
-const int MAP_HEIGHT = 15;
-
-Cell* cellMap[MAP_WIDTH][MAP_HEIGHT];
-
-void InitMap();
-void FreeMap();
 
 Map::Map() {
 	InitMap();
@@ -24,7 +17,7 @@ Map::~Map() {
 	actorList.clear();
 }
 
-void InitMap() {
+void Map::InitMap() {
 
 	for (int y = 0; y < MAP_HEIGHT; y++) {
 		for (int x = 0; x < MAP_WIDTH; x++) {
@@ -39,7 +32,7 @@ void InitMap() {
 
 }
 
-void FreeMap() {
+void Map::FreeMap() {
 
 	for (int y = 0; y < MAP_HEIGHT; y++) {
 		for (int x = 0; x < MAP_WIDTH; x++) {
@@ -63,6 +56,20 @@ int Map::GetHeight() {
 int Map::GetWidth() {
 	return MAP_WIDTH;
 }
+
+Map* Map::GetPrevMap() {
+	if (previousMap != nullptr) {
+		return previousMap;
+	}
+	return nullptr;
+}
+Map* Map::GetNextMap() {
+	if (nextMap != nullptr) {
+		return nextMap;
+	}
+	return nullptr;
+}
+
 bool Map::MoveActor(class Actor* actor, int x, int y) {
 	if (cellMap[x][y]->GetActor() == nullptr && ValidPos(x,y)) {
 		cellMap[actor->GetX()][actor->GetY()]->RemoveActor();
