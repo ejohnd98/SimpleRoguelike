@@ -8,6 +8,7 @@
 #include "Cell.h"
 #include "Commands.h"
 #include "Sprite.h"
+#include "Prop.h"
 
 bool gameInitialized = false;
 Map* currentMap = nullptr;
@@ -37,6 +38,7 @@ void InitializeGame() {
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
 	}
 	playerActor->SetMapRef(currentMap);
+
 	Actor* enemy = new Actor();
 	enemy->SetName("Ghost");
 	enemy->SetSprite(new Sprite(3));
@@ -44,6 +46,14 @@ void InitializeGame() {
 		std::cout << "Placed " << enemy->GetName() << " succesfully" << "\n";
 	}
 	enemy->SetMapRef(currentMap);
+
+	Prop* exit = new Prop();
+	exit->SetName("Stairs");
+	if (currentMap->PlaceProp(exit, 2, 3)) {
+		std::cout << "Placed " << exit->GetName() << " succesfully" << "\n";
+	}
+	exit->SetMapRef(currentMap);
+
 	gameInitialized = true;
 }
 

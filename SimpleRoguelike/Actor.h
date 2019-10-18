@@ -19,12 +19,13 @@ public:
 	std::string GetName();
 	void SetName(std::string newName);
 	void SetMapRef(class Map* mapRef);
-private:
+protected:
 	Map* currentMapRef = nullptr;
 	int x = 0;
 	int y = 0;
 	std::string name = "";
 	class Sprite* actorSprite = nullptr;
 	bool Move(int x, int y);
+	bool ActOn(int x, int y);
 };
 

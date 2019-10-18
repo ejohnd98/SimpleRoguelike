@@ -20,6 +20,11 @@ public:
 	bool MoveActor(class Actor* actor, int x, int y);
 	bool PlaceActor(class Actor* actor,int x, int y);
 	bool RemoveActor(class Actor* actor);
+
+	bool MoveProp(class Prop* prop, int x, int y);
+	bool PlaceProp(class Prop* prop, int x, int y);
+	bool RemoveProp(class Prop* prop);
+
 	bool ValidPos(int x, int y);
 
 	

@@ -9,13 +9,18 @@ public:
 
 	bool IsOccupied();
 	bool ContainsActor();
+	bool ContainsProp();
 	class Actor* GetActor();
+	class Prop* GetProp();
 	class Sprite* GetSprite();
 	void SetActor(class Actor* a);
+	void SetProp(class Prop* p);
 	void RemoveActor();
+	void RemoveProp();
 private:
 	bool isWall = false;
-	Actor* actor = nullptr;
-	Sprite* cellSprite = nullptr;
+	class Actor* actor = nullptr;
+	class Prop* prop = nullptr;
+	class Sprite* cellSprite = nullptr;
 };
 

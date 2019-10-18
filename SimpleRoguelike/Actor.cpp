@@ -6,6 +6,7 @@
 #include "Commands.h"
 #include "Map.h"
 #include "Sprite.h"
+#include "Prop.h"
 
 
 
@@ -65,9 +66,23 @@ void Actor::SetMapRef(Map* mapRef) {
 //Private:
 bool Actor::Move(int x, int y) {
 	if (currentMapRef->IsOccupied(x, y)) {
-		return false;
+		return ActOn(x, y);
 	}
 	else {
 		return currentMapRef->MoveActor(this, x, y);
 	}
+}
+
+bool Actor::ActOn(int x, int y) {
+	if (currentMapRef->GetCell(x,y)->ContainsActor()) {
+		Actor* actor = currentMapRef->GetCell(x, y)->GetActor();
+		std::cout << name << " acts upon: " << actor->GetName() << "\n";
+		return true;
+	}
+	if (currentMapRef->GetCell(x, y)->ContainsProp()) {
+		Prop* prop = currentMapRef->GetCell(x, y)->GetProp();
+		std::cout << name << " acts upon: " << prop->GetName() << "\n";
+		return true;
+	}
+	return false;
 }

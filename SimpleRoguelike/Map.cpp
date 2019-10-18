@@ -2,6 +2,7 @@
 #include <list>
 #include "Map.h"
 #include "Actor.h"
+#include "Prop.h"
 #include "Cell.h"
 
 
@@ -70,8 +71,8 @@ Map* Map::GetNextMap() {
 	return nullptr;
 }
 
-bool Map::MoveActor(class Actor* actor, int x, int y) {
-	if (cellMap[x][y]->GetActor() == nullptr && ValidPos(x,y)) {
+bool Map::MoveActor(Actor* actor, int x, int y) {
+	if (!cellMap[x][y]->ContainsActor() && ValidPos(x,y)) {
 		cellMap[actor->GetX()][actor->GetY()]->RemoveActor();
 		cellMap[x][y]->SetActor(actor);
 		actor->SetPos(x, y);
@@ -79,8 +80,8 @@ bool Map::MoveActor(class Actor* actor, int x, int y) {
 	}
 	return false;
 }
-bool Map::PlaceActor(class Actor* actor, int x, int y) {
-	if (cellMap[x][y]->GetActor() == nullptr && ValidPos(x, y)) {
+bool Map::PlaceActor(Actor* actor, int x, int y) {
+	if (!cellMap[x][y]->ContainsActor() && ValidPos(x, y)) {
 		cellMap[x][y]->SetActor(actor);
 		actorList.push_back(actor);
 		actor->SetPos(x, y);
@@ -94,6 +95,30 @@ bool Map::RemoveActor(Actor* actor) {
 	delete actor;
 	return true;
 }
+
+bool Map::MoveProp(Prop* prop, int x, int y) {
+	if (!cellMap[x][y]->ContainsProp() && ValidPos(x, y)) {
+		cellMap[prop->GetX()][prop->GetY()]->RemoveProp();
+		cellMap[x][y]->SetProp(prop);
+		prop->SetPos(x, y);
+		return true;
+	}
+	return false;
+}
+bool Map::PlaceProp(Prop* prop, int x, int y) {
+	if (!cellMap[x][y]->ContainsProp() && ValidPos(x, y)) {
+		cellMap[x][y]->SetProp(prop);
+		prop->SetPos(x, y);
+		return true;
+	}
+	return false;
+}
+bool Map::RemoveProp(Prop* prop) {
+	cellMap[prop->GetX()][prop->GetY()]->RemoveProp();
+	delete prop;
+	return true;
+}
+
 
 bool Map::ValidPos(int x, int y) {
 	return (x >= 0 && x < MAP_WIDTH) && (y >= 0 && y < MAP_HEIGHT);

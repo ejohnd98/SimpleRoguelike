@@ -8,6 +8,7 @@
 #include "Map.h"
 #include "Actor.h"
 #include "Sprite.h"
+#include "Prop.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -63,6 +64,14 @@ void RenderMap(Map* map) {
 			if (map->GetCell(x, y)->ContainsActor()) {
 
 				spr = map->GetCell(x, y)->GetActor()->GetSprite();
+				texQuad = *tileTest.GetTileRect(spr->GetIndex());
+
+				renderQuad = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+				SDL_RenderCopy(SDLRenderer, tileTest.GetTexture(), &texQuad, &renderQuad);
+			}
+			if (map->GetCell(x, y)->ContainsProp()) {
+
+				spr = map->GetCell(x, y)->GetProp()->GetSprite();
 				texQuad = *tileTest.GetTileRect(spr->GetIndex());
 
 				renderQuad = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
