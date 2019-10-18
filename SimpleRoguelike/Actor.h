@@ -6,6 +6,7 @@ class Actor
 {
 public:
 	Actor();
+	Actor(std::string n, class Sprite* spr);
 	~Actor();
 
 	void Act();
@@ -26,6 +27,6 @@ protected:
 	std::string name = "";
 	class Sprite* actorSprite = nullptr;
 	bool Move(int x, int y);
-	bool ActOn(int x, int y);
+	bool ActOnOther(int x, int y);
 };
 

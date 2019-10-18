@@ -13,6 +13,11 @@
 Actor::Actor() {
 	actorSprite = new Sprite(2);
 }
+Actor::Actor(std::string n, class Sprite* spr)
+{
+	name = n;
+	actorSprite = spr;
+}
 Actor::~Actor() {
 	delete actorSprite;
 }
@@ -66,14 +71,14 @@ void Actor::SetMapRef(Map* mapRef) {
 //Private:
 bool Actor::Move(int x, int y) {
 	if (currentMapRef->IsOccupied(x, y)) {
-		return ActOn(x, y);
+		return ActOnOther(x, y);
 	}
 	else {
 		return currentMapRef->MoveActor(this, x, y);
 	}
 }
 
-bool Actor::ActOn(int x, int y) {
+bool Actor::ActOnOther(int x, int y) {
 	if (currentMapRef->GetCell(x,y)->ContainsActor()) {
 		Actor* actor = currentMapRef->GetCell(x, y)->GetActor();
 		std::cout << name << " acts upon: " << actor->GetName() << "\n";
@@ -82,6 +87,7 @@ bool Actor::ActOn(int x, int y) {
 	if (currentMapRef->GetCell(x, y)->ContainsProp()) {
 		Prop* prop = currentMapRef->GetCell(x, y)->GetProp();
 		std::cout << name << " acts upon: " << prop->GetName() << "\n";
+		prop->UseProp();
 		return true;
 	}
 	return false;

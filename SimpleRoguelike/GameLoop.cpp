@@ -27,32 +27,35 @@ GameLoop::~GameLoop()
 	TerminateGame();
 }
 
-void InitializeGame() {
+void GameLoop::InitializeGame() {
 	MapGenerator* mapGen = new MapGenerator();
 	currentMap = mapGen->GenerateMap(10,10);
+	currentMap->SetGameLoop(this);
 	delete mapGen;
 	
-	playerActor = new Actor();
-	playerActor->SetName("Hero");
+	playerActor = new Actor("Hero", new Sprite(2));
 	if (currentMap->PlaceActor(playerActor, 5, 5)) {
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
 	}
 	playerActor->SetMapRef(currentMap);
 
-	Actor* enemy = new Actor();
-	enemy->SetName("Ghost");
-	enemy->SetSprite(new Sprite(3));
+	Actor* enemy = new Actor("Ghost", new Sprite(3));
 	if (currentMap->PlaceActor(enemy, 7, 3)) {
 		std::cout << "Placed " << enemy->GetName() << " succesfully" << "\n";
 	}
 	enemy->SetMapRef(currentMap);
 
-	Prop* exit = new Prop();
-	exit->SetName("Stairs");
+	Prop* exit = new Prop("Stairs", new Sprite(6), Command::NEXT_MAP);
 	if (currentMap->PlaceProp(exit, 2, 3)) {
 		std::cout << "Placed " << exit->GetName() << " succesfully" << "\n";
 	}
 	exit->SetMapRef(currentMap);
+
+	Prop* exit2 = new Prop("StairsBack", new Sprite(6), Command::PREV_MAP);
+	if (currentMap->PlaceProp(exit, 7, 8)) {
+		std::cout << "Placed " << exit2->GetName() << " succesfully" << "\n";
+	}
+	exit2->SetMapRef(currentMap);
 
 	gameInitialized = true;
 }
@@ -86,6 +89,11 @@ void GameLoop::AdvanceLoop() {
 
 Map** GameLoop::GetMapPointer() {
 	return &currentMap;
+}
+
+bool GameLoop::ChangeMap(Map* newMap) {
+	std::cout << "Map changed! (not really)\n";
+	return true; 
 }
 
 void GameLoop::GiveInput(Command command) {

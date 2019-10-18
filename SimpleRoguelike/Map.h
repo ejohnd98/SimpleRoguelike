@@ -1,4 +1,5 @@
 #include "Cell.h"
+#include "Commands.h"
 #include <list>
 #pragma once
 class Map
@@ -17,6 +18,8 @@ public:
 	Map* GetPrevMap();
 	Map* GetNextMap();
 
+	void GiveMapCommand(Command command);
+
 	bool MoveActor(class Actor* actor, int x, int y);
 	bool PlaceActor(class Actor* actor,int x, int y);
 	bool RemoveActor(class Actor* actor);
@@ -26,9 +29,10 @@ public:
 	bool RemoveProp(class Prop* prop);
 
 	bool ValidPos(int x, int y);
-
+	void SetGameLoop(class GameLoop* gl);
 	
 private:
+	class GameLoop* gameLoop = nullptr;
 	Cell* cellMap[20][15];
 	Map* previousMap = nullptr;
 	Map* nextMap = nullptr;

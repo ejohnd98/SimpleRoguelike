@@ -1,9 +1,12 @@
 #include <stdio.h>
+#include <iostream>
 #include <list>
+#include <string>
 #include "Map.h"
 #include "Actor.h"
 #include "Prop.h"
 #include "Cell.h"
+#include "GameLoop.h"
 
 
 Map::Map() {
@@ -71,6 +74,19 @@ Map* Map::GetNextMap() {
 	return nullptr;
 }
 
+void Map::GiveMapCommand(Command command) {
+
+	switch (command) {
+		case Command::NEXT_MAP:
+			std::cout << "Map received NEXT_MAP command\n";
+			gameLoop->ChangeMap(GetNextMap());
+		case Command::PREV_MAP:
+			std::cout << "Map received PREV_MAP command\n";
+			gameLoop->ChangeMap(GetPrevMap());
+	}
+}
+
+
 bool Map::MoveActor(Actor* actor, int x, int y) {
 	if (!cellMap[x][y]->ContainsActor() && ValidPos(x,y)) {
 		cellMap[actor->GetX()][actor->GetY()]->RemoveActor();
@@ -122,4 +138,8 @@ bool Map::RemoveProp(Prop* prop) {
 
 bool Map::ValidPos(int x, int y) {
 	return (x >= 0 && x < MAP_WIDTH) && (y >= 0 && y < MAP_HEIGHT);
+}
+
+void Map::SetGameLoop(GameLoop* gl) {
+	gameLoop = gl;
 }
