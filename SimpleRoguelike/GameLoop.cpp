@@ -52,7 +52,7 @@ void GameLoop::InitializeGame() {
 	exit->SetMapRef(currentMap);
 
 	Prop* exit2 = new Prop("StairsBack", new Sprite(6), Command::PREV_MAP);
-	if (currentMap->PlaceProp(exit, 7, 8)) {
+	if (currentMap->PlaceProp(exit2, 7, 8)) {
 		std::cout << "Placed " << exit2->GetName() << " succesfully" << "\n";
 	}
 	exit2->SetMapRef(currentMap);

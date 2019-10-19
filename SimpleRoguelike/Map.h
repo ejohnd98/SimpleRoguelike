@@ -1,5 +1,6 @@
 #include "Cell.h"
 #include "Commands.h"
+#include "Prop.h"
 #include <list>
 #pragma once
 class Map

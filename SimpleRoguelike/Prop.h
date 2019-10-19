@@ -11,4 +11,3 @@ public:
 private:
 	Command propCommand = Command::NONE;
 };
-

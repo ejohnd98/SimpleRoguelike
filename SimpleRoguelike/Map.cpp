@@ -3,10 +3,10 @@
 #include <list>
 #include <string>
 #include "Map.h"
+#include "GameLoop.h"
 #include "Actor.h"
 #include "Prop.h"
 #include "Cell.h"
-#include "GameLoop.h"
 
 
 Map::Map() {
@@ -80,9 +80,14 @@ void Map::GiveMapCommand(Command command) {
 		case Command::NEXT_MAP:
 			std::cout << "Map received NEXT_MAP command\n";
 			gameLoop->ChangeMap(GetNextMap());
+			break;
 		case Command::PREV_MAP:
 			std::cout << "Map received PREV_MAP command\n";
 			gameLoop->ChangeMap(GetPrevMap());
+			break;
+		default:
+			std::cout << "Map recievd some other command\n";
+			break;
 	}
 }
 
