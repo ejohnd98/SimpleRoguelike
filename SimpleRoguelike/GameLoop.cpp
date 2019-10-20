@@ -3,6 +3,7 @@
 #include <list>
 #include "GameLoop.h"
 #include "Actor.h"
+#include "DungeonHolder.h"
 #include "Map.h"
 #include "MapGenerator.h"
 #include "Cell.h"
@@ -11,11 +12,11 @@
 #include "Prop.h"
 
 bool gameInitialized = false;
+DungeonHolder* currentDungeon = nullptr;
 Map* currentMap = nullptr;
 Actor* playerActor = nullptr;
 std::list<Command> pendingCommands = {};
 
-void InitializeGame();
 void TerminateGame();
 
 GameLoop::GameLoop()
@@ -42,6 +43,12 @@ void GameLoop::InitializeGame() {
 	Actor* enemy = new Actor("Ghost", new Sprite(3));
 	if (currentMap->PlaceActor(enemy, 7, 3)) {
 		std::cout << "Placed " << enemy->GetName() << " succesfully" << "\n";
+	}
+	enemy->SetMapRef(currentMap);
+
+	Actor* enemy2 = new Actor("Big Ghost", new Sprite(3));
+	if (currentMap->PlaceActor(enemy2, 9, 3)) {
+		std::cout << "Placed " << enemy2->GetName() << " succesfully" << "\n";
 	}
 	enemy->SetMapRef(currentMap);
 
@@ -87,6 +94,22 @@ void GameLoop::AdvanceLoop() {
 	}
 }
 
+void GameLoop::GiveCommandFromMap(Command command) {
+	switch (command) {
+	case Command::NEXT_MAP:
+		std::cout << "Gameloop received NEXT_MAP command\n";
+		ChangeMap(GetNextMap());
+		break;
+	case Command::PREV_MAP:
+		std::cout << "Gameloop received PREV_MAP command\n";
+		ChangeMap(GetPrevMap());
+		break;
+	default:
+		std::cout << "Gameloop recievd some other command\n";
+		break;
+	}
+}
+
 Map** GameLoop::GetMapPointer() {
 	return &currentMap;
 }
@@ -94,6 +117,13 @@ Map** GameLoop::GetMapPointer() {
 bool GameLoop::ChangeMap(Map* newMap) {
 	std::cout << "Map changed! (not really)\n";
 	return true; 
+}
+
+Map* GameLoop::GetPrevMap() {
+	return nullptr;
+}
+Map* GameLoop::GetNextMap() {
+	return nullptr;
 }
 
 void GameLoop::GiveInput(Command command) {

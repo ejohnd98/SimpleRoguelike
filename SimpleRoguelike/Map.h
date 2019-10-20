@@ -16,8 +16,6 @@ public:
 	bool IsOccupied(int x, int y);
 	int GetHeight();
 	int GetWidth();
-	Map* GetPrevMap();
-	Map* GetNextMap();
 
 	void GiveMapCommand(Command command);
 

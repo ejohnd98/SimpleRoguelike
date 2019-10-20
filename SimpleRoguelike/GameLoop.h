@@ -8,7 +8,10 @@ public:
 	void AdvanceLoop();
 	class Map** GetMapPointer();
 	void GiveInput(Command command);
+	void GiveCommandFromMap(Command command);
 	bool ChangeMap(Map* newMap);
+	class Map* GetPrevMap();
+	class Map* GetNextMap();
 private:
 	void InitializeGame();
 };

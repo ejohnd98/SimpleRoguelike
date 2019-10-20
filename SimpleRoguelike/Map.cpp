@@ -61,34 +61,8 @@ int Map::GetWidth() {
 	return MAP_WIDTH;
 }
 
-Map* Map::GetPrevMap() {
-	if (previousMap != nullptr) {
-		return previousMap;
-	}
-	return nullptr;
-}
-Map* Map::GetNextMap() {
-	if (nextMap != nullptr) {
-		return nextMap;
-	}
-	return nullptr;
-}
-
 void Map::GiveMapCommand(Command command) {
-
-	switch (command) {
-		case Command::NEXT_MAP:
-			std::cout << "Map received NEXT_MAP command\n";
-			gameLoop->ChangeMap(GetNextMap());
-			break;
-		case Command::PREV_MAP:
-			std::cout << "Map received PREV_MAP command\n";
-			gameLoop->ChangeMap(GetPrevMap());
-			break;
-		default:
-			std::cout << "Map recievd some other command\n";
-			break;
-	}
+	gameLoop->GiveCommandFromMap(command);
 }
 
 
