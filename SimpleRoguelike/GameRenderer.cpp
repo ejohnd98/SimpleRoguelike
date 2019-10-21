@@ -61,17 +61,17 @@ void RenderMap(Map* map) {
 			
 			SDL_Rect renderQuad = { x* TILE_SIZE, y* TILE_SIZE, TILE_SIZE, TILE_SIZE };
 			SDL_RenderCopy(SDLRenderer, tileTest.GetTexture(), &texQuad, &renderQuad);
-			if (map->GetCell(x, y)->ContainsActor()) {
+			if (map->GetCell(x, y)->ContainsProp()) {
 
-				spr = map->GetCell(x, y)->GetActor()->GetSprite();
+				spr = map->GetCell(x, y)->GetProp()->GetSprite();
 				texQuad = *tileTest.GetTileRect(spr->GetIndex());
 
 				renderQuad = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
 				SDL_RenderCopy(SDLRenderer, tileTest.GetTexture(), &texQuad, &renderQuad);
 			}
-			if (map->GetCell(x, y)->ContainsProp()) {
+			if (map->GetCell(x, y)->ContainsActor()) {
 
-				spr = map->GetCell(x, y)->GetProp()->GetSprite();
+				spr = map->GetCell(x, y)->GetActor()->GetSprite();
 				texQuad = *tileTest.GetTileRect(spr->GetIndex());
 
 				renderQuad = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };

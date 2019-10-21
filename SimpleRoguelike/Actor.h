@@ -6,7 +6,7 @@ class Actor
 {
 public:
 	Actor();
-	Actor(std::string n, class Sprite* spr);
+	Actor(std::string n, int sprIndex);
 	~Actor();
 
 	void Act();

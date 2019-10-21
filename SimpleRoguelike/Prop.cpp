@@ -13,10 +13,10 @@ Prop::Prop()
 	actorSprite = new Sprite(6);
 }
 
-Prop::Prop(std::string n, class Sprite* spr, Command propFunction)
+Prop::Prop(std::string n, int sprIndex, Command propFunction)
 {
 	name = n;
-	actorSprite = spr;
+	actorSprite = new Sprite(sprIndex);
 	propCommand = propFunction;
 }
 

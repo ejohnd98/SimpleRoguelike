@@ -6,8 +6,9 @@ public:
 	DungeonHolder();
 	~DungeonHolder();
 	class Map* GetMapAtDepth(int depth);
-private:
 	std::vector<Map*> mapList = {};
 	int numOfLevels = 0;
+private:
+	
 };
 

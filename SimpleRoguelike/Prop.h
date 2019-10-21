@@ -4,7 +4,7 @@ class Prop: public Actor
 {
 public:
 	Prop();
-	Prop(std::string n, class Sprite* spr, Command propFunction);
+	Prop(std::string n, int sprIndex, Command propFunction);
 	~Prop();
 	bool UseProp();
 

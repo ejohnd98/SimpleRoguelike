@@ -13,10 +13,10 @@
 Actor::Actor() {
 	actorSprite = new Sprite(2);
 }
-Actor::Actor(std::string n, class Sprite* spr)
+Actor::Actor(std::string n, int sprIndex)
 {
 	name = n;
-	actorSprite = spr;
+	actorSprite = new Sprite(sprIndex);
 }
 Actor::~Actor() {
 	delete actorSprite;

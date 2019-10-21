@@ -8,14 +8,13 @@ DungeonHolder::DungeonHolder()
 {
 }
 
-
 DungeonHolder::~DungeonHolder()
 {
 }
 
 Map* DungeonHolder::GetMapAtDepth(int depth) {
-	if (depth < numOfLevels && depth >= 0) {
-		return mapList[depth];
+	if (depth <= numOfLevels && depth > 0) {
+		return mapList[depth-1];
 	}
 	else {
 		return nullptr;

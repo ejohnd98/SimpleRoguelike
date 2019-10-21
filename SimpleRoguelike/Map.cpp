@@ -80,14 +80,18 @@ bool Map::PlaceActor(Actor* actor, int x, int y) {
 		cellMap[x][y]->SetActor(actor);
 		actorList.push_back(actor);
 		actor->SetPos(x, y);
+		actor->SetMapRef(this);
 		return true;
 	}
 	return false;
 }
-bool Map::RemoveActor(Actor* actor) {
+bool Map::RemoveActor(Actor* actor, bool deallocate) {
 	cellMap[actor->GetX()][actor->GetY()]->RemoveActor();
 	actorList.remove(actor);
-	delete actor;
+	actor->SetMapRef(nullptr);
+	if (deallocate) {
+		delete actor;
+	}
 	return true;
 }
 
@@ -104,12 +108,14 @@ bool Map::PlaceProp(Prop* prop, int x, int y) {
 	if (!cellMap[x][y]->ContainsProp() && ValidPos(x, y)) {
 		cellMap[x][y]->SetProp(prop);
 		prop->SetPos(x, y);
+		prop->SetMapRef(this);
 		return true;
 	}
 	return false;
 }
 bool Map::RemoveProp(Prop* prop) {
 	cellMap[prop->GetX()][prop->GetY()]->RemoveProp();
+	prop->SetMapRef(nullptr);
 	delete prop;
 	return true;
 }

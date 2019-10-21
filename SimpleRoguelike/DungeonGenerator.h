@@ -6,5 +6,7 @@ public:
 	~DungeonGenerator();
 
 	class DungeonHolder* GenerateDungeon(int depth);
+private:
+	class MapGenerator* mapGen = nullptr;
 };
 
