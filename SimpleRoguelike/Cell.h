@@ -3,10 +3,12 @@
 class Cell
 {
 public:
-	Cell();
+	Cell(int xi, int yi);
 	~Cell();
 	void SetupCell(bool wall);
 
+	int GetX();
+	int GetY();
 	bool IsOccupied();
 	bool ContainsActor();
 	bool ContainsProp();
@@ -18,6 +20,8 @@ public:
 	void RemoveActor();
 	void RemoveProp();
 private:
+	int x = -1;
+	int y = -1;
 	bool isWall = false;
 	class Actor* actor = nullptr;
 	class Prop* prop = nullptr;

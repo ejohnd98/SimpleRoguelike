@@ -1,5 +1,4 @@
 #pragma once
-#include "Map.h"
 
 class GameRenderer
 {
@@ -8,6 +7,6 @@ public:
 	~GameRenderer();
 
 	void Render();
-	void SetMap(Map** map);
+	void SetGameLoop(class GameLoop* loop);
 };
 

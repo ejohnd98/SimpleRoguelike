@@ -30,7 +30,7 @@ bool Init()
 
 	gameLoop = new GameLoop();
 	gameRenderer = new GameRenderer();
-	gameRenderer->SetMap(gameLoop->GetMapPointer());
+	gameRenderer->SetGameLoop(gameLoop);
 	if (!success) {
 		printf("Failed to initialize!\n");
 	}

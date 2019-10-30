@@ -9,6 +9,8 @@ public:
 	const int MAP_WIDTH = 20;
 	const int MAP_HEIGHT = 15;
 	std::list<Actor*> actorList = {};
+	Cell* entrance = nullptr;
+	Cell* exit = nullptr;
 
 	Map();
 	~Map();
@@ -33,8 +35,6 @@ public:
 private:
 	class GameLoop* gameLoop = nullptr;
 	Cell* cellMap[20][15];
-	Map* previousMap = nullptr;
-	Map* nextMap = nullptr;
 
 	void InitMap();
 	void FreeMap();

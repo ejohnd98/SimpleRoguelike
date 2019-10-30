@@ -25,7 +25,7 @@ void Map::InitMap() {
 
 	for (int y = 0; y < MAP_HEIGHT; y++) {
 		for (int x = 0; x < MAP_WIDTH; x++) {
-			cellMap[x][y] = new Cell();
+			cellMap[x][y] = new Cell(x,y);
 			bool setWall = false;
 			if (x == 0 || y == 0 || x == MAP_WIDTH-1 || y == MAP_HEIGHT-1) {
 				setWall = true;

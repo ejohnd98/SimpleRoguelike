@@ -1,9 +1,11 @@
 #include <SDL.h>
 #include <SDL_image.h>
+#include <math.h>
 #include <stdio.h>
 #include <iostream>
 
 #include "GameRenderer.h"
+#include "GameLoop.h"
 #include "ETexture.h"
 #include "Map.h"
 #include "Actor.h"
@@ -12,7 +14,7 @@
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
-const int TILE_SIZE = 32;
+const int TILE_SIZE = 64;
 
 //The window we'll be rendering to
 SDL_Window* SDLWindow = nullptr;
@@ -23,12 +25,15 @@ SDL_Renderer* SDLRenderer = nullptr;
 //Tileset texture:
 ETexture tileTest;
 
-Map** mapPntr = nullptr;
+GameLoop* game = nullptr;
+Actor** playerPtr = nullptr;
 
 bool InitRenderer();
 bool LoadMedia();
 void CloseRenderer();
 void RenderMap(Map* map);
+int tileCoordXToScreenCoordX(int x);
+int tileCoordYToScreenCoordY(int y);
 
 GameRenderer::GameRenderer() {
 	InitRenderer();
@@ -39,12 +44,13 @@ GameRenderer::~GameRenderer() {
 }
 
 void GameRenderer::Render() {
-	if (*mapPntr != nullptr) {
-		RenderMap(*mapPntr);
+	if (game->GetCurrentMap() != nullptr) {
+		RenderMap(game->GetCurrentMap());
 	}
 }
-void GameRenderer::SetMap(Map** map) {
-	mapPntr = map;
+void GameRenderer::SetGameLoop(GameLoop* loop) {
+	game = loop;
+	playerPtr = game->GetPlayerPtr();
 }
 
 void RenderMap(Map* map) {
@@ -53,20 +59,38 @@ void RenderMap(Map* map) {
 
 	int height = map->GetHeight();
 	int width = map->GetWidth();
+	int centerX = (*playerPtr)->GetX();
+	int centerY = (*playerPtr)->GetY();
 
-	for (int y = 0;  y < height; y++) {
-		for (int x = 0; x < width; x++) {
+	//width + height of tiles to display:
+	int tilesX = ceil(SCREEN_WIDTH / TILE_SIZE) + 1;
+	int tilesY = ceil(SCREEN_HEIGHT / TILE_SIZE) + 1;
+
+	//range of tiles to render
+	int tileMapX1 = centerX - (tilesX * 0.5);
+	int tileMapX2 = tileMapX1 + tilesX;
+	int tileMapY1 = centerY - (tilesY * 0.5);
+	int tileMapY2 = tileMapY1 + tilesY;
+
+	//offset so tiles are drawn from top left of screen
+
+
+	for (int y = tileMapY1;  y <= tileMapY2; y++) {
+		for (int x = tileMapX1; x <= tileMapX2; x++) {
+			if (!map->ValidPos(x, y)) {
+				continue;
+			}
 			Sprite* spr = map->GetCell(x, y)->GetSprite();
 			SDL_Rect texQuad = *tileTest.GetTileRect(spr->GetIndex());
-			
-			SDL_Rect renderQuad = { x* TILE_SIZE, y* TILE_SIZE, TILE_SIZE, TILE_SIZE };
+			int renderX = tileCoordXToScreenCoordX(x);
+			int renderY = tileCoordYToScreenCoordY(y);
+			SDL_Rect renderQuad = { renderX, renderY, TILE_SIZE, TILE_SIZE };
 			SDL_RenderCopy(SDLRenderer, tileTest.GetTexture(), &texQuad, &renderQuad);
 			if (map->GetCell(x, y)->ContainsProp()) {
 
 				spr = map->GetCell(x, y)->GetProp()->GetSprite();
 				texQuad = *tileTest.GetTileRect(spr->GetIndex());
 
-				renderQuad = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
 				SDL_RenderCopy(SDLRenderer, tileTest.GetTexture(), &texQuad, &renderQuad);
 			}
 			if (map->GetCell(x, y)->ContainsActor()) {
@@ -74,7 +98,6 @@ void RenderMap(Map* map) {
 				spr = map->GetCell(x, y)->GetActor()->GetSprite();
 				texQuad = *tileTest.GetTileRect(spr->GetIndex());
 
-				renderQuad = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
 				SDL_RenderCopy(SDLRenderer, tileTest.GetTexture(), &texQuad, &renderQuad);
 			}
 		}
@@ -82,6 +105,19 @@ void RenderMap(Map* map) {
 
 	//Update screen
 	SDL_RenderPresent(SDLRenderer);
+}
+
+int tileCoordXToScreenCoordX(int x) {
+	int playerX = (*playerPtr)->GetX() * TILE_SIZE;
+	int desiredPlayerRenderPos = (SCREEN_WIDTH * 0.5) - (TILE_SIZE * 0.5);
+	int shiftAmount = desiredPlayerRenderPos - playerX;
+	return (x * TILE_SIZE) + shiftAmount;
+}
+int tileCoordYToScreenCoordY(int y) {
+	int playerY = (*playerPtr)->GetY() * TILE_SIZE;
+	int desiredPlayerRenderPos = (SCREEN_HEIGHT * 0.5) - (TILE_SIZE * 0.5);
+	int shiftAmount = desiredPlayerRenderPos - playerY;
+	return (y * TILE_SIZE) + shiftAmount;
 }
 
 bool InitRenderer() {

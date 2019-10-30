@@ -6,15 +6,25 @@
 //Variables:
 
 //Functions:
-Cell::Cell(){
-	cellSprite = new Sprite(0);
+Cell::Cell(int xi, int yi){
+	cellSprite = new Sprite(1);
+	x = xi;
+	y = yi;
 }
 Cell::~Cell(){}
+
+int Cell::GetX() {
+	return x;
+}
+
+int Cell::GetY() {
+	return y;
+}
 
 void Cell::SetupCell(bool wall) {
 	isWall = wall;
 	if (isWall) {
-		cellSprite->SetIndex(1);
+		cellSprite->SetIndex(3);
 	}
 }
 

@@ -37,7 +37,7 @@ void GameLoop::InitializeGame() {
 	currentMap->SetGameLoop(this);
 	delete dungeonGen;
 	
-	playerActor = new Actor("Hero", 2);
+	playerActor = new Actor("Hero", 32);
 	if (currentMap->PlaceActor(playerActor, 5, 5)) {
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
 	}
@@ -76,12 +76,12 @@ void GameLoop::GiveCommandFromMap(Command command) {
 	switch (command) {
 	case Command::NEXT_MAP:
 		std::cout << "Gameloop received NEXT_MAP command\n";
-		ChangeMap(GetNextMap());
+		ChangeMap(GetNextMap(), true);
 		currentDepth++;
 		break;
 	case Command::PREV_MAP:
 		std::cout << "Gameloop received PREV_MAP command\n";
-		ChangeMap(GetPrevMap());
+		ChangeMap(GetPrevMap(), false);
 		currentDepth--;
 		break;
 	default:
@@ -94,13 +94,32 @@ Map** GameLoop::GetMapPointer() {
 	return &currentMap;
 }
 
-bool GameLoop::ChangeMap(Map* newMap) {
+bool GameLoop::ChangeMap(Map* newMap, bool deeper) {
 	if (newMap == nullptr) {
 		printf("ERROR: ChangeMap called with nullptr");
+		return false;
 	}
+	if (deeper && newMap->entrance == nullptr) {
+		printf("ERROR: Descending to map without entrance");
+		return false;
+	}
+	if (!deeper && newMap->exit == nullptr) {
+		printf("ERROR: Ascending to map without exit");
+		return false;
+	}
+
 	currentMap->RemoveActor(playerActor, false);
 	currentMap = newMap;
-	currentMap->PlaceActor(playerActor, 7, 8);
+	int x, y;
+	if (deeper) {
+		x = currentMap->entrance->GetX()+1;
+		y = currentMap->entrance->GetY();
+	} else {
+		x = currentMap->exit->GetX()-1;
+		y = currentMap->exit->GetY();
+	}
+
+	currentMap->PlaceActor(playerActor, x, y);
 	std::cout << "Map changed!\n";
 	return true; 
 }
@@ -110,6 +129,13 @@ Map* GameLoop::GetPrevMap() {
 }
 Map* GameLoop::GetNextMap() {
 	return currentDungeon->GetMapAtDepth(currentDepth + 1);
+}
+Map* GameLoop::GetCurrentMap() {
+	return currentDungeon->GetMapAtDepth(currentDepth);
+}
+
+Actor** GameLoop::GetPlayerPtr() {
+	return &playerActor;
 }
 
 void GameLoop::GiveInput(Command command) {
