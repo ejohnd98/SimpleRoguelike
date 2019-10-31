@@ -10,6 +10,9 @@ DungeonHolder::DungeonHolder()
 
 DungeonHolder::~DungeonHolder()
 {
+	for (int i = 0; i < numOfLevels; i++) {
+		delete mapList[i];
+	}
 }
 
 Map* DungeonHolder::GetMapAtDepth(int depth) {

@@ -47,7 +47,7 @@ void GameLoop::InitializeGame() {
 
 void TerminateGame() {
 	gameInitialized = false;
-	delete currentMap;
+	delete currentDungeon;
 }
 
 void GameLoop::AdvanceLoop() {
