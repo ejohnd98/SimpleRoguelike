@@ -1,6 +1,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <math.h>
+#include <string>
 #include <stdio.h>
 #include <iostream>
 
@@ -14,7 +15,8 @@
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
-const int TILE_SIZE = 64;
+const int PIXEL_MULT = 2;
+
 
 //The window we'll be rendering to
 SDL_Window* SDLWindow = nullptr;
@@ -23,7 +25,8 @@ SDL_Window* SDLWindow = nullptr;
 SDL_Renderer* SDLRenderer = nullptr;
 
 //Tileset texture:
-ETexture tileTest;
+ETexture tileset;
+ETexture fontTex;
 
 GameLoop* game = nullptr;
 Actor** playerPtr = nullptr;
@@ -32,8 +35,10 @@ bool InitRenderer();
 bool LoadMedia();
 void CloseRenderer();
 void RenderMap(Map* map);
-int tileCoordXToScreenCoordX(int x);
-int tileCoordYToScreenCoordY(int y);
+void RenderTile(int x, int y, int tileIndex, int tileScreenSize);
+int TileCoordXToScreenCoordX(int x);
+int TileCoordYToScreenCoordY(int y);
+void RenderString(std::string str, int x1, int x2, int y1, int y2);
 
 GameRenderer::GameRenderer() {
 	InitRenderer();
@@ -44,9 +49,14 @@ GameRenderer::~GameRenderer() {
 }
 
 void GameRenderer::Render() {
+	SDL_SetRenderDrawColor(SDLRenderer, 31, 14, 28, 0x00);
+	SDL_RenderClear(SDLRenderer);
 	if (game->GetCurrentMap() != nullptr) {
 		RenderMap(game->GetCurrentMap());
+		RenderString("Test Line\nTest Line 2\nTest Line 3\nLine that overflows over the course of two lines hopefully\nAnother line!\nShould not appear", 0, 640, 336, 480);
+		
 	}
+	SDL_RenderPresent(SDLRenderer);
 }
 void GameRenderer::SetGameLoop(GameLoop* loop) {
 	game = loop;
@@ -54,17 +64,16 @@ void GameRenderer::SetGameLoop(GameLoop* loop) {
 }
 
 void RenderMap(Map* map) {
-	SDL_SetRenderDrawColor(SDLRenderer, 31, 14, 28, 0x00);
-	SDL_RenderClear(SDLRenderer);
-
+	
 	int height = map->GetHeight();
 	int width = map->GetWidth();
 	int centerX = (*playerPtr)->GetX();
 	int centerY = (*playerPtr)->GetY();
+	int tileScreenSize = tileset.GetTileWidth() * PIXEL_MULT;
 
 	//width + height of tiles to display:
-	int tilesX = ceil(SCREEN_WIDTH / TILE_SIZE) + 1;
-	int tilesY = ceil(SCREEN_HEIGHT / TILE_SIZE) + 1;
+	int tilesX = ceil(SCREEN_WIDTH / tileScreenSize) + 1;
+	int tilesY = ceil(SCREEN_HEIGHT / tileScreenSize) + 1;
 
 	//range of tiles to render
 	int tileMapX1 = centerX - (tilesX * 0.5);
@@ -78,46 +87,71 @@ void RenderMap(Map* map) {
 	for (int y = tileMapY1;  y <= tileMapY2; y++) {
 		for (int x = tileMapX1; x <= tileMapX2; x++) {
 			if (!map->ValidPos(x, y)) {
+				RenderTile(x, y, 2, tileScreenSize);
 				continue;
 			}
 			Sprite* spr = map->GetCell(x, y)->GetSprite();
-			SDL_Rect texQuad = *tileTest.GetTileRect(spr->GetIndex());
-			int renderX = tileCoordXToScreenCoordX(x);
-			int renderY = tileCoordYToScreenCoordY(y);
-			SDL_Rect renderQuad = { renderX, renderY, TILE_SIZE, TILE_SIZE };
-			SDL_RenderCopy(SDLRenderer, tileTest.GetTexture(), &texQuad, &renderQuad);
+			RenderTile(x, y, spr->GetIndex(), tileScreenSize);
 			if (map->GetCell(x, y)->ContainsProp()) {
-
 				spr = map->GetCell(x, y)->GetProp()->GetSprite();
-				texQuad = *tileTest.GetTileRect(spr->GetIndex());
-
-				SDL_RenderCopy(SDLRenderer, tileTest.GetTexture(), &texQuad, &renderQuad);
+				RenderTile(x, y, spr->GetIndex(), tileScreenSize);
 			}
 			if (map->GetCell(x, y)->ContainsActor()) {
-
 				spr = map->GetCell(x, y)->GetActor()->GetSprite();
-				texQuad = *tileTest.GetTileRect(spr->GetIndex());
-
-				SDL_RenderCopy(SDLRenderer, tileTest.GetTexture(), &texQuad, &renderQuad);
+				RenderTile(x, y, spr->GetIndex(), tileScreenSize);
 			}
 		}
 	}
-
-	//Update screen
-	SDL_RenderPresent(SDLRenderer);
 }
 
-int tileCoordXToScreenCoordX(int x) {
-	int playerX = (*playerPtr)->GetX() * TILE_SIZE;
-	int desiredPlayerRenderPos = (SCREEN_WIDTH * 0.5) - (TILE_SIZE * 0.5);
+int TileCoordXToScreenCoordX(int x) {
+	int tileScreenSize = tileset.GetTileWidth() * PIXEL_MULT;
+	int playerX = (*playerPtr)->GetX() * tileScreenSize;
+	int desiredPlayerRenderPos = (SCREEN_WIDTH * 0.5) - (tileScreenSize * 0.5);
 	int shiftAmount = desiredPlayerRenderPos - playerX;
-	return (x * TILE_SIZE) + shiftAmount;
+	return (x * tileScreenSize) + shiftAmount;
 }
-int tileCoordYToScreenCoordY(int y) {
-	int playerY = (*playerPtr)->GetY() * TILE_SIZE;
-	int desiredPlayerRenderPos = (SCREEN_HEIGHT * 0.5) - (TILE_SIZE * 0.5);
+int TileCoordYToScreenCoordY(int y) {
+	int tileScreenSize = tileset.GetTileHeight() * PIXEL_MULT;
+	int playerY = (*playerPtr)->GetY() * tileScreenSize;
+	int desiredPlayerRenderPos = (SCREEN_HEIGHT * 0.5) - (tileScreenSize * 0.5);
 	int shiftAmount = desiredPlayerRenderPos - playerY;
-	return (y * TILE_SIZE) + shiftAmount;
+	return (y * tileScreenSize) + shiftAmount;
+}
+
+void RenderTile(int x, int y, int tileIndex, int tileScreenSize){
+	SDL_Rect texQuad = *tileset.GetTileRect(tileIndex);
+	int renderX = TileCoordXToScreenCoordX(x);
+	int renderY = TileCoordYToScreenCoordY(y);
+	SDL_Rect renderQuad = { renderX, renderY, tileScreenSize, tileScreenSize };
+	SDL_RenderCopy(SDLRenderer, tileset.GetTexture(), &texQuad, &renderQuad);
+}
+
+void RenderString(std::string str, int x1, int x2, int y1, int y2) {
+	int fontW = fontTex.GetTileWidth() * PIXEL_MULT;
+	int fontH = fontTex.GetTileHeight() * PIXEL_MULT;
+	int currX = x1;
+	int currY = y1;
+	for (std::string::size_type i = 0; i < str.size(); ++i) {
+		int ascii = str[i];
+		if (str[i] == 10) { //newline char
+			currX = x1;
+			currY += fontH;
+			continue;
+		}
+		if (currX + fontW > x2) { //line is full
+			currX = x1;
+			currY += fontH;
+			if (ascii == 0 || ascii == 32 || ascii == 255) {
+				continue;
+			}
+		}
+		//std::cout << "ascii of " << str << " is " << ascii << "\n";
+		SDL_Rect texQuad = *fontTex.GetTileRect(ascii);
+		SDL_Rect renderQuad = { currX, currY, fontW, fontH };
+		SDL_RenderCopy(SDLRenderer, fontTex.GetTexture(), &texQuad, &renderQuad);
+		currX += fontW;
+	}
 }
 
 bool InitRenderer() {
@@ -138,7 +172,7 @@ bool InitRenderer() {
 		}
 
 		//Create window
-		SDLWindow = SDL_CreateWindow("SDL Application", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+		SDLWindow = SDL_CreateWindow("Simple Roguelike :^)", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 		if (SDLWindow == nullptr)
 		{
 			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
@@ -178,8 +212,11 @@ bool LoadMedia(){
 	//Loading success flag
 	bool success = true;
 
-	if (tileTest.LoadFromFile("tileTest.png", SDLRenderer)) {
-		tileTest.SetTileSetInfo(16, 16);
+	if (tileset.LoadFromFile("tileset.png", SDLRenderer)) {
+		tileset.SetTileSetInfo(16, 16);
+	}
+	if (fontTex.LoadFromFile("font.png", SDLRenderer)) {
+		fontTex.SetTileSetInfo(8, 12);
 	}
 	else {
 		success = false;
@@ -198,7 +235,7 @@ void CloseRenderer()
 	SDL_DestroyWindow(SDLWindow);
 	SDLWindow = nullptr;
 	SDLRenderer = nullptr;
-	tileTest.Free();
+	tileset.Free();
 
 	//Quit SDL subsystems
 	IMG_Quit();

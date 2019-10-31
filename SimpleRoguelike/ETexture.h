@@ -22,6 +22,8 @@ public:
 	//Gets image dimensions
 	int GetWidth();
 	int GetHeight();
+	int GetTileWidth();
+	int GetTileHeight();
 	SDL_Texture* GetTexture();
 
 private:

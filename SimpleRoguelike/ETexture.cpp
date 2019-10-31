@@ -94,6 +94,12 @@ int ETexture::GetWidth() {
 int ETexture::GetHeight() {
 	return height;
 }
+int ETexture::GetTileWidth() {
+	return tileW;
+}
+int ETexture::GetTileHeight() {
+	return tileH;
+}
 SDL_Texture* ETexture::GetTexture() {
 	return texture;
 }
