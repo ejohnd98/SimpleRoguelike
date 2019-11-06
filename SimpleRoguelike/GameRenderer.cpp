@@ -13,6 +13,8 @@
 #include "Sprite.h"
 #include "Prop.h"
 
+#include "GameLog.h"
+
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 const int PIXEL_MULT = 2;
@@ -30,6 +32,8 @@ ETexture fontTex;
 
 GameLoop* game = nullptr;
 Actor** playerPtr = nullptr;
+
+//GameLog* GameLog::instancePtr = 0;
 
 bool InitRenderer();
 bool LoadMedia();
@@ -53,7 +57,8 @@ void GameRenderer::Render() {
 	SDL_RenderClear(SDLRenderer);
 	if (game->GetCurrentMap() != nullptr) {
 		RenderMap(game->GetCurrentMap());
-		RenderString("Test Line\nTest Line 2\nTest Line 3\nLine that overflows over the course of two lines hopefully\nAnother line!\nShould not appear", 0, 640, 336, 480);
+		
+		RenderString(GameLog::instance()->get_value(), 0, 640, 336, 480);
 		
 	}
 	SDL_RenderPresent(SDLRenderer);

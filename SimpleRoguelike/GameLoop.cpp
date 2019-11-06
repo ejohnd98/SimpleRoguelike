@@ -12,12 +12,16 @@
 #include "Sprite.h"
 #include "Prop.h"
 
+#include "GameLog.h"
+
 bool gameInitialized = false;
 int currentDepth = 1;
 DungeonHolder* currentDungeon = nullptr;
 Map* currentMap = nullptr;
 Actor* playerActor = nullptr;
 std::list<Command> pendingCommands = {};
+
+GameLog* GameLog::instancePtr = 0;
 
 void TerminateGame();
 
@@ -41,7 +45,7 @@ void GameLoop::InitializeGame() {
 	if (currentMap->PlaceActor(playerActor, 5, 5)) {
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
 	}
-
+	GameLog::instance()->set_value("Has been set");
 	gameInitialized = true;
 }
 
