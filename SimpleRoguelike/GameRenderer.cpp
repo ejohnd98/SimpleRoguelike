@@ -58,7 +58,7 @@ void GameRenderer::Render() {
 	if (game->GetCurrentMap() != nullptr) {
 		RenderMap(game->GetCurrentMap());
 		
-		RenderString(GameLog::instance()->get_value(), 0, 640, 336, 480);
+		RenderString(GameLog::instance()->GetLogs(4), 8, 632, 328, 472);
 		
 	}
 	SDL_RenderPresent(SDLRenderer);
@@ -136,12 +136,12 @@ void RenderString(std::string str, int x1, int x2, int y1, int y2) {
 	int fontW = fontTex.GetTileWidth() * PIXEL_MULT;
 	int fontH = fontTex.GetTileHeight() * PIXEL_MULT;
 	int currX = x1;
-	int currY = y1;
+	int currY = y2 - fontH;
 	for (std::string::size_type i = 0; i < str.size(); ++i) {
 		int ascii = str[i];
 		if (str[i] == 10) { //newline char
 			currX = x1;
-			currY += fontH;
+			currY -= fontH;
 			continue;
 		}
 		if (currX + fontW > x2) { //line is full

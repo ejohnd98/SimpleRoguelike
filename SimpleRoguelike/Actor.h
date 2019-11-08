@@ -20,13 +20,21 @@ public:
 	std::string GetName();
 	void SetName(std::string newName);
 	void SetMapRef(class Map* mapRef);
+
+	//game functions
+	void AttackUpon(int attackPower, Actor* attacker);
+	void DealDamage(int damange);
 protected:
 	Map* currentMapRef = nullptr;
 	int x = 0;
 	int y = 0;
-	std::string name = "";
 	class Sprite* actorSprite = nullptr;
 	bool Move(int x, int y);
 	bool ActOnOther(int x, int y);
+
+	//game parameters
+	std::string name = "";
+	int health = 10;
+	int strength = 3;
 };
 

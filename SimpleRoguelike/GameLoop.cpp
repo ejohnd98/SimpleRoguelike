@@ -89,7 +89,7 @@ void GameLoop::GiveCommandFromMap(Command command) {
 		currentDepth--;
 		break;
 	default:
-		std::cout << "Gameloop recievd some other command\n";
+		std::cout << "Gameloop received some other command\n";
 		break;
 	}
 }

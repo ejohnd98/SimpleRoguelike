@@ -7,7 +7,7 @@
 #include "Map.h"
 #include "Sprite.h"
 #include "Prop.h"
-
+#include "GameLog.h"
 
 
 Actor::Actor() {
@@ -81,14 +81,31 @@ bool Actor::Move(int x, int y) {
 bool Actor::ActOnOther(int x, int y) {
 	if (currentMapRef->GetCell(x,y)->ContainsActor()) {
 		Actor* actor = currentMapRef->GetCell(x, y)->GetActor();
-		std::cout << name << " acts upon: " << actor->GetName() << "\n";
+		//if actor is enemy:
+		int attackPower = strength; //getAttackPower()
+		actor->AttackUpon(attackPower, this);
 		return true;
 	}
 	if (currentMapRef->GetCell(x, y)->ContainsProp()) {
 		Prop* prop = currentMapRef->GetCell(x, y)->GetProp();
 		std::cout << name << " acts upon: " << prop->GetName() << "\n";
+		GameLog::instance()->AddLog(name + " acts upon " + prop->GetName());
 		prop->UseProp();
 		return true;
 	}
 	return false;
+}
+
+void Actor::AttackUpon(int attackPower, Actor* attacker) {
+	int damageToDeal = attackPower; //convert attack power to damage function (armor and stuff)
+	GameLog::instance()->AddLog(attacker->GetName() + " attacks " + name + " for " + std::to_string(damageToDeal) + " damage!");
+	DealDamage(damageToDeal);
+}
+
+void Actor::DealDamage(int damage) {
+	health -= damage;
+	if (health <= 0) {
+		health = 0;
+		GameLog::instance()->AddLog(name + " has died");
+	}
 }
