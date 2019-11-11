@@ -24,6 +24,7 @@ public:
 	//game functions
 	void AttackUpon(int attackPower, Actor* attacker);
 	void DealDamage(int damange);
+	void Kill();
 protected:
 	Map* currentMapRef = nullptr;
 	int x = 0;

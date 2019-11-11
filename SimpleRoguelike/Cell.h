@@ -10,6 +10,7 @@ public:
 	int GetX();
 	int GetY();
 	bool IsOccupied();
+	bool IsWall();
 	bool ContainsActor();
 	bool ContainsProp();
 	class Actor* GetActor();

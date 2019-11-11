@@ -32,6 +32,10 @@ bool Cell::IsOccupied() {
 	return (isWall || ContainsActor() || ContainsProp());
 }
 
+bool Cell::IsWall() {
+	return isWall;
+}
+
 Actor* Cell::GetActor() {
 	return actor;
 }

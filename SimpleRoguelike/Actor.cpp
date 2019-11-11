@@ -106,6 +106,11 @@ void Actor::DealDamage(int damage) {
 	health -= damage;
 	if (health <= 0) {
 		health = 0;
-		GameLog::instance()->AddLog(name + " has died");
+		Kill();
 	}
+}
+
+void Actor::Kill() {
+	GameLog::instance()->AddLog(name + " has died");
+	currentMapRef->RemoveActor(this);
 }

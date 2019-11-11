@@ -54,6 +54,10 @@ bool Map::IsOccupied(int x, int y) {
 	return cellMap[x][y]->IsOccupied();
 }
 
+bool Map::IsWall(int x, int y) {
+	return cellMap[x][y]->IsWall();
+}
+
 int Map::GetHeight() {
 	return MAP_HEIGHT;
 }
