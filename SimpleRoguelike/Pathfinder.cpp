@@ -64,19 +64,9 @@ std::map<int, bool> visited;
 Coord GetLowestCoord();
 int GetHCost(int x, int y);
 void PrintPath();
+Coord GetFirstStep();
 
-Pathfinder::Pathfinder()
-{
-}
-
-
-Pathfinder::~Pathfinder()
-{
-}
-//HAVEN'T HANDLED CASES WHERE PATH CAN'T BE FOUND YET (return null?)
-
-void Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) {
-	//return;
+Pathfinder::Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) {
 	mapW = map->GetWidth();
 	mapH = map->GetHeight();
 	sourceX = sx;
@@ -104,11 +94,13 @@ void Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) {
 	cameFrom[source.oneDimID()] = source;
 	int openCount = 1;
 	Coord curr;
+	bool foundPath = false;
 
 	while (openCount > 0) {
 		curr = GetLowestCoord(); //get Coord in isOpen with lowest fscore
-		std::cout << "Looking at: " << curr.x << ", " << curr.y << "\n";
+		//std::cout << "Looking at: " << curr.x << ", " << curr.y << "\n";
 		if (curr.x == targetX && curr.y == targetY) { //found goal
+			foundPath = true;
 			break;
 		}
 		for (int i = 0; i < 4; i++) { //loop through adjacents
@@ -137,10 +129,14 @@ void Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) {
 		isOpen.erase(curr.oneDimID());
 		openCount--;
 	}
-
-	std::cout << "Found: " << curr.x << ", " << curr.y << "\n";
-	PrintPath();
-
+	//PrintPath();
+	if (foundPath) {
+		Coord r = GetFirstStep();
+		return Coordinate(r.x, r.y);
+	}
+	else {
+		return Coordinate(sourceX, sourceY);
+	}
 }
 
 
@@ -174,4 +170,14 @@ void PrintPath() {
 		curr = cameFrom[curr.oneDimID()];
 		std::cout << "Next Node: " << curr.x << ", " << curr.y << "\n";
 	}
+}
+
+Coord GetFirstStep() {
+	int sourceID = Coord(sourceX, sourceY).oneDimID();
+	Coord target = Coord(targetX, targetY);
+	Coord curr = target;
+	while (cameFrom[curr.oneDimID()].oneDimID() != sourceID) {
+		curr = cameFrom[curr.oneDimID()];
+	}
+	return curr;
 }

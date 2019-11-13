@@ -41,13 +41,13 @@ void GameLoop::InitializeGame() {
 	currentMap = currentDungeon->GetMapAtDepth(1);
 	currentMap->SetGameLoop(this);
 	delete dungeonGen;
-	
+
 	playerActor = new Actor("Hero", 32);
 	if (currentMap->PlaceActor(playerActor, 5, 5)) {
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
 	}
 	GameLog::instance()->set_value("Has been set");
-	Pathfinder::GetPath(2, 2, 15, 10, currentMap);
+	
 	gameInitialized = true;
 }
 
