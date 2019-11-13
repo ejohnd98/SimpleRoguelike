@@ -47,7 +47,7 @@ void GameLoop::InitializeGame() {
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
 	}
 	GameLog::instance()->set_value("Has been set");
-	Pathfinder::GetPath(2, 2, 8, 8, currentMap);
+	Pathfinder::GetPath(2, 2, 15, 10, currentMap);
 	gameInitialized = true;
 }
 

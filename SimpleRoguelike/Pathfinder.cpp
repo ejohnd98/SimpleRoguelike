@@ -7,9 +7,10 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <math.h>
 
-
-
+int mapW;
+int mapH;
 
 struct Coord {
 	int x;
@@ -18,9 +19,19 @@ struct Coord {
 		x = -1;
 		y = -1;
 	}
-	Coord(int x1, int y1) {
-		x = x1;
-		y = y1;
+	Coord(int id) {
+		int tempX = id;
+		int tempY = 0;
+		while (tempX >= mapW) {
+			tempX -= mapW;
+			tempY += 1;
+		}
+		x = tempX;
+		y = tempY;
+	}
+	Coord(int xn, int yn) {
+		x = xn;
+		y = yn;
 	}
 	bool operator==(const Coord &rhs) const {
 		return (x == rhs.x && y == rhs.y);
@@ -28,10 +39,31 @@ struct Coord {
 	bool operator<(const Coord &rhs)  const {
 		return (x < rhs.x && y < rhs.y);
 	}
+	int oneDimID() {
+		int id = x;
+		int tempY = y;
+		while (tempY > 0) {
+			id += mapW;
+			tempY -= 1;
+		}
+		return id;
+	}
 };
 
-Coord GetLowestCoord(std::map<Coord, int>* gScore, std::map<Coord, int>* hScore, std::map<Coord, bool>* isOpen);
-int GetHCost(int x1, int y1, int x2, int y2);
+int sourceX;
+int sourceY;
+int targetX;
+int targetY;
+
+std::map<int, Coord> cameFrom;
+std::map<int, int> gScore;
+std::map<int, int> hScore;
+std::map<int, bool> isOpen;
+std::map<int, bool> visited;
+
+Coord GetLowestCoord();
+int GetHCost(int x, int y);
+void PrintPath();
 
 Pathfinder::Pathfinder()
 {
@@ -41,39 +73,42 @@ Pathfinder::Pathfinder()
 Pathfinder::~Pathfinder()
 {
 }
+//HAVEN'T HANDLED CASES WHERE PATH CAN'T BE FOUND YET (return null?)
 
-//BASICALLY NEED TO STOP USING STRUCT AS A KEY I THINK???
+void Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) {
+	//return;
+	mapW = map->GetWidth();
+	mapH = map->GetHeight();
+	sourceX = sx;
+	sourceY = sy;
+	targetX = tx;
+	targetY = ty;
+	cameFrom.clear();
+	gScore.clear();
+	hScore.clear();
+	isOpen.clear();
+	visited.clear();
 
-void Pathfinder::GetPath(int x1, int y1, int x2, int y2, Map* map) {
-	return;
-	const int w = map->GetWidth();
-	const int h = map->GetHeight();
-	std::map<Coord, Coord> cameFrom;
-	std::map<Coord, int> gScore;
-	std::map<Coord, int> hScore;
-	std::map<Coord, bool> isOpen;
-	std::map<Coord, bool> visited;
-
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
+	for (int y = 0; y < mapH; y++) {
+		for (int x = 0; x < mapW; x++) {
 			Coord curr = Coord(x, y);
-			gScore[curr] = 9999999;
-			hScore[curr] = GetHCost(x, y, x2, y2);
-			visited[curr] = false;
+			gScore[curr.oneDimID()] = 9999999;
+			hScore[curr.oneDimID()] = GetHCost(x, y);
+			visited[curr.oneDimID()] = false;
 		}
 	}
-	Coord source = Coord(x1, y1);
-	gScore[source] = 0;
-	isOpen[source] = true;
-	visited[source] = true;
-	cameFrom[source] = source;
+	Coord source = Coord(sourceX, sourceY);
+	gScore[source.oneDimID()] = 0;
+	isOpen[source.oneDimID()] = true;
+	visited[source.oneDimID()] = true;
+	cameFrom[source.oneDimID()] = source;
 	int openCount = 1;
 	Coord curr;
 
 	while (openCount > 0) {
-		curr = GetLowestCoord(&gScore, &hScore, &isOpen); //get Coord in isOpen with lowest fscore
+		curr = GetLowestCoord(); //get Coord in isOpen with lowest fscore
 		std::cout << "Looking at: " << curr.x << ", " << curr.y << "\n";
-		if (curr.x == x2 && curr.y == y2) { //found goal
+		if (curr.x == targetX && curr.y == targetY) { //found goal
 			break;
 		}
 		for (int i = 0; i < 4; i++) { //loop through adjacents
@@ -89,42 +124,54 @@ void Pathfinder::GetPath(int x1, int y1, int x2, int y2, Map* map) {
 					y -= 1; break;
 			}
 			Coord adj = Coord(x, y); //current adjacent to look at
-			if (visited[adj] == false) { //if not in isOpen DOES NOT WORK. NEED OTHER WAY TO TELL IF IT"S BEEN VISITED YET
-				visited[adj] = true;
+			if (visited[adj.oneDimID()] == false) { //if not in isOpen DOES NOT WORK. NEED OTHER WAY TO TELL IF IT"S BEEN VISITED YET
+				visited[adj.oneDimID()] = true;
 				if (!map->IsWall(x, y)) { //and is not a wall, add to isOpen and calc new gScore
-					gScore[adj] = gScore[curr] + 1;
-					isOpen[adj] = true;
+					gScore[adj.oneDimID()] = gScore[curr.oneDimID()] + 1;
+					isOpen[adj.oneDimID()] = true;
 					openCount++;
-					cameFrom[adj] = curr;
+					cameFrom[adj.oneDimID()] = curr;
 				}
 			}
 		}
-		isOpen.erase(curr);
+		isOpen.erase(curr.oneDimID());
 		openCount--;
 	}
 
 	std::cout << "Found: " << curr.x << ", " << curr.y << "\n";
+	PrintPath();
 
 }
 
 
-int GetHCost(int x1, int y1, int x2, int y2) {
-	return (x2 - x1) + (y2 - y1);
+int GetHCost(int x, int y) {
+	return sqrt((x * x) + (y * y));
+	//return abs(targetX - x) + abs(targetY - y);
 }
 
-Coord GetLowestCoord(std::map<Coord, int>* gScore, std::map<Coord, int>* hScore, std::map<Coord, bool>* isOpen) {
+Coord GetLowestCoord() {
 	Coord currentLow;
 	int currentLowWeight = 99999999;
-	std::map<Coord, bool>::iterator it;
+	std::map<int, bool>::iterator it;
 
-	for (it = (*isOpen).begin(); it != (*isOpen).end(); it++)
+	for (it = isOpen.begin(); it != isOpen.end(); it++)
 	{
-		Coord curr = it->first;
-		int fScore = (*gScore)[curr] + (*hScore)[curr];
+		Coord curr = Coord(it->first);
+		int fScore = gScore[curr.oneDimID()] + hScore[curr.oneDimID()];
 		if (fScore < currentLowWeight) {
 			currentLowWeight = fScore;
 			currentLow = curr;
 		}
 	}
 	return currentLow;
+}
+
+void PrintPath() {
+	int sourceID = Coord(sourceX, sourceY).oneDimID();
+	Coord target = Coord(targetX, targetY);
+	Coord curr = target;
+	while (curr.oneDimID() != sourceID) {
+		curr = cameFrom[curr.oneDimID()];
+		std::cout << "Next Node: " << curr.x << ", " << curr.y << "\n";
+	}
 }

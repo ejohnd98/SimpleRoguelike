@@ -27,7 +27,7 @@ void Map::InitMap() {
 		for (int x = 0; x < MAP_WIDTH; x++) {
 			cellMap[x][y] = new Cell(x,y);
 			bool setWall = false;
-			if (x == 0 || y == 0 || x == MAP_WIDTH-1 || y == MAP_HEIGHT-1) {
+			if (x == 0 || y == 0 || x == MAP_WIDTH-1 || y == MAP_HEIGHT-1 || (x == 7 && y != 12) || (x == 13 && y != 2)) {
 				setWall = true;
 			}
 			cellMap[x][y]->SetupCell(setWall);
@@ -47,15 +47,31 @@ void Map::FreeMap() {
 }
 
 Cell* Map::GetCell(int x, int y) {
-	return cellMap[x][y];
+	if (ValidPos(x, y)) {
+		return cellMap[x][y];
+	}
+	else {
+		return false;
+	}
 }
 
 bool Map::IsOccupied(int x, int y) {
-	return cellMap[x][y]->IsOccupied();
+	if (ValidPos(x, y)) {
+		return cellMap[x][y]->IsOccupied();
+	}
+	else {
+		return false;
+	}
 }
 
 bool Map::IsWall(int x, int y) {
-	return cellMap[x][y]->IsWall();
+	if (ValidPos(x, y)) {
+		return cellMap[x][y]->IsWall();
+	}
+	else {
+		return false;
+	}
+	
 }
 
 int Map::GetHeight() {
