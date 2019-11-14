@@ -57,12 +57,12 @@ int targetY;
 
 std::map<int, Coord> cameFrom;
 std::map<int, int> gScore;
-std::map<int, int> hScore;
+std::map<int, float> hScore;
 std::map<int, bool> isOpen;
 std::map<int, bool> visited;
 
 Coord GetLowestCoord();
-int GetHCost(int x, int y);
+float GetHCost(int x, int y);
 void PrintPath();
 Coord GetFirstStep();
 
@@ -116,7 +116,7 @@ Pathfinder::Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* 
 					y -= 1; break;
 			}
 			Coord adj = Coord(x, y); //current adjacent to look at
-			if (visited[adj.oneDimID()] == false) { //if not in isOpen DOES NOT WORK. NEED OTHER WAY TO TELL IF IT"S BEEN VISITED YET
+			if (visited[adj.oneDimID()] == false) {
 				visited[adj.oneDimID()] = true;
 				if (!map->IsWall(x, y)) { //and is not a wall, add to isOpen and calc new gScore
 					gScore[adj.oneDimID()] = gScore[curr.oneDimID()] + 1;
@@ -129,7 +129,7 @@ Pathfinder::Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* 
 		isOpen.erase(curr.oneDimID());
 		openCount--;
 	}
-	//PrintPath();
+	PrintPath();
 	if (foundPath) {
 		Coord r = GetFirstStep();
 		return Coordinate(r.x, r.y);
@@ -140,20 +140,20 @@ Pathfinder::Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* 
 }
 
 
-int GetHCost(int x, int y) {
+float GetHCost(int x, int y) {
 	return sqrt((x * x) + (y * y));
 	//return abs(targetX - x) + abs(targetY - y);
 }
 
 Coord GetLowestCoord() {
 	Coord currentLow;
-	int currentLowWeight = 99999999;
+	float currentLowWeight = 99999999;
 	std::map<int, bool>::iterator it;
 
 	for (it = isOpen.begin(); it != isOpen.end(); it++)
 	{
 		Coord curr = Coord(it->first);
-		int fScore = gScore[curr.oneDimID()] + hScore[curr.oneDimID()];
+		float fScore = gScore[curr.oneDimID()] + hScore[curr.oneDimID()];
 		if (fScore < currentLowWeight) {
 			currentLowWeight = fScore;
 			currentLow = curr;
