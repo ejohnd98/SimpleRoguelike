@@ -18,8 +18,6 @@ public:
 		return instancePtr;
 	}
 
-	std::string get_value();
-	void set_value(std::string v);
 	void AddLog(std::string v);
 	std::string GetLogs(int num);
 };

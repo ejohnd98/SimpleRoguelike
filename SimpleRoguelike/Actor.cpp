@@ -27,6 +27,13 @@ Actor::~Actor() {
 //Public:
 void Actor::Act() {
 	//std::cout << "Act called on: " << name << "\n";
+
+	//TO-DO:
+	//To get target, get all actors on map within sight distance
+	//Then, perform a raycast (through FOV script) to see if it is on actor's FOV
+	//Finally, cycle through resulting actors (if any) and decide somehow (closest dist to start)
+
+
 	if (true) { //a target is visible
 		Actor* target = DetermineTarget();
 		if (target != nullptr) {
