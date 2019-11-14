@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <math.h>
 
 #include "Actor.h"
 #include "Commands.h"
@@ -8,6 +9,7 @@
 #include "Sprite.h"
 #include "Prop.h"
 #include "GameLog.h"
+#include "Pathfinder.h"
 
 
 Actor::Actor() {
@@ -24,7 +26,15 @@ Actor::~Actor() {
 
 //Public:
 void Actor::Act() {
-	std::cout << "Act called on: " << name << "\n";
+	//std::cout << "Act called on: " << name << "\n";
+	if (true) { //a target is visible
+		Actor* target = DetermineTarget();
+		if (target != nullptr) {
+			Pathfinder::Coordinate coord = Pathfinder::GetPath(x, y, target->GetX(), target->GetY(), currentMapRef);
+			Command command = CoordToMoveCommand(coord.x, coord.y);
+			GiveCommand(command);
+		}
+	}
 	return;
 }
 bool Actor::GiveCommand(Command command ) {
@@ -37,6 +47,8 @@ bool Actor::GiveCommand(Command command ) {
 		return Move(x + 1, y);
 	case Command::MOVE_LEFT:
 		return Move(x - 1, y);
+	case Command::WAIT:
+		return true;
 	}
 	return false;
 }
@@ -63,6 +75,12 @@ std::string Actor::GetName() {
 }
 void Actor::SetName(std::string newName) {
 	name = newName;
+}
+int Actor::GetFaction() {
+	return faction;
+}
+void Actor::SetFaction(int newFaction) {
+	faction = newFaction;
 }
 void Actor::SetMapRef(Map* mapRef) {
 	currentMapRef = mapRef;
@@ -112,5 +130,40 @@ void Actor::DealDamage(int damage) {
 
 void Actor::Kill() {
 	GameLog::instance()->AddLog(name + " has died");
+	if (playerControlled) {
+		currentMapRef->GiveMapCommand(Command::PLAYER_DIED);
+		return;
+	}
 	currentMapRef->RemoveActor(this);
+}
+
+Actor* Actor::DetermineTarget() {
+	std::list<Actor*> visibleActors = currentMapRef->actorList;
+	Actor* target = nullptr;
+	int minDist = 999999;
+	for (Actor* a : visibleActors) {
+		if (a == this || a->faction == faction) {
+			continue;
+		}
+		int dist = abs(a->GetX() - x) + abs(a->GetY() - y);
+		if (dist < minDist && dist <= sight) {
+			minDist = dist;
+			target = a;
+		}
+		return target;
+	}
+}
+
+Command Actor::CoordToMoveCommand(int x2, int y2) {
+	if (x < x2) {
+		return Command::MOVE_RIGHT;
+	}else if (x > x2) {
+		return Command::MOVE_LEFT;
+	}else if (y < y2) {
+		return Command::MOVE_DOWN;
+	}else if (y > y2) {
+		return Command::MOVE_UP;
+	}else {
+		return Command::NONE;
+	}
 }

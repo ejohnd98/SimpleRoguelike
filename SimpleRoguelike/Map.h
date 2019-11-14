@@ -16,7 +16,7 @@ public:
 	~Map();
 	Cell* GetCell(int x, int y); 
 	bool IsOccupied(int x, int y);
-	bool IsWall(int x, int y);
+	bool PathBlocked(int x, int y);
 	int GetHeight();
 	int GetWidth();
 

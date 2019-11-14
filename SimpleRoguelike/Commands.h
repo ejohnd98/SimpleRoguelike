@@ -5,6 +5,8 @@ enum class Command {
 	MOVE_DOWN,
 	MOVE_RIGHT,
 	MOVE_LEFT,
+	WAIT,
 	NEXT_MAP,
-	PREV_MAP
+	PREV_MAP,
+	PLAYER_DIED
 };

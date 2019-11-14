@@ -16,6 +16,7 @@
 #include "GameLog.h"
 
 bool gameInitialized = false;
+bool playerAlive = false;
 int currentDepth = 1;
 DungeonHolder* currentDungeon = nullptr;
 Map* currentMap = nullptr;
@@ -44,10 +45,11 @@ void GameLoop::InitializeGame() {
 
 	playerActor = new Actor("Hero", 32);
 	if (currentMap->PlaceActor(playerActor, 5, 5)) {
+		playerActor->playerControlled = true;
+		playerActor->SetFaction(1);
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
 	}
-	GameLog::instance()->set_value("Has been set");
-	
+	playerAlive = true;
 	gameInitialized = true;
 }
 
@@ -57,7 +59,7 @@ void TerminateGame() {
 }
 
 void GameLoop::AdvanceLoop() {
-	if (gameInitialized) {
+	if (gameInitialized && playerAlive) {
 		if (!pendingCommands.empty()) {
 			Command nextCom = pendingCommands.front();
 			pendingCommands.pop_front();
@@ -89,6 +91,11 @@ void GameLoop::GiveCommandFromMap(Command command) {
 		std::cout << "Gameloop received PREV_MAP command\n";
 		ChangeMap(GetPrevMap(), false);
 		currentDepth--;
+		break;
+	case Command::PLAYER_DIED:
+		std::cout << "Gameloop received PLAYER_DIED command\n";
+		playerAlive = false;
+		playerActor->SetSprite(new Sprite(35));
 		break;
 	default:
 		std::cout << "Gameloop received some other command\n";

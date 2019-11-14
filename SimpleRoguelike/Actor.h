@@ -5,6 +5,7 @@
 class Actor
 {
 public:
+	bool playerControlled = false;
 	Actor();
 	Actor(std::string n, int sprIndex);
 	~Actor();
@@ -19,12 +20,15 @@ public:
 	void SetPos(int x2, int y2);
 	std::string GetName();
 	void SetName(std::string newName);
+	int GetFaction();
+	void SetFaction(int newFaction);
 	void SetMapRef(class Map* mapRef);
 
 	//game functions
 	void AttackUpon(int attackPower, Actor* attacker);
 	void DealDamage(int damange);
 	void Kill();
+	
 protected:
 	Map* currentMapRef = nullptr;
 	int x = 0;
@@ -32,10 +36,14 @@ protected:
 	class Sprite* actorSprite = nullptr;
 	bool Move(int x, int y);
 	bool ActOnOther(int x, int y);
+	Actor* DetermineTarget();
+	Command CoordToMoveCommand(int x2, int y2);
 
 	//game parameters
 	std::string name = "";
 	int health = 10;
 	int strength = 3;
+	int faction = 0;
+	int sight = 5;
 };
 

@@ -54,6 +54,8 @@ Command InputToCommand(SDL_Event* e) {
 			return Command::MOVE_RIGHT;
 		case SDLK_LEFT:
 			return Command::MOVE_LEFT;
+		case SDLK_SPACE:
+			return Command::WAIT;
 	}
 }
 

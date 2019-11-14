@@ -118,7 +118,7 @@ Pathfinder::Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* 
 			Coord adj = Coord(x, y); //current adjacent to look at
 			if (visited[adj.oneDimID()] == false) {
 				visited[adj.oneDimID()] = true;
-				if (!map->IsWall(x, y)) { //and is not a wall, add to isOpen and calc new gScore
+				if (!map->PathBlocked(x, y)) { //and is not a wall, add to isOpen and calc new gScore
 					gScore[adj.oneDimID()] = gScore[curr.oneDimID()] + 1;
 					isOpen[adj.oneDimID()] = true;
 					openCount++;
@@ -140,9 +140,10 @@ Pathfinder::Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* 
 }
 
 
-float GetHCost(int x, int y) {
+float GetHCost(int x1, int y1) {
+	int x = targetX - x1;
+	int y = targetY - y1;
 	return sqrt((x * x) + (y * y));
-	//return abs(targetX - x) + abs(targetY - y);
 }
 
 Coord GetLowestCoord() {

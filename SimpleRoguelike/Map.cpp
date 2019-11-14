@@ -64,9 +64,9 @@ bool Map::IsOccupied(int x, int y) {
 	}
 }
 
-bool Map::IsWall(int x, int y) {
+bool Map::PathBlocked(int x, int y) {
 	if (ValidPos(x, y)) {
-		return cellMap[x][y]->IsWall();
+		return (cellMap[x][y]->IsWall() || cellMap[x][y]->ContainsProp());
 	}
 	else {
 		return false;
@@ -139,7 +139,6 @@ bool Map::RemoveProp(Prop* prop) {
 	delete prop;
 	return true;
 }
-
 
 bool Map::ValidPos(int x, int y) {
 	return (x >= 0 && x < MAP_WIDTH) && (y >= 0 && y < MAP_HEIGHT);
