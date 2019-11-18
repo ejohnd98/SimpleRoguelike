@@ -31,6 +31,8 @@ void Map::InitMap() {
 				setWall = true;
 			}
 			cellMap[x][y]->SetupCell(setWall);
+			isVisible[x][y] = false;
+			isKnown[x][y] = false;
 		}
 	}
 
@@ -64,6 +66,15 @@ bool Map::IsOccupied(int x, int y) {
 	}
 }
 
+bool Map::IsWall(int x, int y) {
+	if (ValidPos(x, y)) {
+		return cellMap[x][y]->IsWall();
+	}
+	else {
+		return false;
+	}
+}
+
 bool Map::PathBlocked(int x, int y) {
 	if (ValidPos(x, y)) {
 		return (cellMap[x][y]->IsWall() || cellMap[x][y]->ContainsProp());
@@ -72,6 +83,36 @@ bool Map::PathBlocked(int x, int y) {
 		return false;
 	}
 	
+}
+
+bool Map::IsVisible(int x, int y) {
+	return isVisible[x][y];
+}
+void Map::SetVisible(int x, int y, bool vis) {
+	isVisible[x][y] = vis;
+}
+
+void Map::SetAllVisible(bool vis) {
+	for (int y = 0; y < MAP_HEIGHT; y++) {
+		for (int x = 0; x < MAP_WIDTH; x++) {
+			isVisible[x][y] = vis;
+		}
+	}
+}
+
+bool Map::IsKnown(int x, int y) {
+	return isKnown[x][y];
+}
+void Map::SetKnown(int x, int y, bool vis) {
+	isKnown[x][y] = vis;
+}
+
+void Map::SetAllKnown(bool vis) {
+	for (int y = 0; y < MAP_HEIGHT; y++) {
+		for (int x = 0; x < MAP_WIDTH; x++) {
+			isKnown[x][y] = vis;
+		}
+	}
 }
 
 int Map::GetHeight() {

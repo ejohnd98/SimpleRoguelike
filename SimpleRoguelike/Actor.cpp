@@ -10,6 +10,7 @@
 #include "Prop.h"
 #include "GameLog.h"
 #include "Pathfinder.h"
+#include "FieldOfView.h"
 
 
 Actor::Actor() {
@@ -32,15 +33,20 @@ void Actor::Act() {
 	//To get target, get all actors on map within sight distance
 	//Then, perform a raycast (through FOV script) to see if it is on actor's FOV
 	//Finally, cycle through resulting actors (if any) and decide somehow (closest dist to start)
-
-
-	if (true) { //a target is visible
-		Actor* target = DetermineTarget();
+	Actor* target = nullptr;
+	switch (state) {
+	case ActorState::IDLE:
+		break;
+	case ActorState::ATTACK:
+		target = DetermineTarget();
 		if (target != nullptr) {
 			Pathfinder::Coordinate coord = Pathfinder::GetPath(x, y, target->GetX(), target->GetY(), currentMapRef);
 			Command command = CoordToMoveCommand(coord.x, coord.y);
 			GiveCommand(command);
 		}
+		break;
+	case ActorState::FLEE:
+		break;
 	}
 	return;
 }
@@ -85,6 +91,12 @@ void Actor::SetName(std::string newName) {
 }
 int Actor::GetFaction() {
 	return faction;
+}
+int Actor::GetSight() {
+	return sight;
+}
+int Actor::GetHealth() {
+	return health;
 }
 void Actor::SetFaction(int newFaction) {
 	faction = newFaction;
@@ -147,9 +159,12 @@ void Actor::Kill() {
 Actor* Actor::DetermineTarget() {
 	std::list<Actor*> visibleActors = currentMapRef->actorList;
 	Actor* target = nullptr;
-	int minDist = 999999;
+	int minDist = sight; //don't target anything past max sight
 	for (Actor* a : visibleActors) {
-		if (a == this || a->faction == faction) {
+		if (a == this || a->faction == faction) { //don't attack allies or self
+			continue;
+		}
+		if (!FieldOfView::CanSeeCell(currentMapRef, this, a->GetX(), a->GetY())) { //only target visible enemies
 			continue;
 		}
 		int dist = abs(a->GetX() - x) + abs(a->GetY() - y);

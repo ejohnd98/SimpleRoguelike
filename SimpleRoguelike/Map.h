@@ -16,7 +16,14 @@ public:
 	~Map();
 	Cell* GetCell(int x, int y); 
 	bool IsOccupied(int x, int y);
+	bool IsWall(int x, int y);
 	bool PathBlocked(int x, int y);
+	bool IsVisible(int x, int y);
+	void SetVisible(int x, int y, bool vis);
+	void SetAllVisible(bool vis);
+	bool IsKnown(int x, int y);
+	void SetKnown(int x, int y, bool vis);
+	void SetAllKnown(bool vis);
 	int GetHeight();
 	int GetWidth();
 
@@ -36,6 +43,8 @@ public:
 private:
 	class GameLoop* gameLoop = nullptr;
 	Cell* cellMap[20][15];
+	bool isVisible[20][15];
+	bool isKnown[20][15];
 
 	void InitMap();
 	void FreeMap();

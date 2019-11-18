@@ -12,6 +12,7 @@
 #include "Sprite.h"
 #include "Prop.h"
 #include "Pathfinder.h"
+#include "FieldOfView.h"
 
 #include "GameLog.h"
 
@@ -50,6 +51,8 @@ void GameLoop::InitializeGame() {
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
 	}
 	playerAlive = true;
+	playerActor->DealDamage(-50);
+	FieldOfView::SetFOV(currentMap, playerActor);
 	gameInitialized = true;
 }
 
@@ -67,16 +70,15 @@ void GameLoop::AdvanceLoop() {
 			if (playerActor != nullptr) {
 				validCommand = playerActor->GiveCommand(nextCom);
 			}
-			if (validCommand) {
+			if (validCommand) { //advance turn
 				for (Actor* a : currentMap->actorList) {
 					if (a != playerActor) {
 						a->Act();
 					}
 				}
+				FieldOfView::SetFOV(currentMap, playerActor);
 			}
-			
 		}
-		//std::cout << "Game loop advanced\n";
 	}
 }
 

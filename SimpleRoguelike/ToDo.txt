@@ -1,0 +1,4 @@
+NEXT: -Have enemies continue on their path even after losing sight of player (which often happens at doorways)
+
+-Delete log messages after each turn?
+-Cache actors last known positions for when cells are not visible, but known.

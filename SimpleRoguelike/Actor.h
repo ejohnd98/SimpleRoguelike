@@ -2,6 +2,12 @@
 #include <string>
 #include "Commands.h"
 
+enum class ActorState {
+	IDLE,
+	ATTACK,
+	FLEE
+};
+
 class Actor
 {
 public:
@@ -21,12 +27,14 @@ public:
 	std::string GetName();
 	void SetName(std::string newName);
 	int GetFaction();
+	int GetSight();
+	int GetHealth();
 	void SetFaction(int newFaction);
 	void SetMapRef(class Map* mapRef);
 
 	//game functions
 	void AttackUpon(int attackPower, Actor* attacker);
-	void DealDamage(int damange);
+	void DealDamage(int damage);
 	void Kill();
 	
 protected:
@@ -38,12 +46,13 @@ protected:
 	bool ActOnOther(int x, int y);
 	Actor* DetermineTarget();
 	Command CoordToMoveCommand(int x2, int y2);
+	ActorState state = ActorState::ATTACK;
 
 	//game parameters
 	std::string name = "";
 	int health = 10;
 	int strength = 3;
 	int faction = 0;
-	int sight = 5;
+	int sight = 7;
 };
 

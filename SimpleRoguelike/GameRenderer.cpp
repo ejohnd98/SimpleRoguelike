@@ -57,7 +57,11 @@ void GameRenderer::Render() {
 	SDL_RenderClear(SDLRenderer);
 	if (game->GetCurrentMap() != nullptr) {
 		RenderMap(game->GetCurrentMap());
-		
+		std::string ui = "Name: ";
+		ui += (*playerPtr)->GetName();
+		ui += " Health: ";
+		ui += std::to_string((*playerPtr)->GetHealth());
+		RenderString(ui, 8, 632, 0, 28);
 		RenderString(GameLog::instance()->GetLogs(4), 8, 632, 328, 472);
 		
 	}
@@ -86,24 +90,28 @@ void RenderMap(Map* map) {
 	int tileMapY1 = centerY - (tilesY * 0.5);
 	int tileMapY2 = tileMapY1 + tilesY;
 
-	//offset so tiles are drawn from top left of screen
-
-
 	for (int y = tileMapY1;  y <= tileMapY2; y++) {
 		for (int x = tileMapX1; x <= tileMapX2; x++) {
-			if (!map->ValidPos(x, y)) {
-				RenderTile(x, y, 2, tileScreenSize);
+			bool visible = map->IsVisible(x, y);
+			bool known = map->IsKnown(x, y);
+
+			if (!map->ValidPos(x, y) || !known) { //if position is invalid or not known by player
+				RenderTile(x, y, 5, tileScreenSize); //render black
 				continue;
 			}
+			//otherwise render contents
 			Sprite* spr = map->GetCell(x, y)->GetSprite();
 			RenderTile(x, y, spr->GetIndex(), tileScreenSize);
 			if (map->GetCell(x, y)->ContainsProp()) {
 				spr = map->GetCell(x, y)->GetProp()->GetSprite();
 				RenderTile(x, y, spr->GetIndex(), tileScreenSize);
 			}
-			if (map->GetCell(x, y)->ContainsActor()) {
+			if (map->GetCell(x, y)->ContainsActor() && visible) { //don't render actor if not visible
 				spr = map->GetCell(x, y)->GetActor()->GetSprite();
 				RenderTile(x, y, spr->GetIndex(), tileScreenSize);
+			}
+			if (!visible && known) { //known position, but not currently visible
+				RenderTile(x, y, 6, tileScreenSize); //render fog of war
 			}
 		}
 	}
