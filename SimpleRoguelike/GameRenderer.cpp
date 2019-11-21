@@ -15,8 +15,8 @@
 
 #include "GameLog.h"
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 1024;
+const int SCREEN_HEIGHT = 768;
 const int PIXEL_MULT = 2;
 
 
@@ -61,8 +61,8 @@ void GameRenderer::Render() {
 		ui += (*playerPtr)->GetName();
 		ui += " Health: ";
 		ui += std::to_string((*playerPtr)->GetHealth());
-		RenderString(ui, 8, 632, 0, 28);
-		RenderString(GameLog::instance()->GetLogs(4), 8, 632, 328, 472);
+		RenderString(ui, 8, SCREEN_WIDTH - 8, 0, 28);
+		RenderString(GameLog::instance()->GetLogs(4), 8, SCREEN_WIDTH-8, SCREEN_HEIGHT-152, SCREEN_HEIGHT-8);
 		
 	}
 	SDL_RenderPresent(SDLRenderer);
