@@ -1,6 +1,3 @@
-#include "Pathfinder.h"
-#include "Map.h"
-#include "Cell.h"
 #include <queue>
 #include <vector>
 #include <map>
@@ -8,6 +5,11 @@
 #include <string>
 #include <iostream>
 #include <math.h>
+
+#include "Pathfinder.h"
+#include "Map.h"
+#include "Cell.h"
+#include "Coordinate.h"
 
 int mapW;
 int mapH;
@@ -66,7 +68,7 @@ float GetHCost(int x, int y);
 void PrintPath();
 Coord GetFirstStep();
 
-Pathfinder::Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) {
+Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) {
 	mapW = map->GetWidth();
 	mapH = map->GetHeight();
 	sourceX = sx;
@@ -129,13 +131,13 @@ Pathfinder::Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* 
 		isOpen.erase(curr.oneDimID());
 		openCount--;
 	}
-	PrintPath();
+	//PrintPath();
 	if (foundPath) {
 		Coord r = GetFirstStep();
 		return Coordinate(r.x, r.y);
 	}
 	else {
-		return Coordinate(sourceX, sourceY);
+		return Coordinate();
 	}
 }
 

@@ -11,6 +11,7 @@
 #include "GameLog.h"
 #include "Pathfinder.h"
 #include "FieldOfView.h"
+#include "Coordinate.h"
 
 
 Actor::Actor() {
@@ -28,22 +29,40 @@ Actor::~Actor() {
 //Public:
 void Actor::Act() {
 	//std::cout << "Act called on: " << name << "\n";
-
-	//TO-DO:
-	//To get target, get all actors on map within sight distance
-	//Then, perform a raycast (through FOV script) to see if it is on actor's FOV
-	//Finally, cycle through resulting actors (if any) and decide somehow (closest dist to start)
+	
 	Actor* target = nullptr;
+	Coordinate targetCoord;
+
 	switch (state) {
 	case ActorState::IDLE:
 		break;
-	case ActorState::ATTACK:
-		target = DetermineTarget();
-		if (target != nullptr) {
-			Pathfinder::Coordinate coord = Pathfinder::GetPath(x, y, target->GetX(), target->GetY(), currentMapRef);
-			Command command = CoordToMoveCommand(coord.x, coord.y);
-			GiveCommand(command);
+	case ActorState::ATTACK: //should put into it's own function at somepoint
+		
+		target = DetermineTarget(); //try and get a visible target
+		
+		if (target != nullptr) { //if succeeded, set targetCoord to it
+			targetCoord = Coordinate(target->GetX(), target->GetY());
+			targetLastPos = targetCoord;
+		}else if(targetLastPos.init){ //otherwise, go to last known target position (if exists)
+			if (!targetLastPos.IsCoord(x, y)) { //check if already at coord
+				targetCoord = targetLastPos;
+			}else{ //if so, no longer want to consider this coord again
+				targetLastPos.init = false;
+			}
+		}else {//couldn't find anything, and no past target, so should start idling (haven't done transitions yet)
+			std::cout << "Couldn't find a target, and no past targets\n";
 		}
+
+		if (targetCoord.init) { //if target has been set, start pathing towards it
+			Coordinate coord = Pathfinder::GetPath(x, y, targetCoord.x, targetCoord.y, currentMapRef);
+			if (coord.init) {
+				Command command = CoordToMoveCommand(coord.x, coord.y);
+				GiveCommand(command);
+			}else {
+				targetLastPos.init = false; //current target is inaccessible, so discard last known pos (maybe too stupid, but good for now)
+			}
+		}
+		std::cout << "Last known coord: " << targetLastPos.x << ", " << targetLastPos.y << "\n";
 		break;
 	case ActorState::FLEE:
 		break;

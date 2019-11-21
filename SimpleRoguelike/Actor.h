@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "Commands.h"
+#include "Coordinate.h"
 
 enum class ActorState {
 	IDLE,
@@ -47,6 +48,7 @@ protected:
 	Actor* DetermineTarget();
 	Command CoordToMoveCommand(int x2, int y2);
 	ActorState state = ActorState::ATTACK;
+	Coordinate targetLastPos;
 
 	//game parameters
 	std::string name = "";

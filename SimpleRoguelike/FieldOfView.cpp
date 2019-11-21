@@ -49,12 +49,12 @@ bool FieldOfView::InSight(int x1, int y1, int x2, int y2, int sight) {
 	float ox = x1 +0.5f;
 	float oy = y1 + 0.5f;
 	for (int i = 0; i <= magnitude+1; i++) {
-		std::cout << "Looking: " << ox << ", " << oy << "\n";
+		//std::cout << "Looking: " << ox << ", " << oy << "\n";
 		if (map->IsWall((int)ox, (int)oy)) {
 			return false;
 		}
 		if ((int)ox == x2 && (int)oy == y2) {
-			std::cout << "Found\n";
+			//std::cout << "Found\n";
 			return true;
 		}
 		ox += dx;
