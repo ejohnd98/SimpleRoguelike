@@ -29,7 +29,7 @@ void SendRay(float x, float y){
 	float ox, oy;
 	ox = (float)playerX + 0.5f;
 	oy = (float)playerY + 0.5f;
-	for (int i = 0; i < sightDist + 1; i++){
+	for (int i = 0; i <= sightDist + 1; i++){
 		if (!map->ValidPos((int)ox, (int)oy)) {
 			return;
 		}
@@ -49,19 +49,23 @@ bool FieldOfView::InSight(int x1, int y1, int x2, int y2, int sight) {
 	float magnitude = abs(dx) + abs(dy);
 	dx = dx/magnitude; //normalize
 	dy = dy/magnitude;
-	float ox = x1 +0.5f;
-	float oy = y1 + 0.5f;
+	float ox1 = x1 + 0.5f + dx * 0.25f;
+	float oy1 = y1 + 0.5f + dy * 0.25f;
+	float ox2 = x1 + 0.5f - dx * 0.25f;
+	float oy2 = y1 + 0.5f - dy * 0.25f;
 	for (int i = 0; i <= magnitude+1; i++) {
 		//std::cout << "Looking: " << ox << ", " << oy << "\n";
-		if (map->IsWall((int)ox, (int)oy)) {
+		if (map->IsWall((int)ox1, (int)oy1) && map->IsWall((int)ox2, (int)oy2)) {
 			return false;
 		}
-		if ((int)ox == x2 && (int)oy == y2) {
+		if ((int)ox1 == x2 && (int)oy1 == y2 || (int)ox2 == x2 && (int)oy2 == y2) {
 			//std::cout << "Found\n";
 			return true;
 		}
-		ox += dx;
-		oy += dy;
+		ox1 += dx;
+		oy1 += dy;
+		ox2 += dx;
+		oy2 += dy;
 	}
 	return false;
 }

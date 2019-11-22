@@ -50,7 +50,8 @@ void Actor::Act() {
 				targetLastPos.init = false;
 			}
 		}else {//couldn't find anything, and no past target, so should start idling (haven't done transitions yet)
-			std::cout << "Couldn't find a target, and no past targets\n";
+			//std::cout << "Couldn't find a target, and no past targets\n";
+			targetLastPos.init = false;
 		}
 
 		if (targetCoord.init) { //if target has been set, start pathing towards it
@@ -62,7 +63,7 @@ void Actor::Act() {
 				targetLastPos.init = false; //current target is inaccessible, so discard last known pos (maybe too stupid, but good for now)
 			}
 		}
-		std::cout << "Last known coord: " << targetLastPos.x << ", " << targetLastPos.y << "\n";
+		//std::cout << "Last known coord: " << targetLastPos.x << ", " << targetLastPos.y << "\n";
 		break;
 	case ActorState::FLEE:
 		break;
@@ -178,10 +179,10 @@ void Actor::Kill() {
 }
 
 Actor* Actor::DetermineTarget() {
-	std::list<Actor*> visibleActors = currentMapRef->actorList;
+	std::list<Actor*> allActors = currentMapRef->actorList;
 	Actor* target = nullptr;
-	int minDist = sight; //don't target anything past max sight
-	for (Actor* a : visibleActors) {
+	int minDist = sight*2; //don't target anything past max sight
+	for (Actor* a : allActors) {
 		if (a == this || a->faction == faction) { //don't attack allies or self
 			continue;
 		}
@@ -193,8 +194,8 @@ Actor* Actor::DetermineTarget() {
 			minDist = dist;
 			target = a;
 		}
-		return target;
 	}
+	return target;
 }
 
 Command Actor::CoordToMoveCommand(int x2, int y2) {

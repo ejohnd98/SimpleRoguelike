@@ -88,6 +88,8 @@ int main(int argc, char* args[])
 
 			if (currentTime >= nextGameUpdateTime) {
 				nextGameUpdateTime += MS_PER_UPDATE;
+				int diff = ((int)nextGameUpdateTime) - ((int)currentTime);
+				std::cout << "Advancing loop at: " << currentTime << " Next: " << nextGameUpdateTime << " Diff: " << diff << "\n";
 				gameLoop->AdvanceLoop();
 			}
 			if (currentTime >= nextRenderTime) {

@@ -7,7 +7,14 @@ Map* MapGenerator::GenerateMap() {
 	int height = map->GetHeight();
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			map->GetCell(x, y)->SetupCell(false);
+			
+			if (x == 5 && y % 2 == 0) {
+				map->GetCell(x, y)->SetupCell(true);
+			}
+			else {
+				map->GetCell(x, y)->SetupCell(false);
+			}
+			
 		}
 	}
 	//map->SetAllKnown(true); //for debugging map gen

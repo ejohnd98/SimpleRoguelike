@@ -52,6 +52,11 @@ void GameLoop::InitializeGame() {
 		playerActor->SetFaction(1);
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
 	}
+	Actor* skeleton = new Actor("Skeleton", 34);
+	if (currentMap->PlaceActor(skeleton, 5, 7)) {
+		skeleton->SetFaction(0);
+		std::cout << "Placed " << skeleton->GetName() << "succesfully" << "\n";
+	}
 	playerAlive = true;
 	playerActor->DealDamage(-50);
 

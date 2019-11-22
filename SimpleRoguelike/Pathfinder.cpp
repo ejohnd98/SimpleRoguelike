@@ -145,7 +145,7 @@ Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) {
 float GetHCost(int x1, int y1) {
 	int x = targetX - x1;
 	int y = targetY - y1;
-	return sqrt((x * x) + (y * y));
+	return 1.5*sqrt((x * x) + (y * y));
 }
 
 Coord GetLowestCoord() {
