@@ -6,8 +6,8 @@
 class Map
 {
 public:
-	const int MAP_WIDTH = 20;
-	const int MAP_HEIGHT = 15;
+	const int MAP_WIDTH = 60;
+	const int MAP_HEIGHT = 40;
 	std::list<Actor*> actorList = {};
 	Cell* entrance = nullptr;
 	Cell* exit = nullptr;
@@ -42,9 +42,9 @@ public:
 	
 private:
 	class GameLoop* gameLoop = nullptr;
-	Cell* cellMap[20][15];
-	bool isVisible[20][15];
-	bool isKnown[20][15];
+	Cell* cellMap[60][40];
+	bool isVisible[60][40];
+	bool isKnown[60][40];
 
 	void InitMap();
 	void FreeMap();

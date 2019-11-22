@@ -135,19 +135,21 @@ bool Actor::Move(int x, int y) {
 }
 
 bool Actor::ActOnOther(int x, int y) {
-	if (currentMapRef->GetCell(x,y)->ContainsActor()) {
-		Actor* actor = currentMapRef->GetCell(x, y)->GetActor();
-		//if actor is enemy:
-		int attackPower = strength; //getAttackPower()
-		actor->AttackUpon(attackPower, this);
-		return true;
-	}
-	if (currentMapRef->GetCell(x, y)->ContainsProp()) {
-		Prop* prop = currentMapRef->GetCell(x, y)->GetProp();
-		std::cout << name << " acts upon: " << prop->GetName() << "\n";
-		GameLog::instance()->AddLog(name + " acts upon " + prop->GetName());
-		prop->UseProp();
-		return true;
+	if (currentMapRef->ValidPos(x, y)) {
+		if (currentMapRef->GetCell(x, y)->ContainsActor()) {
+			Actor* actor = currentMapRef->GetCell(x, y)->GetActor();
+			//if actor is enemy:
+			int attackPower = strength; //getAttackPower()
+			actor->AttackUpon(attackPower, this);
+			return true;
+		}
+		if (currentMapRef->GetCell(x, y)->ContainsProp()) {
+			Prop* prop = currentMapRef->GetCell(x, y)->GetProp();
+			std::cout << name << " acts upon: " << prop->GetName() << "\n";
+			GameLog::instance()->AddLog(name + " acts upon " + prop->GetName());
+			prop->UseProp();
+			return true;
+		}
 	}
 	return false;
 }

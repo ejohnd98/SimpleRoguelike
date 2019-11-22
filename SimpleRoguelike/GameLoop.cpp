@@ -38,21 +38,25 @@ GameLoop::~GameLoop()
 }
 
 void GameLoop::InitializeGame() {
-	DungeonGenerator* dungeonGen = new DungeonGenerator();
-	currentDungeon = dungeonGen->GenerateDungeon(4);
-	currentMap = currentDungeon->GetMapAtDepth(1);
-	currentMap->SetGameLoop(this);
-	delete dungeonGen;
+	
+	DungeonGenerator* dungeonGen = new DungeonGenerator(); //create dungeon generator
+	currentDungeon = dungeonGen->GenerateDungeon(4); //get a new dungeon
+	currentMap = currentDungeon->GetMapAtDepth(1); //get first map in dungeon to use
+	currentMap->SetGameLoop(this); //give map a reference to this gameloop
+	delete dungeonGen; //deallocate dungeon generator
 
+	//place player character (hardcoded for now)
 	playerActor = new Actor("Hero", 32);
-	if (currentMap->PlaceActor(playerActor, 5, 5)) {
+	if (currentMap->PlaceActor(playerActor, currentMap->GetWidth()/2, currentMap->GetHeight() / 2)) {
 		playerActor->playerControlled = true;
 		playerActor->SetFaction(1);
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
 	}
 	playerAlive = true;
 	playerActor->DealDamage(-50);
-	FieldOfView::SetFOV(currentMap, playerActor);
+
+	FieldOfView::SetFOV(currentMap, playerActor); //calculate initial fov
+	GameLog::instance()->AddLog("You delve into the dungeon!");
 	gameInitialized = true;
 }
 

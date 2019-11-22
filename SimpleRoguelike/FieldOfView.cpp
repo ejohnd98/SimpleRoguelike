@@ -30,6 +30,9 @@ void SendRay(float x, float y){
 	ox = (float)playerX + 0.5f;
 	oy = (float)playerY + 0.5f;
 	for (int i = 0; i < sightDist + 1; i++){
+		if (!map->ValidPos((int)ox, (int)oy)) {
+			return;
+		}
 		map->SetVisible((int)ox, (int)oy, true);
 		map->SetKnown((int)ox, (int)oy, true);
 		if (map->IsWall((int)ox, (int)oy)) {

@@ -2,6 +2,6 @@
 class MapGenerator
 {
 public:
-	class Map* GenerateMap(int width, int height);
+	class Map* GenerateMap();
 };
 

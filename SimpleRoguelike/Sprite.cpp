@@ -2,7 +2,9 @@
 
 #include "Sprite.h"
 
-
+Sprite::Sprite() {
+	index = 0;
+}
 Sprite::Sprite(int i) {
 	index = i;
 }

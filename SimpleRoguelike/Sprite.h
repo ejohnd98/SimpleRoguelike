@@ -2,6 +2,7 @@
 class Sprite
 {
 public:
+	Sprite();
 	Sprite(int i);
 	~Sprite();
 	int GetIndex();

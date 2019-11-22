@@ -7,7 +7,7 @@
 
 //Functions:
 Cell::Cell(int xi, int yi){
-	cellSprite = new Sprite(1);
+	cellSprite = new Sprite(0);
 	x = xi;
 	y = yi;
 }
@@ -25,6 +25,9 @@ void Cell::SetupCell(bool wall) {
 	isWall = wall;
 	if (isWall) {
 		cellSprite->SetIndex(3);
+	}
+	else {
+		cellSprite->SetIndex(1);
 	}
 }
 
