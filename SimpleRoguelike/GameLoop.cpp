@@ -27,6 +27,7 @@ std::list<Command> pendingCommands = {};
 GameLog* GameLog::instancePtr = 0;
 
 void TerminateGame();
+void TestMap();
 
 GameLoop::GameLoop()
 {
@@ -44,18 +45,13 @@ void GameLoop::InitializeGame() {
 	currentMap = currentDungeon->GetMapAtDepth(1); //get first map in dungeon to use
 	currentMap->SetGameLoop(this); //give map a reference to this gameloop
 	delete dungeonGen; //deallocate dungeon generator
-
+	TestMap();
 	//place player character (hardcoded for now)
 	playerActor = new Actor("Hero", 32);
-	if (currentMap->PlaceActor(playerActor, currentMap->GetWidth()/2, currentMap->GetHeight() / 2)) {
+	if (currentMap->PlaceActor(playerActor, 1, 1)) {
 		playerActor->playerControlled = true;
 		playerActor->SetFaction(1);
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
-	}
-	Actor* skeleton = new Actor("Skeleton", 34);
-	if (currentMap->PlaceActor(skeleton, 5, 7)) {
-		skeleton->SetFaction(0);
-		std::cout << "Placed " << skeleton->GetName() << "succesfully" << "\n";
 	}
 	playerAlive = true;
 	playerActor->DealDamage(-50);
@@ -70,9 +66,29 @@ void TerminateGame() {
 	delete currentDungeon;
 }
 
+void TestMap() {
+	//std::string mapLayout = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                X          XX                     XXXXX XXXXXXXXXXXXXX    X        X XX                X    X   X XX  X             X  XXXXX X XX  X XXXXXXXXXX  X  X     X XXX  X  X XXXXXX   X  X  X X  XX  X  X      X      X  X X  XX  X  X     XX   XXXX  X X  XX  X  X  XXXX    X  X    X  XX  X  X       XXXX  XXXXXX  XX  X  X XXXXXXX             XX  X  X          XXXX XXXXXXXX                   X       XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+	std::string mapLayout = "XXXXXXXXXXX  X     XXX   XXX XX XXX    XX     XX XX  XXX   XX XXX  XXXX X XX   XX X    X XXXXXXXXXXX";
+	int n = mapLayout.length();
+	int w = 10;
+	int h = 10;
+	for (int i = 0; i < n; i++) {
+		int x = (i % w);
+		int y = (i / w);
+		if (mapLayout[i] == 'X') {
+			currentMap->GetCell(x, y)->SetupCell(true);
+		}
+		else {
+			currentMap->GetCell(x, y)->SetupCell(false);
+		}
+	}
+	currentMap->SetAllKnown(true);
+}
+
 void GameLoop::AdvanceLoop() {
 	if (gameInitialized && playerAlive) {
 		if (!pendingCommands.empty()) {
+			Coordinate test = Pathfinder::GetPath(playerActor->GetX(), playerActor->GetY(), 3, 8, currentMap);
 			Command nextCom = pendingCommands.front();
 			pendingCommands.pop_front();
 			bool validCommand = false;

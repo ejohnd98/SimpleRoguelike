@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <math.h>
+#include <SDL.h>
 
 #include "Pathfinder.h"
 #include "Map.h"
@@ -68,7 +69,15 @@ float GetHCost(int x, int y);
 void PrintPath();
 Coord GetFirstStep();
 
+//optimizations:
+//start: 21-22 ticks
+//
+
 Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) {
+	//debug
+	int start = SDL_GetTicks();
+	int iterations = 0;
+
 	mapW = map->GetWidth();
 	mapH = map->GetHeight();
 	sourceX = sx;
@@ -99,6 +108,7 @@ Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) {
 	bool foundPath = false;
 
 	while (openCount > 0) {
+		iterations++;
 		curr = GetLowestCoord(); //get Coord in isOpen with lowest fscore
 		//std::cout << "Looking at: " << curr.x << ", " << curr.y << "\n";
 		if (curr.x == targetX && curr.y == targetY) { //found goal
@@ -132,6 +142,8 @@ Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) {
 		openCount--;
 	}
 	//PrintPath();
+	int end = SDL_GetTicks();
+	std::cout << "Pathfinding ticks: " << (end-start) << " loops: " << iterations << "\n";
 	if (foundPath) {
 		Coord r = GetFirstStep();
 		return Coordinate(r.x, r.y);

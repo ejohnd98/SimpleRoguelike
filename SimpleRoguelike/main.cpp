@@ -10,7 +10,7 @@
 
 //Screen constants
 const int SCREEN_FPS = 60;
-const int UPDATES_PER_SECOND = 15;
+const int UPDATES_PER_SECOND = 60;
 const int MS_PER_FRAME = 1000 / SCREEN_FPS;
 const int MS_PER_UPDATE = 1000 / UPDATES_PER_SECOND;
 
@@ -89,7 +89,7 @@ int main(int argc, char* args[])
 			if (currentTime >= nextGameUpdateTime) {
 				nextGameUpdateTime += MS_PER_UPDATE;
 				int diff = ((int)nextGameUpdateTime) - ((int)currentTime);
-				std::cout << "Advancing loop at: " << currentTime << " Next: " << nextGameUpdateTime << " Diff: " << diff << "\n";
+				//std::cout << "Advancing loop at: " << currentTime << " Next: " << nextGameUpdateTime << " Diff: " << diff << "\n";
 				gameLoop->AdvanceLoop();
 			}
 			if (currentTime >= nextRenderTime) {

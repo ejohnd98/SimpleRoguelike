@@ -55,6 +55,6 @@ protected:
 	int health = 10;
 	int strength = 3;
 	int faction = 0;
-	int sight = 8;
+	int sight = 15;
 };
 
