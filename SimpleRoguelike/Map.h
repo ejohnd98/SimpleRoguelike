@@ -6,8 +6,9 @@
 class Map
 {
 public:
-	const int MAP_WIDTH = 60;
-	const int MAP_HEIGHT = 40;
+	const static int MAP_WIDTH = 60;
+	const static int MAP_HEIGHT = 40;
+	const static int MAP_CELLS = MAP_WIDTH * MAP_HEIGHT;
 	std::list<Actor*> actorList = {};
 	Cell* entrance = nullptr;
 	Cell* exit = nullptr;
@@ -24,8 +25,9 @@ public:
 	bool IsKnown(int x, int y);
 	void SetKnown(int x, int y, bool vis);
 	void SetAllKnown(bool vis);
-	int GetHeight();
-	int GetWidth();
+	const int GetHeight();
+	const int GetWidth();
+	const int GetNumOfCells();
 
 	void GiveMapCommand(Command command);
 

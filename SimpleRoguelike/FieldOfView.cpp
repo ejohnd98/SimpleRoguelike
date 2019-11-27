@@ -47,13 +47,13 @@ bool FieldOfView::InSight(int x1, int y1, int x2, int y2, int sight) {
 	float dx = (x2 - x1);
 	float dy = (y2 - y1);
 	float magnitude = abs(dx) + abs(dy);
-	dx = dx/magnitude; //normalize
+ 	dx = dx/magnitude; //normalize
 	dy = dy/magnitude;
-	float ox1 = x1 + 0.5f + dx * 0.25f;
-	float oy1 = y1 + 0.5f + dy * 0.25f;
-	float ox2 = x1 + 0.5f - dx * 0.25f;
-	float oy2 = y1 + 0.5f - dy * 0.25f;
-	for (int i = 0; i <= magnitude+1; i++) {
+	float ox1 = x1 + 0.5f + (dx * 0.15f);
+	float oy1 = y1 + 0.5f + (dy * 0.15f);
+	float ox2 = x1 + 0.5f - (dx * 0.15f);
+	float oy2 = y1 + 0.5f - (dy * 0.15f);
+	for (int i = 0; i <= magnitude*4; i++) {
 		//std::cout << "Looking: " << ox << ", " << oy << "\n";
 		if (map->IsWall((int)ox1, (int)oy1) && map->IsWall((int)ox2, (int)oy2)) {
 			return false;

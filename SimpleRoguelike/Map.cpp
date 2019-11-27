@@ -128,11 +128,14 @@ void Map::SetAllKnown(bool vis) {
 	}
 }
 
-int Map::GetHeight() {
+const int Map::GetHeight() {
 	return MAP_HEIGHT;
 }
-int Map::GetWidth() {
+const int Map::GetWidth() {
 	return MAP_WIDTH;
+}
+const int Map::GetNumOfCells() {
+	return (MAP_WIDTH * MAP_HEIGHT);
 }
 
 void Map::GiveMapCommand(Command command) {
