@@ -18,9 +18,9 @@ void FieldOfView::SetFOV(Map* m, Actor* p) { //sets the visible and known cells 
 	sightDist = p->GetSight();
 	map->SetAllVisible(false); //reset visiblity
 	float ox, oy; //offset values (will be added to player position incrementally to check visibility)
-	for (int a = 0; a < 360; a++) {//send 360 rays in 360 degrees
-		ox = cos(0.1f * (float)a);
-		oy = sin(0.1f * (float)a);
+	for (float a = 0; a < 360; a+=0.5f) {//sends 720 rays in 360 degrees (0.5 degrees each loop)
+		ox = cos(0.05f * a);
+		oy = sin(0.05f * a);
 		SendRay(ox, oy);
 	}
 }
