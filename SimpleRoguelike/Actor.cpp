@@ -28,15 +28,13 @@ Actor::~Actor() {
 
 //Public:
 void Actor::Act() {
-	//std::cout << "Act called on: " << name << "\n";
-	
 	Actor* target = nullptr;
 	Coordinate targetCoord;
 
 	switch (state) {
 	case ActorState::IDLE:
 		break;
-	case ActorState::ATTACK: //should put into it's own function at somepoint
+	case ActorState::ATTACK: //should put into its own function at somepoint
 		
 		target = DetermineTarget(); //try and get a visible target
 		
@@ -54,7 +52,7 @@ void Actor::Act() {
 			targetLastPos.init = false;
 		}
 
-		if (targetCoord.init) { //if target has been set, start pathing towards it
+		if (targetCoord.init) { //if target has been set, start pathing towards it with given coordinate
 			Coordinate coord = Pathfinder::GetPath(x, y, targetCoord.x, targetCoord.y, currentMapRef);
 			if (coord.init) {
 				Command command = CoordToMoveCommand(coord.x, coord.y);

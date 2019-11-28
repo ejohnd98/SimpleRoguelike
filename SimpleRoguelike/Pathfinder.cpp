@@ -15,9 +15,6 @@ using namespace std;
 
 typedef pair<float, int> p;
 
-//optimizations:
-//start: 21-22 ticks
-//
 Map* m;
 int w;
 int h;
@@ -25,6 +22,11 @@ int n;
 int targx, targy;
 int sourceID;
 int targetID;
+
+//keep outside getpath to avoid repeated declarations (got warning about using too much of the stack within function)
+bool visited[Map::MAP_CELLS];
+int dist[Map::MAP_CELLS];
+int cameFrom[Map::MAP_CELLS];
 
 float GetHeuristic(int id) { //get distance from id cell to target (simple trig)
 	int dx = targx - (id % w);
@@ -38,91 +40,73 @@ bool ValidCell(int id) { //checks if cell is in map, and not blocked
 	return (m->ValidPos(x, y) && !m->PathBlocked(x, y));
 }
 
-Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) {
-	int start = SDL_GetTicks();
-	int iterations = 0;
-
+Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) { //given two coordinates and a map, constructs path between them if possible
 	m = map;
 	w = map->GetWidth();
 	h = map->GetHeight();
 	n = w * h;
 	targx = tx;
 	targy = ty;
+	//all coordinates are represented by single integers (index if the map's 2d cell array were to be treated as a 1d array)
 	sourceID = (sy * w) + sx;
 	targetID = (ty * w) + tx;
 
-	priority_queue<p, vector<p>, greater<p> > pq;
-	bool visited[Map::MAP_CELLS];
-	int dist[Map::MAP_CELLS];
-	int cameFrom[Map::MAP_CELLS];
+	priority_queue<p, vector<p>, greater<p> > pq; //will be added to as cells are discovered
 
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++) { //set initial values for arrays
 		dist[i] = 999999;
 		visited[i] = false;
 		cameFrom[i] = i;
 	}
 
-	pq.push(make_pair(0, sourceID));
+	pq.push(make_pair(0, sourceID)); //add source cell to priority queue
 	dist[sourceID] = 0;
 	visited[sourceID] = true;
 
 	int currID;
 	bool pathFound = false;
-	while (!pq.empty()) {
-		iterations++;
-		//get lowest cost cell from pq:
-		pair<float, int> curr = pq.top();
-		currID = curr.second;
-		//cout << "looking at: " << currID % w << ", " << (int)(currID / w) << " with cost: " << curr.first << "\n";
-		pq.pop();
+	while (!pq.empty()) { //while cells exist in priority queue
+		pair<float, int> curr = pq.top(); //get highest priority cell (lowest cost in pq)
+		currID = curr.second; //get id from pair
+		pq.pop(); //remove pair from pq
 
-		if (currID == targetID) {
+		if (currID == targetID) { //found target, so exit loop
 			pathFound = true;
 			break;
 		}
 
-		for (int i = 0; i < 4; i++) { //loop through adjacents
+		for (int i = 0; i < 4; i++) { //loop through adjacent cells
 			int adjID = currID;
 			switch (i) {
 			case 0:
-				adjID += 1; break;
+				adjID += 1; break; //x++
 			case 1:
-				adjID -= 1; break;
+				adjID -= 1; break; //x--
 			case 2:
-				adjID += w; break;
+				adjID += w; break; //y++
 			case 3:
-				adjID -= w; break;
+				adjID -= w; break; //y--
 			}
 			if (ValidCell(adjID)) { //check if cell is valid/not blocked
-				float newCost = dist[currID] + 1 + GetHeuristic(adjID); //distance + heuristic
 				if (!visited[adjID] || dist[currID] + 1 < dist[adjID]) { //if not yet visited or shorter path reached
-					cameFrom[adjID] = currID;
-					dist[adjID] = dist[currID] + 1;
+					float newCost = dist[currID] + 1 + GetHeuristic(adjID); //calculate new cost to use for pq
+					cameFrom[adjID] = currID; //set cell's parent
+					dist[adjID] = dist[currID] + 1; //cost will be one more than curr/parent
 					pq.push(make_pair(newCost, adjID)); //add to priority queue
-					visited[adjID] = true; //have now visited
+					visited[adjID] = true; //set as visited
 				}
 			}
 		}
 	}
 
-	if (pathFound) {
-		//reconstruct path:
+	if (pathFound) {//reconstruct path if found:
 		currID = targetID;
-		while (cameFrom[currID] != sourceID) { //go until 
+		while (cameFrom[currID] != sourceID) { //follow cameFrom array from target back to once step before source
 			currID = cameFrom[currID];
 		}
-
-		cout << "Found from " << sx << ", " << sy << " to " << tx << ", " << ty << " with cost: " << dist[targetID] << "\n";
-		int end = SDL_GetTicks();
-		std::cout << "Took: " << (end - start) << " ms and " << iterations << " loops\n";
-
-		return Coordinate(currID % w, currID / w);
+		return Coordinate(currID % w, currID / w); //returns the first step in the path from source to target
 	}
-	else {
-		cout << "Not found from " << sx << ", " << sy << " to " << tx << ", " << ty << "\n";
-		int end = SDL_GetTicks();
-		std::cout << "Took: " << (end - start) << " ms and " << iterations << " loops\n";
-
-		return Coordinate(sx, sy);
+	else { //otherwise return an uninitialized coordinate
+		return Coordinate();
 	}
 }

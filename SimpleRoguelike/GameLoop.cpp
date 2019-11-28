@@ -48,7 +48,7 @@ void GameLoop::InitializeGame() {
 	TestMap();
 	//place player character (hardcoded for now)
 	playerActor = new Actor("Hero", 32);
-	if (currentMap->PlaceActor(playerActor, 1, 1)) {
+	if (currentMap->PlaceActor(playerActor, 5, 6)) {
 		playerActor->playerControlled = true;
 		playerActor->SetFaction(1);
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
@@ -83,12 +83,12 @@ void TestMap() {
 		}
 	}
 	Actor* skel = new Actor("Skeleton", 34);
-	if (currentMap->PlaceActor(skel, 5, 6)) {
+	if (currentMap->PlaceActor(skel, 1, 1)) {
 		skel->SetFaction(0);
 		std::cout << "Placed " << skel->GetName() << " succesfully" << "\n";
 	}
-	currentMap->SetAllKnown(true);
-	currentMap->SetAllVisible(true);
+	//currentMap->SetAllKnown(true);
+	//currentMap->SetAllVisible(true);
 }
 
 void GameLoop::AdvanceLoop() {
@@ -108,7 +108,7 @@ void GameLoop::AdvanceLoop() {
 					}
 				}
 				FieldOfView::SetFOV(currentMap, playerActor);
-				currentMap->SetAllVisible(true);
+				//currentMap->SetAllVisible(true);
 			}
 		}
 	}
