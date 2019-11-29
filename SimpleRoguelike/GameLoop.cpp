@@ -67,11 +67,11 @@ void TerminateGame() {
 }
 
 void TestMap() {
-	//std::string mapLayout = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                X          XX                     XXXXX XXXXXXXXXXXXXX    X        X XX                X    X   X XX  X             X  XXXXX X XX  X XXXXXXXXXX  X  X     X XXX  X  X XXXXXX   X  X  X X  XX  X  X      X      X  X X  XX  X  X     XX   XXXX  X X  XX  X  X  XXXX    X  X    X  XX  X  X       XXXX  XXXXXX  XX  X  X XXXXXXX             XX  X  X          XXXX XXXXXXXX                   X       XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
-	std::string mapLayout = "XXXXXXXXXXX        XX XXXXXXXXX        XX     X  XX    X   XX   X    XXXXX     XX        XXXXXXXXXXX";
+	std::string mapLayout = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                            XX                      X     XX                      X     XX                      X     XXXXXXXXXXXXXXXXXXXXXXXXX XXXXXX      X       X             XX      X       X             XX      X       X             XXXX XXXX       X             XX                            XXXXXX XXXXXXXXXXXXXXXXXXXXXXXXX         X    X             XX         X         XXXX     XXX XXXXXXXX            XXXXX XX              X             XXXXXXXXXXXXXXXXXXXXXXXX XXXXXXX             X              XX                 X          XX             X              XX     X       X              XX    X X          X          XX   X   X     X              XX                            XX    X        X             XXXXXXX  X                  X  XX     XX      X         X   XXX    XX                      XX    X        X         X  X XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+	//std::string mapLayout = "XXXXXXXXXXXXXXXXXXXXX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XXXXXXXXXXXXXXXXXXXXX";
 	int n = mapLayout.length();
-	int w = 10;
-	int h = 10;
+	int w = 30;
+	int h = 30;
 	for (int i = 0; i < n; i++) {
 		int x = (i % w);
 		int y = (i / w);
