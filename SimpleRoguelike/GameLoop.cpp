@@ -45,10 +45,10 @@ void GameLoop::InitializeGame() {
 	currentMap = currentDungeon->GetMapAtDepth(1); //get first map in dungeon to use
 	currentMap->SetGameLoop(this); //give map a reference to this gameloop
 	delete dungeonGen; //deallocate dungeon generator
-	TestMap();
+	//TestMap();
 	//place player character (hardcoded for now)
 	playerActor = new Actor("Hero", 32);
-	if (currentMap->PlaceActor(playerActor, 5, 6)) {
+	if (currentMap->PlaceActor(playerActor, currentMap->GetWidth()/2, currentMap->GetHeight() / 2)) {
 		playerActor->playerControlled = true;
 		playerActor->SetFaction(1);
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";

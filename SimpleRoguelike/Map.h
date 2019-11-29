@@ -9,11 +9,12 @@ public:
 	const static int MAP_WIDTH = 60;
 	const static int MAP_HEIGHT = 40;
 	const static int MAP_CELLS = MAP_WIDTH * MAP_HEIGHT;
+
 	std::list<Actor*> actorList = {};
 	Cell* entrance = nullptr;
 	Cell* exit = nullptr;
 
-	Map();
+	Map(int w, int h);
 	~Map();
 	Cell* GetCell(int x, int y); 
 	bool IsOccupied(int x, int y);
@@ -25,9 +26,10 @@ public:
 	bool IsKnown(int x, int y);
 	void SetKnown(int x, int y, bool vis);
 	void SetAllKnown(bool vis);
-	const int GetHeight();
-	const int GetWidth();
-	const int GetNumOfCells();
+	int GetHeight();
+	int GetWidth();
+	void SetSize(int w, int h);
+	int GetNumOfCells();
 
 	void GiveMapCommand(Command command);
 
@@ -43,10 +45,12 @@ public:
 	void SetGameLoop(class GameLoop* gl);
 	
 private:
+	int width;
+	int height;
 	class GameLoop* gameLoop = nullptr;
-	Cell* cellMap[60][40];
-	bool isVisible[60][40];
-	bool isKnown[60][40];
+	Cell* cellMap[MAP_WIDTH][MAP_HEIGHT];
+	bool isVisible[MAP_WIDTH][MAP_HEIGHT];
+	bool isKnown[MAP_WIDTH][MAP_HEIGHT];
 
 	void InitMap();
 	void FreeMap();

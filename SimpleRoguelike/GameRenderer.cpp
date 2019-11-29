@@ -17,7 +17,7 @@
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
-const int PIXEL_MULT = 2;
+const int PIXEL_MULT = 1;
 
 
 //The window we'll be rendering to

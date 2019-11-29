@@ -8,8 +8,8 @@
 #include "Prop.h"
 #include "Cell.h"
 
-
-Map::Map() {
+Map::Map(int w, int h) {
+	SetSize(w, h);
 	InitMap();
 }
 
@@ -23,8 +23,8 @@ Map::~Map() {
 
 void Map::InitMap() {
 
-	for (int y = 0; y < MAP_HEIGHT; y++) {
-		for (int x = 0; x < MAP_WIDTH; x++) {
+	for (int y = 0; y < width; y++) {
+		for (int x = 0; x < height; x++) {
 			cellMap[x][y] = new Cell(x,y);
 			isVisible[x][y] = false;
 			isKnown[x][y] = false;
@@ -99,8 +99,8 @@ void Map::SetVisible(int x, int y, bool vis) {
 }
 
 void Map::SetAllVisible(bool vis) {
-	for (int y = 0; y < MAP_HEIGHT; y++) {
-		for (int x = 0; x < MAP_WIDTH; x++) {
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
 			isVisible[x][y] = vis;
 		}
 	}
@@ -121,21 +121,25 @@ void Map::SetKnown(int x, int y, bool vis) {
 }
 
 void Map::SetAllKnown(bool vis) {
-	for (int y = 0; y < MAP_HEIGHT; y++) {
-		for (int x = 0; x < MAP_WIDTH; x++) {
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
 			isKnown[x][y] = vis;
 		}
 	}
 }
 
-const int Map::GetHeight() {
-	return MAP_HEIGHT;
+int Map::GetHeight() {
+	return height;
 }
-const int Map::GetWidth() {
-	return MAP_WIDTH;
+int Map::GetWidth() {
+	return width;
 }
-const int Map::GetNumOfCells() {
-	return (MAP_WIDTH * MAP_HEIGHT);
+void Map::SetSize(int w, int h) {
+	width = w;
+	height = h;
+}
+int Map::GetNumOfCells() {
+	return (width * height);
 }
 
 void Map::GiveMapCommand(Command command) {
@@ -198,7 +202,7 @@ bool Map::RemoveProp(Prop* prop) {
 }
 
 bool Map::ValidPos(int x, int y) {
-	return (x >= 0 && x < MAP_WIDTH) && (y >= 0 && y < MAP_HEIGHT);
+	return (x >= 0 && x < width) && (y >= 0 && y < height);
 }
 
 void Map::SetGameLoop(GameLoop* gl) {

@@ -22,13 +22,13 @@ DungeonGenerator::~DungeonGenerator()
 
 
 DungeonHolder* DungeonGenerator::GenerateDungeon(int depth) {
-
 	DungeonHolder* dungeon = new DungeonHolder();
 	dungeon->numOfLevels = depth;
 	dungeon->mapList.resize(depth, nullptr);
 
 	for (int d = 0; d < depth; d++) { //generate starting from first level
-		dungeon->mapList[d] = mapGen->GenerateMap();
+		dungeon->mapList[d] = mapGen->GenerateMap(30,30);
+
 		/*hardcode for now:
 		if (d != depth - 1) {
 			Prop* exit = new Prop("Exit", 17, Command::NEXT_MAP);
