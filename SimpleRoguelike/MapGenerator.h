@@ -2,6 +2,7 @@
 class MapGenerator
 {
 public:
-	class Map* GenerateMap(int w, int h);
+	class Map* GenerateNewMap(int w, int h);
+	void GenerateMap(class Map* map, int w, int h);
 };
 

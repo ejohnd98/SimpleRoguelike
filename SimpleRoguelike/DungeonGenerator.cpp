@@ -27,7 +27,7 @@ DungeonHolder* DungeonGenerator::GenerateDungeon(int depth) {
 	dungeon->mapList.resize(depth, nullptr);
 
 	for (int d = 0; d < depth; d++) { //generate starting from first level
-		dungeon->mapList[d] = mapGen->GenerateMap(30,30);
+		dungeon->mapList[d] = mapGen->GenerateNewMap(30,30);
 
 		/*hardcode for now:
 		if (d != depth - 1) {

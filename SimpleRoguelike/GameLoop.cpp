@@ -94,6 +94,12 @@ void TestMap() {
 void GameLoop::AdvanceLoop() {
 	if (gameInitialized && playerAlive) {
 		if (!pendingCommands.empty()) {
+
+			//map debugging
+			MapGenerator* mapGen = new MapGenerator();
+			mapGen->GenerateMap(currentMap, currentMap->GetWidth(), currentMap->GetHeight());
+			delete mapGen;
+
 			//Coordinate test = Pathfinder::GetPath(playerActor->GetX(), playerActor->GetY(), 3, 8, currentMap);
 			Command nextCom = pendingCommands.front();
 			pendingCommands.pop_front();
@@ -108,7 +114,10 @@ void GameLoop::AdvanceLoop() {
 					}
 				}
 				FieldOfView::SetFOV(currentMap, playerActor);
-				//currentMap->SetAllVisible(true);
+
+				//debug stuff
+				//currentMap->SetAllVisible(true); //keep map visible
+
 			}
 		}
 	}

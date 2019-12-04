@@ -16,7 +16,7 @@ int RandomNumber::GetRandomInt(int a, int b) { //inclusive
 	std::uniform_real_distribution<> dis(a, b+1);
 	int rand = (int)dis(gen);
 
-	std::cout << rand <<"\n";
+	//std::cout << rand <<"\n";
 	return rand;
 }
 
