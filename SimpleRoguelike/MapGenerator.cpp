@@ -7,8 +7,23 @@
 int genArr[Map::MAP_WIDTH][Map::MAP_HEIGHT];
 int mapW, mapH;
 
+class RoomInfo {
+public:
+	int x1, x2, y1, y2;
+	int id;
+	bool carved = false;
+	int Width() {
+		return y2 - y1;
+	}
+	int Height() {
+		return y2 - y1;
+	}
+};
+
 void GenerateRoomsDungeon();
-bool CarveRoom();
+RoomInfo CarveRoom();
+
+
 
 Map* MapGenerator::GenerateNewMap(int w, int h) {
 	mapW = w;
@@ -49,8 +64,9 @@ void GenerateRoomsDungeon() {
 	int numOfRooms = 8;
 	int roomsCarved = 0;
 	int tries = 0;
-	while (roomsCarved < numOfRooms && tries < 99) {
-		if (CarveRoom()) {
+	while (roomsCarved < numOfRooms && tries < 10) {
+		RoomInfo rm = CarveRoom();
+		if (rm.carved){
 			roomsCarved++;
 		}
 		tries++;
@@ -65,29 +81,51 @@ void GenerateRoomsDungeon() {
 	}
 
 }
-bool CarveRoom() {
-	int roomW = RandomNumber::GetRandomInt(5, 10);
-	int roomH = RandomNumber::GetRandomInt(5, 10);
-	int x1 = RandomNumber::GetRandomInt(1, mapW - roomW - 1);
-	int y1 = RandomNumber::GetRandomInt(1, mapH - roomH - 1);
-	int x2 = x1 + roomW - 1;
-	int y2 = y1 + roomH - 1;
+RoomInfo CarveRoom() {
+	int attempts = 0;
+	bool canCarve = false;
+	int roomW, roomH, x1, x2, y1, y2;
 
-	for (int y = y1-1; y <= y2+1; y++) { //wan't to avoid placing rooms right against eachother
-		for (int x = x1-1; x <= x2+1; x++) {
-			if (genArr[x][y] != -1) {
-				return false; //cannot carve this room
+	while (attempts < 10 && !canCarve) { //try 100 times to get a room to carve
+		canCarve = true;
+		roomW = RandomNumber::GetRandomInt(5, 10);
+		roomH = RandomNumber::GetRandomInt(5, 10);
+		x1 = RandomNumber::GetRandomInt(1, mapW - roomW - 1);
+		y1 = RandomNumber::GetRandomInt(1, mapH - roomH - 1);
+		x2 = x1 + roomW - 1;
+		y2 = y1 + roomH - 1;
+		for (int y = y1 - 1; y <= y2 + 1 && canCarve; y++) { //want to avoid placing rooms right against eachother
+			for (int x = x1 - 1; x <= x2 + 1 && canCarve; x++) {
+				if (genArr[x][y] != -1) {
+					canCarve = false;
+				}
 			}
 		}
+		attempts++;
+		
 	}
-	for (int y = y1; y <= y2; y++) {
-		for (int x = x1; x <= x2; x++) {
-			if (x == x1 || y == y1 || x == x2 || y == y2){
-				genArr[x][y] = 1;
-			}else{
-				genArr[x][y] = 0;
+	RoomInfo newRoom;
+	if (canCarve) {
+		for (int y = y1; y <= y2; y++) {
+			for (int x = x1; x <= x2; x++) {
+				if (x == x1 || y == y1 || x == x2 || y == y2) {
+					genArr[x][y] = 1;
+				}
+				else {
+					genArr[x][y] = 0;
+				}
 			}
 		}
+		
+		newRoom.x1 = x1;
+		newRoom.x2 = x2;
+		newRoom.y1 = y1;
+		newRoom.y2 = y2;
+		newRoom.carved = true;
+		return newRoom;
 	}
-	return true;
+	else {
+		return newRoom;
+	}
+	
 }
