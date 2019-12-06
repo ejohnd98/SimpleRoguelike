@@ -41,7 +41,7 @@ GameLoop::~GameLoop()
 void GameLoop::InitializeGame() {
 	
 	DungeonGenerator* dungeonGen = new DungeonGenerator(); //create dungeon generator
-	currentDungeon = dungeonGen->GenerateDungeon(4); //get a new dungeon
+	currentDungeon = dungeonGen->GenerateDungeon(1); //get a new dungeon
 	currentMap = currentDungeon->GetMapAtDepth(1); //get first map in dungeon to use
 	currentMap->SetGameLoop(this); //give map a reference to this gameloop
 	delete dungeonGen; //deallocate dungeon generator
@@ -96,9 +96,11 @@ void GameLoop::AdvanceLoop() {
 		if (!pendingCommands.empty()) {
 
 			//map debugging
-			MapGenerator* mapGen = new MapGenerator();
-			mapGen->GenerateMap(currentMap, currentMap->GetWidth(), currentMap->GetHeight());
-			delete mapGen;
+			if (pendingCommands.front() == Command::WAIT) {
+				MapGenerator* mapGen = new MapGenerator();
+				mapGen->GenerateMap(currentMap, currentMap->GetWidth(), currentMap->GetHeight());
+				delete mapGen;
+			}
 
 			//Coordinate test = Pathfinder::GetPath(playerActor->GetX(), playerActor->GetY(), 3, 8, currentMap);
 			Command nextCom = pendingCommands.front();
@@ -116,7 +118,8 @@ void GameLoop::AdvanceLoop() {
 				FieldOfView::SetFOV(currentMap, playerActor);
 
 				//debug stuff
-				//currentMap->SetAllVisible(true); //keep map visible
+				currentMap->SetAllKnown(true); //keep map visible
+				currentMap->SetAllVisible(true); //keep map visible
 
 			}
 		}

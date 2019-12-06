@@ -4,4 +4,7 @@
 -Limit getting input somehow (if held down, only get every game logic advance time)
 -Change renderer to use tile coordinates to render instead of pixels (will be easier to do UI)
 
--Player can see through diagonal holes in walls (IMPORTANT)
+-Make Map generation less hardcoded
+-Figure out good way to populate dungeon (use RoomInfo vector, as well as a floodfill to place exit and entrance + player)
+-Create door props
+-Change props blocking pathfinding and sight to be parameters for each prop (doors will be props, and need to change themselves when open)
