@@ -179,6 +179,7 @@ bool GameLoop::ChangeMap(Map* newMap, bool deeper) {
 	}
 
 	currentMap->PlaceActor(playerActor, x, y);
+	currentMap->SetGameLoop(this);
 	std::cout << "Map changed!\n";
 	return true; 
 }
