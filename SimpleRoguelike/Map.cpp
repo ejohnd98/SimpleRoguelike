@@ -142,6 +142,33 @@ int Map::GetNumOfCells() {
 	return (width * height);
 }
 
+Coordinate Map::GetPosAroundStairs(bool entering) {
+	int x, y;
+	if (entering) { //going deeper into dungeon
+		x = entrance->GetX();
+		y = entrance->GetY();
+	}
+	else { //returning to previous level
+		x = exit->GetX();
+		y = exit->GetY();
+	}
+	if (!PathBlocked(x + 1, y)) {
+		return Coordinate(x + 1, y);
+
+	}else if (!PathBlocked(x - 1, y)) {
+		return Coordinate(x - 1, y);
+
+	}else if (!PathBlocked(x, y + 1)) {
+		return Coordinate(x, y + 1);
+
+	}else if (!PathBlocked(x, y - 1)) {
+		return Coordinate(x, y - 1);
+	}
+	else {
+		return Coordinate(x, y);
+	}
+}
+
 void Map::GiveMapCommand(Command command) {
 	gameLoop->GiveCommandFromMap(command);
 }

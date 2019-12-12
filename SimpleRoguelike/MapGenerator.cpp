@@ -3,6 +3,8 @@
 
 #include "MapGenerator.h"
 #include "Coordinate.h"
+#include "Pathfinder.h"
+#include "Prop.h"
 #include "Map.h"
 #include "RandomNumber.h"
 
@@ -87,8 +89,6 @@ void MapGenerator::GenerateMap(Map* map, int w, int h) { //quite hardcoded at th
 			map->GetCell(x, y)->SetupCell(setWall);
 		}
 	}
-
-	map->SetAllKnown(true); //for debugging map gen
 }
 
 void GenerateRoomsDungeon(int roomCount) {
@@ -240,6 +240,81 @@ RoomInfo CarveRoom() {
 		return newRoom;
 	}
 	
+}
+
+void MapGenerator::PopulateDungeon(int floor, int numOfFloors, Map* map) { //places stairs between levels
+	bool placeEntrance = (floor != 0);
+	bool placeExit = (floor != numOfFloors - 1);
+
+	//choose corner to place entrance in:
+	bool startLeft = RandomNumber::GetRandomBool(0.5);
+	bool startTop = RandomNumber::GetRandomBool(0.5);
+	int entranceX, entranceY, xSearchDir, ySearchDir = 0;
+	if (startLeft) {
+		xSearchDir = 1;
+		entranceX = 0;
+	}
+	else {
+		xSearchDir = -1;
+		entranceX = mapW-1;
+	}
+	if (startTop) {
+		ySearchDir = 1;
+		entranceY = 0;
+	}
+	else {
+		ySearchDir = -1;
+		entranceY = mapH - 1;
+	}
+
+	mapW = map->GetWidth();
+	mapH = map->GetHeight();
+	int heatMap[Map::MAP_WIDTH][Map::MAP_HEIGHT];
+	
+	bool spotFound = false;
+	for (int x = entranceX; (x < mapW && x >=0) && !spotFound; x += xSearchDir) { //find first empty spot starting from top left of map
+		for (int y = entranceY; (y < mapH && y >= 0) && !spotFound; y += ySearchDir) {
+			if (!map->IsWall(x, y)) {
+				entranceX = x;
+				entranceY = y;
+				spotFound = true;
+			}
+		}
+	}
+	
+	Pathfinder::FillHeatMap(entranceX, entranceY, map, &heatMap);
+	int exitX = 0, exitY = 0;
+	int largestDist = 0;
+	for (int x = 0; x < mapW; x++) { //find spot farthest from entrance using filled heatmap
+		for (int y = 0; y < mapH; y++) {
+			if (heatMap[x][y] > largestDist) {
+				largestDist = heatMap[x][y];
+				exitX = x;
+				exitY = y;
+			}
+		}
+	}
+	
+	
+	if (placeEntrance) {
+		Prop* entrance = new Prop("Ascending Stairs", 16, Command::PREV_MAP);
+		map->PlaceProp(entrance, entranceX, entranceY);
+		map->entrance = map->GetCell(entranceX, entranceY);
+	}
+	else {
+		Prop* entrance = new Prop("Dungeon Exit", 16, Command::NONE);
+		map->PlaceProp(entrance, entranceX, entranceY);
+		map->entrance = map->GetCell(entranceX, entranceY);
+	}
+	if (placeExit) {
+		Prop* exit = new Prop("Descending Stairs", 17, Command::NEXT_MAP);
+		map->PlaceProp(exit, exitX, exitY);
+		map->exit = map->GetCell(exitX, exitY);
+	}
+	else {
+		Prop* treasure = new Prop("Treasure", 86, Command::NONE);
+		map->PlaceProp(treasure, exitX, exitY);
+	}
 }
 
 void ErodeMap(int birthLimit, int deathLimit) {

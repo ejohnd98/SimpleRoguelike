@@ -41,14 +41,16 @@ GameLoop::~GameLoop()
 void GameLoop::InitializeGame() {
 	
 	DungeonGenerator* dungeonGen = new DungeonGenerator(); //create dungeon generator
-	currentDungeon = dungeonGen->GenerateDungeon(1); //get a new dungeon
-	currentMap = currentDungeon->GetMapAtDepth(1); //get first map in dungeon to use
+	currentDungeon = dungeonGen->GenerateDungeon(3); //get a new dungeon
+	currentDepth = 1;
+	currentMap = GetCurrentMap(); //get first map in dungeon to use
 	currentMap->SetGameLoop(this); //give map a reference to this gameloop
 	delete dungeonGen; //deallocate dungeon generator
 	//TestMap();
 	//place player character (hardcoded for now)
+	Coordinate playerStartPos = currentMap->GetPosAroundStairs(true);
 	playerActor = new Actor("Hero", 32);
-	if (currentMap->PlaceActor(playerActor, currentMap->GetWidth()/2, currentMap->GetHeight() / 2)) {
+	if (currentMap->PlaceActor(playerActor, playerStartPos.x, playerStartPos.y)) {
 		playerActor->playerControlled = true;
 		playerActor->SetFaction(1);
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
@@ -96,13 +98,13 @@ void GameLoop::AdvanceLoop() {
 		if (!pendingCommands.empty()) {
 
 			//map debugging
+			/*
 			if (pendingCommands.front() == Command::WAIT) {
 				MapGenerator* mapGen = new MapGenerator();
 				mapGen->GenerateMap(currentMap, currentMap->GetWidth(), currentMap->GetHeight());
 				delete mapGen;
-			}
+			}*/
 
-			//Coordinate test = Pathfinder::GetPath(playerActor->GetX(), playerActor->GetY(), 3, 8, currentMap);
 			Command nextCom = pendingCommands.front();
 			pendingCommands.pop_front();
 			bool validCommand = false;
@@ -118,8 +120,8 @@ void GameLoop::AdvanceLoop() {
 				FieldOfView::SetFOV(currentMap, playerActor);
 
 				//debug stuff
-				currentMap->SetAllKnown(true); //keep map visible
-				currentMap->SetAllVisible(true); //keep map visible
+				//currentMap->SetAllKnown(true); //keep map visible
+				//currentMap->SetAllVisible(true); //keep map visible
 
 			}
 		}
@@ -169,21 +171,16 @@ bool GameLoop::ChangeMap(Map* newMap, bool deeper) {
 
 	currentMap->RemoveActor(playerActor, false);
 	currentMap = newMap;
-	int x, y;
-	if (deeper) {
-		x = currentMap->entrance->GetX()+1;
-		y = currentMap->entrance->GetY();
-	} else {
-		x = currentMap->exit->GetX()-1;
-		y = currentMap->exit->GetY();
-	}
-
-	currentMap->PlaceActor(playerActor, x, y);
+	Coordinate newPlayerPos = currentMap->GetPosAroundStairs(deeper);
+	
+	currentMap->PlaceActor(playerActor, newPlayerPos.x, newPlayerPos.y);
 	currentMap->SetGameLoop(this);
 	std::cout << "Map changed!\n";
 	return true; 
 }
-
+int GameLoop::GetCurrentDepth() {
+	return currentDepth;
+}
 Map* GameLoop::GetPrevMap() {
 	return currentDungeon->GetMapAtDepth(currentDepth - 1);
 }

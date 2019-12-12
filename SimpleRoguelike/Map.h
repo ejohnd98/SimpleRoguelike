@@ -30,6 +30,7 @@ public:
 	int GetWidth();
 	void SetSize(int w, int h);
 	int GetNumOfCells();
+	Coordinate GetPosAroundStairs(bool entering);
 
 	void GiveMapCommand(Command command);
 
