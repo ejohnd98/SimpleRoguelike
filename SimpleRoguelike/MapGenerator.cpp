@@ -13,6 +13,8 @@ public:
 	int x1, x2, y1, y2;
 	int id;
 	bool carved = false;
+	bool containsEntrance = false;
+	bool containsExit = false;
 	int Width() {
 		return x2 - x1 + 1;
 	}
@@ -36,6 +38,16 @@ public:
 		}
 		return Coordinate(x, y);
 	}
+	Coordinate GetRandomEmptyCell(Map* map) {
+		int x = RandomNumber::GetRandomInt(x1+1, x2-1);
+		int y = RandomNumber::GetRandomInt(y1+1, y2-1);
+
+		while (map->GetCell(x, y)->IsOccupied()) {
+			x = RandomNumber::GetRandomInt(x1 + 1, x2 - 1);
+			y = RandomNumber::GetRandomInt(y1 + 1, y2 - 1);
+		}
+		return Coordinate(x, y);
+	}
 	bool IsInRoom(int x, int y) {
 		return (x >= x1 && x <= x2 && y >= y1 && y <= y2);
 	}
@@ -54,6 +66,9 @@ void ConnectRooms(RoomInfo rm1, RoomInfo rm2);
 void FillIfNotSet(int x, int y, int set);
 void ErodeMap(int birthLimit = 7, int deathLimit = 9);
 int AdjacentWallCount(int xs, int ys);
+void PlaceStairways(int floor, int numOfFloors, Map* map);
+void PlaceActors(int floor, int numOfFloors, Map* map);
+int GetRoomIndexFromPos(int x, int y);
 
 
 
@@ -243,78 +258,10 @@ RoomInfo CarveRoom() {
 }
 
 void MapGenerator::PopulateDungeon(int floor, int numOfFloors, Map* map) { //places stairs between levels
-	bool placeEntrance = (floor != 0);
-	bool placeExit = (floor != numOfFloors - 1);
-
-	//choose corner to place entrance in:
-	bool startLeft = RandomNumber::GetRandomBool(0.5);
-	bool startTop = RandomNumber::GetRandomBool(0.5);
-	int entranceX, entranceY, xSearchDir, ySearchDir = 0;
-	if (startLeft) {
-		xSearchDir = 1;
-		entranceX = 0;
-	}
-	else {
-		xSearchDir = -1;
-		entranceX = mapW-1;
-	}
-	if (startTop) {
-		ySearchDir = 1;
-		entranceY = 0;
-	}
-	else {
-		ySearchDir = -1;
-		entranceY = mapH - 1;
-	}
-
 	mapW = map->GetWidth();
 	mapH = map->GetHeight();
-	int heatMap[Map::MAP_WIDTH][Map::MAP_HEIGHT];
-	
-	bool spotFound = false;
-	for (int x = entranceX; (x < mapW && x >=0) && !spotFound; x += xSearchDir) { //find first empty spot starting from top left of map
-		for (int y = entranceY; (y < mapH && y >= 0) && !spotFound; y += ySearchDir) {
-			if (!map->IsWall(x, y)) {
-				entranceX = x;
-				entranceY = y;
-				spotFound = true;
-			}
-		}
-	}
-	
-	Pathfinder::FillHeatMap(entranceX, entranceY, map, &heatMap);
-	int exitX = 0, exitY = 0;
-	int largestDist = 0;
-	for (int x = 0; x < mapW; x++) { //find spot farthest from entrance using filled heatmap
-		for (int y = 0; y < mapH; y++) {
-			if (heatMap[x][y] > largestDist) {
-				largestDist = heatMap[x][y];
-				exitX = x;
-				exitY = y;
-			}
-		}
-	}
-	
-	
-	if (placeEntrance) {
-		Prop* entrance = new Prop("Ascending Stairs", 16, Command::PREV_MAP);
-		map->PlaceProp(entrance, entranceX, entranceY);
-		map->entrance = map->GetCell(entranceX, entranceY);
-	}
-	else {
-		Prop* entrance = new Prop("Dungeon Exit", 16, Command::NONE);
-		map->PlaceProp(entrance, entranceX, entranceY);
-		map->entrance = map->GetCell(entranceX, entranceY);
-	}
-	if (placeExit) {
-		Prop* exit = new Prop("Descending Stairs", 17, Command::NEXT_MAP);
-		map->PlaceProp(exit, exitX, exitY);
-		map->exit = map->GetCell(exitX, exitY);
-	}
-	else {
-		Prop* treasure = new Prop("Treasure", 86, Command::NONE);
-		map->PlaceProp(treasure, exitX, exitY);
-	}
+	PlaceStairways(floor, numOfFloors, map);
+	PlaceActors(floor, numOfFloors, map);
 }
 
 void ErodeMap(int birthLimit, int deathLimit) {
@@ -372,4 +319,111 @@ int AdjacentWallCount(int xs, int ys) {
 		}
 	}
 	return cnt;
+}
+
+void PlaceStairways(int floor, int numOfFloors, Map* map) {
+	bool placeEntrance = (floor != 0);
+	bool placeExit = (floor != numOfFloors - 1);
+
+	//choose corner to place entrance in:
+	bool startLeft = RandomNumber::GetRandomBool(0.5);
+	bool startTop = RandomNumber::GetRandomBool(0.5);
+	int entranceX, entranceY, xSearchDir, ySearchDir = 0;
+	if (startLeft) {
+		xSearchDir = 1;
+		entranceX = 0;
+	}
+	else {
+		xSearchDir = -1;
+		entranceX = mapW - 1;
+	}
+	if (startTop) {
+		ySearchDir = 1;
+		entranceY = 0;
+	}
+	else {
+		ySearchDir = -1;
+		entranceY = mapH - 1;
+	}
+
+	int heatMap[Map::MAP_WIDTH][Map::MAP_HEIGHT];
+
+	bool spotFound = false;
+	for (int x = entranceX; (x < mapW && x >= 0) && !spotFound; x += xSearchDir) { //find first empty spot starting from top left of map
+		for (int y = entranceY; (y < mapH && y >= 0) && !spotFound; y += ySearchDir) {
+			if (!map->IsWall(x, y)) {
+				entranceX = x;
+				entranceY = y;
+				spotFound = true;
+			}
+		}
+	}
+
+	Pathfinder::FillHeatMap(entranceX, entranceY, map, &heatMap);
+	int exitX = 0, exitY = 0;
+	int largestDist = 0;
+	for (int x = 0; x < mapW; x++) { //find spot farthest from entrance using filled heatmap
+		for (int y = 0; y < mapH; y++) {
+			if (heatMap[x][y] > largestDist) {
+				largestDist = heatMap[x][y];
+				exitX = x;
+				exitY = y;
+			}
+		}
+	}
+
+	if (placeEntrance) {
+		Prop* entrance = new Prop("Ascending Stairs", 16, Command::PREV_MAP);
+		map->PlaceProp(entrance, entranceX, entranceY);
+		map->entrance = map->GetCell(entranceX, entranceY);
+		int rmIndex = GetRoomIndexFromPos(entranceX, entranceY);
+		if (rmIndex >= 0) {
+			rooms[rmIndex].containsEntrance = true;
+		}
+	}
+	else {
+		Prop* entrance = new Prop("Dungeon Exit", 16, Command::NONE);
+		map->PlaceProp(entrance, entranceX, entranceY);
+		map->entrance = map->GetCell(entranceX, entranceY);
+		int rmIndex = GetRoomIndexFromPos(entranceX, entranceY);
+		if (rmIndex >= 0) {
+			rooms[rmIndex].containsEntrance = true;
+		}
+	}
+	if (placeExit) {
+		Prop* exit = new Prop("Descending Stairs", 17, Command::NEXT_MAP);
+		map->PlaceProp(exit, exitX, exitY);
+		map->exit = map->GetCell(exitX, exitY);
+		int rmIndex = GetRoomIndexFromPos(exitX, exitY);
+		if (rmIndex >= 0) {
+			rooms[rmIndex].containsExit = true;
+		}
+	}
+	else {
+		Prop* treasure = new Prop("Treasure", 86, Command::NONE);
+		map->PlaceProp(treasure, exitX, exitY);
+	}
+}
+
+void PlaceActors(int floor, int numOfFloors, Map* map) {
+	int actorsToPlace = RandomNumber::GetRandomInt(numOfRooms, numOfRooms*1.5);
+	int actorsPlaced = 0;
+	int currentRoom = 0;
+	while (actorsPlaced < actorsToPlace) {
+		if (!rooms[currentRoom].containsEntrance) {
+			Coordinate c = rooms[currentRoom].GetRandomEmptyCell(map);
+			//place actor at coordinate
+			actorsPlaced++;
+		}
+		currentRoom = (currentRoom + 1) % numOfRooms;
+	}
+}
+
+int GetRoomIndexFromPos(int x, int y) {
+	for (int i = 0; i < rooms.size(); i++) {
+		if (rooms[i].IsInRoom(x, y)) {
+			return i;
+		}
+	}
+	return -1;
 }
