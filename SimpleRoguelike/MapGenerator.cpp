@@ -8,6 +8,12 @@
 #include "Map.h"
 #include "RandomNumber.h"
 
+/*
+	This class is very rough at the moment, as the basic map generation is still being hammered out.
+	Eventually the magic numbers like number of rooms and number of spawned actors will be passed in when creating a map
+	But for now, I'm just trying to create something that feels alright, then I'll clean it up properly after that's done.
+*/
+
 class RoomInfo {
 public:
 	int x1, x2, y1, y2;
@@ -33,7 +39,7 @@ public:
 		while (y < y2 - 1 && y < yt) {
 			y++; //get coordinate in room closest to target (but not a corner)
 		}
-		if (x == x1 || x == x2 || y == y1 || y == y2) {
+		if (x == x1 || x == x2 || y == y1 || y == y2) { //double check that a corner was not selected
 			std::cout << "ERROR in finding closest cell\n";
 		}
 		return Coordinate(x, y);
@@ -138,7 +144,7 @@ void GenerateRoomsDungeon(int roomCount) {
 		std::cout << "ERROR: less than " << roomCount << " rooms. number: " << numOfRooms << "\n";
 	}
 
-	for (int y = 0; y < mapH; y++) { //make all unset cells into walls
+	for (int y = 0; y < mapH; y++) { //make all unassigned cells into walls
 		for (int x = 0; x < mapW; x++) {
 			if (genArr[x][y] == -1) {
 				genArr[x][y] = 1;
@@ -406,13 +412,18 @@ void PlaceStairways(int floor, int numOfFloors, Map* map) {
 }
 
 void PlaceActors(int floor, int numOfFloors, Map* map) {
-	int actorsToPlace = RandomNumber::GetRandomInt(numOfRooms, numOfRooms*1.5);
+	int actorsToPlace = RandomNumber::GetRandomInt(numOfRooms*0.75, numOfRooms*1.25); //determine how many actors to place in dungeon
 	int actorsPlaced = 0;
 	int currentRoom = 0;
-	while (actorsPlaced < actorsToPlace) {
+	while (actorsPlaced < actorsToPlace) { //while actors still need placing, cycle through non-entrance rooms on current map and place actor
 		if (!rooms[currentRoom].containsEntrance) {
 			Coordinate c = rooms[currentRoom].GetRandomEmptyCell(map);
-			//place actor at coordinate
+			//place actor at coordinate c (placeholder actor for now)
+			Actor* skel = new Actor("Skeleton", 34);
+			if (map->PlaceActor(skel, c.x, c.y)) {
+				skel->SetFaction(0);
+				std::cout << "Placed " << skel->GetName() << " succesfully" << "\n";
+			}
 			actorsPlaced++;
 		}
 		currentRoom = (currentRoom + 1) % numOfRooms;

@@ -137,10 +137,15 @@ bool Actor::ActOnOther(int x, int y) {
 	if (currentMapRef->ValidPos(x, y)) {
 		if (currentMapRef->GetCell(x, y)->ContainsActor()) {
 			Actor* actor = currentMapRef->GetCell(x, y)->GetActor();
-			//if actor is enemy:
-			int attackPower = strength; //getAttackPower()
-			actor->AttackUpon(attackPower, this);
-			return true;
+			//if actor is enemy, attack:
+			if (actor->GetFaction() != faction) {
+				int attackPower = strength; //getAttackPower()
+				actor->AttackUpon(attackPower, this);
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 		if (currentMapRef->GetCell(x, y)->ContainsProp()) {
 			Prop* prop = currentMapRef->GetCell(x, y)->GetProp();
