@@ -17,15 +17,18 @@ public:
 	Map(int w, int h);
 	~Map();
 	Cell* GetCell(int x, int y); 
-	bool IsOccupied(int x, int y);
+
 	bool IsWall(int x, int y);
-	bool PathBlocked(int x, int y);
+	bool MovementBlocked(int x, int y, bool ignoreActors = false);
+	bool SightBlocked(int x, int y);
+
 	bool IsVisible(int x, int y);
 	void SetVisible(int x, int y, bool vis);
 	void SetAllVisible(bool vis);
 	bool IsKnown(int x, int y);
 	void SetKnown(int x, int y, bool vis);
 	void SetAllKnown(bool vis);
+
 	int GetHeight();
 	int GetWidth();
 	void SetSize(int w, int h);

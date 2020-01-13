@@ -34,10 +34,13 @@ float GetHeuristic(int id) { //get distance from id cell to target (simple trig)
 	return sqrt((dx * dx) + (dy * dy));
 }
 
-bool ValidCell(int id) { //checks if cell is in map, and not blocked
+bool OpenCell(int id) { //checks if cell is not blocked
 	int x = (id % w);
 	int y = (id / w);
-	return (m->ValidPos(x, y) && !m->PathBlocked(x, y));
+	//if (m->GetCell(x, y)->ContainsProp()) {
+	//	std::cout << "looking at " << x << ", " << y << " . movementblocked: " << !m->MovementBlocked(x, y, true) << "\n";
+	//}
+	return !m->MovementBlocked(x, y, true);
 }
 
 Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) { //given two coordinates and a map, constructs path between them if possible
@@ -87,7 +90,7 @@ Coordinate Pathfinder::GetPath(int sx, int sy, int tx, int ty, Map* map) { //giv
 			case 3:
 				adjID -= w; break; //y--
 			}
-			if (ValidCell(adjID)) { //check if cell is valid/not blocked
+			if (OpenCell(adjID)) { //check if cell is valid/not blocked
 				if (!visited[adjID] || dist[currID] + 1 < dist[adjID]) { //if not yet visited or shorter path reached
 					float newCost = dist[currID] + 1 + GetHeuristic(adjID); //calculate new cost to use for pq
 					cameFrom[adjID] = currID; //set cell's parent
@@ -155,7 +158,7 @@ void Pathfinder::FillHeatMap(int sx, int sy, Map* map, int (*heatMap)[Map::MAP_W
 			case 3:
 				adjID -= w; break; //y--
 			}
-			if (ValidCell(adjID)) { //check if cell is valid/not blocked
+			if (OpenCell(adjID)) { //check if cell is valid/not blocked
 				if (!visited[adjID]) { //if not yet visited or shorter path reached
 					dist[adjID] = dist[currID] + 1; //cost will be one more than curr/parent
 					(*heatMap)[adjID%w][adjID/w] = dist[adjID];

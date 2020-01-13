@@ -51,16 +51,7 @@ Cell* Map::GetCell(int x, int y) {
 		return cellMap[x][y];
 	}
 	else {
-		return false;
-	}
-}
-
-bool Map::IsOccupied(int x, int y) {
-	if (ValidPos(x, y)) {
-		return cellMap[x][y]->IsOccupied();
-	}
-	else {
-		return true;
+		return nullptr;
 	}
 }
 
@@ -73,14 +64,21 @@ bool Map::IsWall(int x, int y) {
 	}
 }
 
-bool Map::PathBlocked(int x, int y) {
+bool Map::MovementBlocked(int x, int y, bool ignoreActors) {
 	if (ValidPos(x, y)) {
-		return (cellMap[x][y]->IsWall() || cellMap[x][y]->ContainsProp());
+		return cellMap[x][y]->MovementBlocked(ignoreActors);
 	}
 	else {
 		return true;
 	}
-	
+}
+bool Map::SightBlocked(int x, int y) {
+	if (ValidPos(x, y)) {
+		return cellMap[x][y]->SightBlocked();
+	}
+	else {
+		return true;
+	}
 }
 
 bool Map::IsVisible(int x, int y) {
@@ -152,16 +150,16 @@ Coordinate Map::GetPosAroundStairs(bool entering) {
 		x = exit->GetX();
 		y = exit->GetY();
 	}
-	if (!PathBlocked(x + 1, y)) {
+	if (!MovementBlocked(x + 1, y)) {
 		return Coordinate(x + 1, y);
 
-	}else if (!PathBlocked(x - 1, y)) {
+	}else if (!MovementBlocked(x - 1, y)) {
 		return Coordinate(x - 1, y);
 
-	}else if (!PathBlocked(x, y + 1)) {
+	}else if (!MovementBlocked(x, y + 1)) {
 		return Coordinate(x, y + 1);
 
-	}else if (!PathBlocked(x, y - 1)) {
+	}else if (!MovementBlocked(x, y - 1)) {
 		return Coordinate(x, y - 1);
 	}
 	else {
@@ -169,7 +167,7 @@ Coordinate Map::GetPosAroundStairs(bool entering) {
 	}
 }
 
-void Map::GiveMapCommand(Command command) {
+void Map::GiveMapCommand(Command command) { //pass off command received from an actor/prop to the gameloop
 	gameLoop->GiveCommandFromMap(command);
 }
 

@@ -71,13 +71,13 @@ void Actor::Act() {
 bool Actor::GiveCommand(Command command ) {
 	switch (command) {
 	case Command::MOVE_UP:
-		return Move(x, y - 1);
+		return InteractWithCell(x, y - 1);
 	case Command::MOVE_DOWN:
-		return Move(x, y + 1);
+		return InteractWithCell(x, y + 1);
 	case Command::MOVE_RIGHT:
-		return Move(x + 1, y);
+		return InteractWithCell(x + 1, y);
 	case Command::MOVE_LEFT:
-		return Move(x - 1, y);
+		return InteractWithCell(x - 1, y);
 	case Command::WAIT:
 		return true;
 	}
@@ -125,37 +125,14 @@ void Actor::SetMapRef(Map* mapRef) {
 
 //Private:
 bool Actor::Move(int x, int y) {
-	if (currentMapRef->IsOccupied(x, y)) {
+	return currentMapRef->MoveActor(this, x, y);
+	
+	/*if (currentMapRef->MovementBlocked(x, y)) {
 		return ActOnOther(x, y);
 	}
 	else {
 		return currentMapRef->MoveActor(this, x, y);
-	}
-}
-
-bool Actor::ActOnOther(int x, int y) {
-	if (currentMapRef->ValidPos(x, y)) {
-		if (currentMapRef->GetCell(x, y)->ContainsActor()) {
-			Actor* actor = currentMapRef->GetCell(x, y)->GetActor();
-			//if actor is enemy, attack:
-			if (actor->GetFaction() != faction) {
-				int attackPower = strength; //getAttackPower()
-				actor->AttackUpon(attackPower, this);
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-		if (currentMapRef->GetCell(x, y)->ContainsProp()) {
-			Prop* prop = currentMapRef->GetCell(x, y)->GetProp();
-			std::cout << name << " acts upon: " << prop->GetName() << "\n";
-			GameLog::instance()->AddLog(name + " acts upon " + prop->GetName());
-			prop->UseProp();
-			return true;
-		}
-	}
-	return false;
+	}*/
 }
 
 void Actor::AttackUpon(int attackPower, Actor* attacker) {
@@ -173,7 +150,7 @@ void Actor::DealDamage(int damage) {
 }
 
 void Actor::Kill() {
-	GameLog::instance()->AddLog(name + " has died");
+	GameLog::instance()->AddLog( name + " has been defeated!");
 	if (playerControlled) {
 		currentMapRef->GiveMapCommand(Command::PLAYER_DIED);
 		return;
@@ -213,4 +190,31 @@ Command Actor::CoordToMoveCommand(int x2, int y2) {
 	}else {
 		return Command::NONE;
 	}
+}
+
+bool Actor::InteractWithCell(int x, int y) { //given a cell, determines the action that should be taken on it
+	Cell* cell = currentMapRef->GetCell(x, y);
+
+	if (cell->ContainsActor()) { //if actor is in cell, act upon it
+		Actor* other = cell->GetActor();
+		if (other->GetFaction() != faction) {
+			int attackPower = strength;
+			other->AttackUpon(attackPower, this);
+			return true;
+		}
+	}
+	if (!cell->MovementBlocked()) { //if cell can be moved into, move into it
+		if (Move(x, y)) {
+			return true;
+		}
+	}
+	if (cell->ContainsProp()) { //if cell contains prop, use it if interactable
+		Prop* prop = cell->GetProp();
+		if (prop->CanInteract()) {
+			if (prop->UseProp(this)) {
+				return true;
+			}
+		}
+	}
+	return false; //couldn't take any actions
 }

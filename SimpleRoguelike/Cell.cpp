@@ -1,5 +1,6 @@
 #include "Cell.h"
 #include "Actor.h"
+#include "Prop.h"
 #include "Sprite.h"
 #include <iostream>
 
@@ -31,8 +32,24 @@ void Cell::SetupCell(bool wall) {
 	}
 }
 
-bool Cell::IsOccupied() {
-	return (isWall || ContainsActor() || ContainsProp());
+bool Cell::MovementBlocked(bool ignoreActors) {
+	if (isWall) {
+		return true;
+	}
+	if (ContainsProp() && prop->BlocksMovement()) {
+		return true;
+	}
+	return false;
+}
+
+bool Cell::SightBlocked() {
+	if (isWall) {
+		return true;
+	}
+	if (ContainsProp() && prop->BlocksSight()) {
+		return true;
+	}
+	return false;
 }
 
 bool Cell::IsWall() {

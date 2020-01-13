@@ -14,11 +14,11 @@
 	But for now, I'm just trying to create something that feels alright, then I'll clean it up properly after that's done.
 */
 
-class RoomInfo {
+class RoomInfo { //stores the basic data for a room once it's created, and has functions related to cells within a room
 public:
 	int x1, x2, y1, y2;
 	int id;
-	bool carved = false;
+	bool carved = false; //has this room been carved into the map yet
 	bool containsEntrance = false;
 	bool containsExit = false;
 	int Width() {
@@ -30,7 +30,7 @@ public:
 	Coordinate Center() {
 		return Coordinate((x1 + x2) * 0.5, (y1 + y2) * 0.5);
 	}
-	Coordinate GetCellClosestTo(int xt, int yt) {
+	Coordinate GetCellClosestTo(int xt, int yt) { //gets the room cell closest to the given point, excluding corners (created for connecting rooms)
 		int x = x1 + 1;
 		int y = y1 + 1;
 		while (x < x2 - 1 && x < xt) {
@@ -39,16 +39,13 @@ public:
 		while (y < y2 - 1 && y < yt) {
 			y++; //get coordinate in room closest to target (but not a corner)
 		}
-		if (x == x1 || x == x2 || y == y1 || y == y2) { //double check that a corner was not selected
-			std::cout << "ERROR in finding closest cell\n";
-		}
 		return Coordinate(x, y);
 	}
 	Coordinate GetRandomEmptyCell(Map* map) {
 		int x = RandomNumber::GetRandomInt(x1+1, x2-1);
 		int y = RandomNumber::GetRandomInt(y1+1, y2-1);
 
-		while (map->GetCell(x, y)->IsOccupied()) {
+		while (map->GetCell(x, y)->MovementBlocked()) {
 			x = RandomNumber::GetRandomInt(x1 + 1, x2 - 1);
 			y = RandomNumber::GetRandomInt(y1 + 1, y2 - 1);
 		}
@@ -59,24 +56,22 @@ public:
 	}
 };
 
-
-int genArr[Map::MAP_WIDTH][Map::MAP_HEIGHT];
+int genArr[Map::MAP_WIDTH][Map::MAP_HEIGHT]; //used when creating map. -1 is unset, 0 is empty, and 1 is a wall
 int mapW, mapH;
 int numOfRooms = 0;
 std::vector<RoomInfo> rooms;
-
 
 void GenerateRoomsDungeon(int roomCount);
 RoomInfo CarveRoom();
 void ConnectRooms(RoomInfo rm1, RoomInfo rm2);
 void FillIfNotSet(int x, int y, int set);
 void ErodeMap(int birthLimit = 7, int deathLimit = 9);
-int AdjacentWallCount(int xs, int ys);
+int SurroundingWallCount(int xs, int ys);
+int AdjacentWallCountMap(int xs, int ys, Map* map);
 void PlaceStairways(int floor, int numOfFloors, Map* map);
+void PlaceDoors(int floor, int numOfFloors, Map* map);
 void PlaceActors(int floor, int numOfFloors, Map* map);
 int GetRoomIndexFromPos(int x, int y);
-
-
 
 Map* MapGenerator::GenerateNewMap(int w, int h) {
 	mapW = w;
@@ -86,16 +81,14 @@ Map* MapGenerator::GenerateNewMap(int w, int h) {
 	return map;
 }
 
-void MapGenerator::GenerateMap(Map* map, int w, int h) { //quite hardcoded at the moment in the parameters, although it is random
+void MapGenerator::GenerateMap(Map* map, int w, int h) {
 	mapW = w;
 	mapH = h;
-	numOfRooms = 0;
 	map->SetAllKnown(false);
-	while (numOfRooms < 5) { //hardcoded magic numbers for now
-		GenerateRoomsDungeon(5);
-	}
 
-	for (int y = 0; y < mapH; y++) { //setup map array based on resulting genArr
+	GenerateRoomsDungeon(5);
+
+	for (int y = 0; y < mapH; y++) { //Sets up the Map's cells based on the generated genArr
 		for (int x = 0; x < mapW; x++) {
 			bool setWall;
 			if (genArr[x][y] == 0) {
@@ -113,45 +106,48 @@ void MapGenerator::GenerateMap(Map* map, int w, int h) { //quite hardcoded at th
 }
 
 void GenerateRoomsDungeon(int roomCount) {
-	int erodeSteps = 0;
-	for (int y = 0; y < mapH; y++) {
-		for (int x = 0; x < mapW; x++) {
-			genArr[x][y] = -1; //-1 means space has not been assigned yet
-		}
-	}
-	rooms.clear();
 	numOfRooms = 0;
-
-	int failedTries = 0;
-	while (failedTries < 50 && numOfRooms < roomCount) {
-		RoomInfo rm = CarveRoom();
-		if (rm.carved){
-			rooms.push_back(rm);
-			numOfRooms++;
+	while (numOfRooms != roomCount) { //generate room layouts until 5 rooms are generated
+		rooms.clear();
+		numOfRooms = 0;
+		for (int y = 0; y < mapH; y++) {
+			for (int x = 0; x < mapW; x++) {
+				genArr[x][y] = -1; //-1 indicates space has not been assigned yet
+			}
 		}
-		else {
-			failedTries++;
+		
+		int failedTries = 0;
+		while (failedTries < 50 && numOfRooms < roomCount) { //carve rooms until room requirement has been met, or failed 50 times
+			RoomInfo rm = CarveRoom();
+			if (rm.carved) {
+				rooms.push_back(rm);
+				numOfRooms++;
+			}
+			else {
+				failedTries++;
+			}
 		}
 	}
-	if (numOfRooms >= 5) { //connect the rooms together (hardcoded to work with 5 rooms at the moment)
-		ConnectRooms(rooms.at(0), rooms.at(1));
-		ConnectRooms(rooms.at(0), rooms.at(2));
-		ConnectRooms(rooms.at(0), rooms.at(3));
-		ConnectRooms(rooms.at(3), rooms.at(4));
-		ConnectRooms(rooms.at(2), rooms.at(3));
-	}
-	else {
-		std::cout << "ERROR: less than " << roomCount << " rooms. number: " << numOfRooms << "\n";
-	}
 
-	for (int y = 0; y < mapH; y++) { //make all unassigned cells into walls
+	//connects rooms (hardcoded to 5 rooms currently)
+	ConnectRooms(rooms.at(0), rooms.at(1));
+	ConnectRooms(rooms.at(0), rooms.at(2));
+	ConnectRooms(rooms.at(0), rooms.at(3));
+	ConnectRooms(rooms.at(3), rooms.at(4));
+	ConnectRooms(rooms.at(2), rooms.at(3));
+
+	//make all unassigned cells into walls
+	for (int y = 0; y < mapH; y++) { 
 		for (int x = 0; x < mapW; x++) {
 			if (genArr[x][y] == -1) {
 				genArr[x][y] = 1;
 			}
 		}
 	}
-	for (int i = 0; i < erodeSteps; i++) { //optionally erode map
+
+	//optionally erode map (unused at the moment)
+	int erodeSteps = 0;
+	for (int i = 0; i < erodeSteps; i++) { 
 		ErodeMap();
 	}
 }
@@ -169,7 +165,6 @@ void ConnectRooms(RoomInfo rm1, RoomInfo rm2) {
 
 	Coordinate start = rm1.GetCellClosestTo(center2.x, center2.y);
 	Coordinate end = rm2.GetCellClosestTo(start.x, start.y);
-	std::cout << "rm1: " << start.x << ", " << start.y << " w:" << rm1.Width() << " rm2: " << end.x << ", " << end.y << " w:" << rm2.Width() << "\n";
 	genArr[start.x][start.y] = 0;
 	genArr[end.x][end.y] = 0;
 	while (!start.IsCoord(end)) {
@@ -214,31 +209,31 @@ void FillIfNotSet(int x, int y, int set) {
 	}
 }
 
-RoomInfo CarveRoom() {
+RoomInfo CarveRoom() { //Attempt to carve a room
+	RoomInfo newRoom;
+	int roomW, roomH, x1, x2, y1, y2;
 	int attempts = 0;
 	bool canCarve = false;
-	int roomW, roomH, x1, x2, y1, y2;
-
-	while (attempts < 1 && !canCarve) { //try 10 times to get a room to carve
-		canCarve = true;
+	while (attempts < 1 && !canCarve) {
 		roomW = RandomNumber::GetRandomInt(6, 13);
 		roomH = RandomNumber::GetRandomInt(6, 13);
 		x1 = RandomNumber::GetRandomInt(1, mapW - roomW - 1);
 		y1 = RandomNumber::GetRandomInt(1, mapH - roomH - 1);
 		x2 = x1 + roomW - 1;
 		y2 = y1 + roomH - 1;
-		for (int y = y1 - 1; y <= y2 + 1 && canCarve; y++) { //want to avoid placing rooms right against eachother
+		//check if any cells within new room are already set
+		canCarve = true;
+		for (int y = y1 - 1; y <= y2 + 1 && canCarve; y++) { //cycle through room cells, but stop if it can't be carved
 			for (int x = x1 - 1; x <= x2 + 1 && canCarve; x++) {
-				if (genArr[x][y] != -1) {
+				if (genArr[x][y] != -1) { //encountered already set cell, so can't carve room
 					canCarve = false;
 				}
 			}
 		}
 		attempts++;
-		
 	}
-	RoomInfo newRoom;
 	if (canCarve) {
+		//carve room into genArr
 		for (int y = y1; y <= y2; y++) {
 			for (int x = x1; x <= x2; x++) {
 				if (x == x1 || y == y1 || x == x2 || y == y2) {
@@ -249,17 +244,14 @@ RoomInfo CarveRoom() {
 				}
 			}
 		}
-		
+		//fill in room values
 		newRoom.x1 = x1;
 		newRoom.x2 = x2;
 		newRoom.y1 = y1;
 		newRoom.y2 = y2;
 		newRoom.carved = true;
-		return newRoom;
 	}
-	else {
-		return newRoom;
-	}
+	return newRoom;
 	
 }
 
@@ -267,6 +259,7 @@ void MapGenerator::PopulateDungeon(int floor, int numOfFloors, Map* map) { //pla
 	mapW = map->GetWidth();
 	mapH = map->GetHeight();
 	PlaceStairways(floor, numOfFloors, map);
+	PlaceDoors(floor, numOfFloors, map);
 	PlaceActors(floor, numOfFloors, map);
 }
 
@@ -279,7 +272,7 @@ void ErodeMap(int birthLimit, int deathLimit) {
 	}
 	for (int y = 0; y < mapH; y++) {
 		for (int x = 0; x < mapW; x++) {
-			int cnt = AdjacentWallCount(x, y);
+			int cnt = SurroundingWallCount(x, y);
 			if (genArr[x][y] == 1) {
 				if (cnt < deathLimit) {
 					newMap[x][y] = false;
@@ -310,7 +303,7 @@ void ErodeMap(int birthLimit, int deathLimit) {
 	}
 }
 
-int AdjacentWallCount(int xs, int ys) {
+int SurroundingWallCount(int xs, int ys) {
 	int cnt = 0;
 	for (int y = ys - 1; y < ys + 2; y++) {
 		for (int x = xs - 1; x < xs + 2; x++) {
@@ -323,6 +316,22 @@ int AdjacentWallCount(int xs, int ys) {
 				cnt++;
 			}
 		}
+	}
+	return cnt;
+}
+int AdjacentWallCountMap(int xs, int ys, Map* map) {
+	int cnt = 0;
+	if (map->IsWall(xs + 1, ys)) {
+		cnt++;
+	}
+	if (map->IsWall(xs, ys + 1)) {
+		cnt++;
+	}
+	if (map->IsWall(xs - 1, ys)) {
+		cnt++;
+	}
+	if (map->IsWall(xs, ys - 1)) {
+		cnt++;
 	}
 	return cnt;
 }
@@ -406,8 +415,31 @@ void PlaceStairways(int floor, int numOfFloors, Map* map) {
 		}
 	}
 	else {
-		Prop* treasure = new Prop("Treasure", 86, Command::NONE);
+		Prop* treasure = new Prop("Treasure", 86, Command::WON_THE_GAME);
 		map->PlaceProp(treasure, exitX, exitY);
+	}
+}
+
+void PlaceDoors(int floor, int numOfFloors, Map* map) {
+	for (int i = 0; i < numOfRooms; i++) {
+		
+		int x1 = rooms[i].x1;
+		int x2 = rooms[i].x2;
+		int y1 = rooms[i].y1;
+		int y2 = rooms[i].y2;
+		for (int x = x1; x <= x2; x++) {
+			for (int y = y1; y <= y2; y++) {
+				if (x == x1 || x == x2 || y == y1 || y == y2) { //if on border of room
+					if (!map->IsWall(x, y)) { //if cell is free place door
+						if (AdjacentWallCountMap(x, y, map) == 2) {
+							Prop* door = new Prop("Door", 18, Command::USE_DOOR,true,true);
+							map->PlaceProp(door, x, y);
+						}
+					}
+				}
+			}
+		}
+		
 	}
 }
 

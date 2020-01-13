@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <list>
+#include <string>
+
 #include "GameLoop.h"
 #include "Actor.h"
 #include "DungeonGenerator.h"
@@ -56,7 +58,7 @@ void GameLoop::InitializeGame() {
 		std::cout << "Placed " << playerActor->GetName() << " (player) succesfully" << "\n";
 	}
 	playerAlive = true;
-	playerActor->DealDamage(-50);
+	playerActor->DealDamage(-90);
 
 	FieldOfView::SetFOV(currentMap, playerActor); //calculate initial fov
 	GameLog::instance()->AddLog("You delve into the dungeon!");
@@ -132,18 +134,27 @@ void GameLoop::GiveCommandFromMap(Command command) {
 	switch (command) {
 	case Command::NEXT_MAP:
 		std::cout << "Gameloop received NEXT_MAP command\n";
+		
 		ChangeMap(GetNextMap(), true);
 		currentDepth++;
+		GameLog::instance()->AddLog("You descend to level " + std::to_string(currentDepth) + " of the dungeon");
 		break;
 	case Command::PREV_MAP:
 		std::cout << "Gameloop received PREV_MAP command\n";
+		
 		ChangeMap(GetPrevMap(), false);
 		currentDepth--;
+		GameLog::instance()->AddLog("You ascend to level " + std::to_string(currentDepth) + " of the dungeon");
 		break;
 	case Command::PLAYER_DIED:
-		std::cout << "Gameloop received PLAYER_DIED command\n";
-		playerAlive = false;
-		playerActor->SetSprite(new Sprite(35));
+		if (playerAlive) {
+			GameLog::instance()->AddLog("Your adventure ends here...");
+			playerAlive = false;
+			playerActor->SetSprite(new Sprite(35));
+		}
+		break;
+	case Command::WON_THE_GAME:
+		GameLog::instance()->AddLog("Congratulations, you succeeded in your quest!");
 		break;
 	default:
 		std::cout << "Gameloop received some other command\n";
