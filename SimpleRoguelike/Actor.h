@@ -44,13 +44,13 @@ protected:
 	int y = 0;
 	class Sprite* actorSprite = nullptr;
 	bool Move(int x, int y);
-	bool ActOnOther(int x, int y);
 	Actor* DetermineTarget();
 	Command CoordToMoveCommand(int x2, int y2);
+	bool InteractWithCell(int x, int y);
 	ActorState state = ActorState::ATTACK;
 	Coordinate targetLastPos;
 
-	//game parameters
+	//game parameters. Not balanced or really modified at all at the moment
 	std::string name = "";
 	int health = 10;
 	int strength = 3;

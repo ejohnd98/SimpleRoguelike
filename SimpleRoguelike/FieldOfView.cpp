@@ -40,11 +40,11 @@ void SendRay(float ox, float oy){ //casts a ray in the direction of the paramete
 		if (!map->ValidPos((int)x, (int)y)) { //return if reached an invalid position (outside map)
 			return;
 		}
-		if (map->IsWall((int)x, (int)y)) {
+		if (map->SightBlocked((int)x, (int)y)) {
 			isWall = true;
 		}
 		if (((int)x) == lastX + dirXMod && ((int)y) == lastY + dirYMod) { //if moved diagonally, check for diagonal walls
-			if (map->IsWall(lastX + dirXMod, lastY) && map->IsWall(lastX, lastY + dirYMod)) {
+			if (map->SightBlocked(lastX + dirXMod, lastY) && map->SightBlocked(lastX, lastY + dirYMod)) {
 				if (isWall) { //still want to see walls placed in corners (but not open cells)
 					map->SetVisible((int)x, (int)y, true);
 					map->SetKnown((int)x, (int)y, true);
@@ -91,12 +91,12 @@ bool FieldOfView::InSight(int x1, int y1, int x2, int y2, int sight) { //casts a
 	lastX = x;
 	lastY = y;
 	for (int i = 0; i * stepDist <= sight; i++) {
-		if (!map->ValidPos((int)x, (int)y) || map->IsWall((int)x, (int)y)) { //return if reached wall or invalid position (outside map)
+		if (map->SightBlocked((int)x, (int)y)) { //return if reached wall or invalid position (outside map)
 			return false;
 		}
 		if (((int)x) == lastX + dirXMod && ((int)y) == lastY + dirYMod) { //if moved diagonally, check for diagonal walls
-			if (map->IsWall(lastX + dirXMod, lastY) && map->IsWall(lastX, lastY + dirYMod)) {
-				return false; //incorrectly passed through diagonal wall, so return
+			if (map->SightBlocked(lastX + dirXMod, lastY) && map->SightBlocked(lastX, lastY + dirYMod)) {
+				//return false; //incorrectly passed through diagonal wall, so return
 			}
 		}
 		if (((int)x) == x2 && ((int)y) == y2) { //found target cell, so InSight is true

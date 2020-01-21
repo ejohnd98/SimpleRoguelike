@@ -61,6 +61,8 @@ void GameRenderer::Render() {
 		ui += (*playerPtr)->GetName();
 		ui += " Health: ";
 		ui += std::to_string((*playerPtr)->GetHealth());
+		ui += " Depth: ";
+		ui += std::to_string(game->GetCurrentDepth());
 		RenderString(ui, 8, SCREEN_WIDTH - 8, 0, 28);
 		RenderString(GameLog::instance()->GetLogs(4), 8, SCREEN_WIDTH-8, SCREEN_HEIGHT-152, SCREEN_HEIGHT-8);
 		

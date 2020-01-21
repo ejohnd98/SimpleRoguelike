@@ -8,8 +8,8 @@
 #include "Prop.h"
 #include "Cell.h"
 
-
-Map::Map() {
+Map::Map(int w, int h) {
+	SetSize(w, h);
 	InitMap();
 }
 
@@ -23,8 +23,8 @@ Map::~Map() {
 
 void Map::InitMap() {
 
-	for (int y = 0; y < MAP_HEIGHT; y++) {
-		for (int x = 0; x < MAP_WIDTH; x++) {
+	for (int y = 0; y < width; y++) {
+		for (int x = 0; x < height; x++) {
 			cellMap[x][y] = new Cell(x,y);
 			isVisible[x][y] = false;
 			isKnown[x][y] = false;
@@ -51,16 +51,7 @@ Cell* Map::GetCell(int x, int y) {
 		return cellMap[x][y];
 	}
 	else {
-		return false;
-	}
-}
-
-bool Map::IsOccupied(int x, int y) {
-	if (ValidPos(x, y)) {
-		return cellMap[x][y]->IsOccupied();
-	}
-	else {
-		return true;
+		return nullptr;
 	}
 }
 
@@ -73,14 +64,21 @@ bool Map::IsWall(int x, int y) {
 	}
 }
 
-bool Map::PathBlocked(int x, int y) {
+bool Map::MovementBlocked(int x, int y, bool ignoreActors) {
 	if (ValidPos(x, y)) {
-		return (cellMap[x][y]->IsWall() || cellMap[x][y]->ContainsProp());
+		return cellMap[x][y]->MovementBlocked(ignoreActors);
 	}
 	else {
 		return true;
 	}
-	
+}
+bool Map::SightBlocked(int x, int y) {
+	if (ValidPos(x, y)) {
+		return cellMap[x][y]->SightBlocked();
+	}
+	else {
+		return true;
+	}
 }
 
 bool Map::IsVisible(int x, int y) {
@@ -99,8 +97,8 @@ void Map::SetVisible(int x, int y, bool vis) {
 }
 
 void Map::SetAllVisible(bool vis) {
-	for (int y = 0; y < MAP_HEIGHT; y++) {
-		for (int x = 0; x < MAP_WIDTH; x++) {
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
 			isVisible[x][y] = vis;
 		}
 	}
@@ -121,24 +119,55 @@ void Map::SetKnown(int x, int y, bool vis) {
 }
 
 void Map::SetAllKnown(bool vis) {
-	for (int y = 0; y < MAP_HEIGHT; y++) {
-		for (int x = 0; x < MAP_WIDTH; x++) {
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
 			isKnown[x][y] = vis;
 		}
 	}
 }
 
-const int Map::GetHeight() {
-	return MAP_HEIGHT;
+int Map::GetHeight() {
+	return height;
 }
-const int Map::GetWidth() {
-	return MAP_WIDTH;
+int Map::GetWidth() {
+	return width;
 }
-const int Map::GetNumOfCells() {
-	return (MAP_WIDTH * MAP_HEIGHT);
+void Map::SetSize(int w, int h) {
+	width = w;
+	height = h;
+}
+int Map::GetNumOfCells() {
+	return (width * height);
 }
 
-void Map::GiveMapCommand(Command command) {
+Coordinate Map::GetPosAroundStairs(bool entering) {
+	int x, y;
+	if (entering) { //going deeper into dungeon
+		x = entrance->GetX();
+		y = entrance->GetY();
+	}
+	else { //returning to previous level
+		x = exit->GetX();
+		y = exit->GetY();
+	}
+	if (!MovementBlocked(x + 1, y)) {
+		return Coordinate(x + 1, y);
+
+	}else if (!MovementBlocked(x - 1, y)) {
+		return Coordinate(x - 1, y);
+
+	}else if (!MovementBlocked(x, y + 1)) {
+		return Coordinate(x, y + 1);
+
+	}else if (!MovementBlocked(x, y - 1)) {
+		return Coordinate(x, y - 1);
+	}
+	else {
+		return Coordinate(x, y);
+	}
+}
+
+void Map::GiveMapCommand(Command command) { //pass off command received from an actor/prop to the gameloop
 	gameLoop->GiveCommandFromMap(command);
 }
 
@@ -198,7 +227,7 @@ bool Map::RemoveProp(Prop* prop) {
 }
 
 bool Map::ValidPos(int x, int y) {
-	return (x >= 0 && x < MAP_WIDTH) && (y >= 0 && y < MAP_HEIGHT);
+	return (x >= 0 && x < width) && (y >= 0 && y < height);
 }
 
 void Map::SetGameLoop(GameLoop* gl) {

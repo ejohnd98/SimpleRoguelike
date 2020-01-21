@@ -10,6 +10,7 @@ public:
 	void GiveInput(Command command);
 	void GiveCommandFromMap(Command command);
 	bool ChangeMap(class Map* newMap, bool deeper);
+	int GetCurrentDepth();
 	class Map* GetPrevMap();
 	class Map* GetNextMap();
 	class Map* GetCurrentMap();

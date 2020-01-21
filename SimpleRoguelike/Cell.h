@@ -9,7 +9,8 @@ public:
 
 	int GetX();
 	int GetY();
-	bool IsOccupied();
+	bool MovementBlocked(bool ignoreActors = false);
+	bool SightBlocked();
 	bool IsWall();
 	bool ContainsActor();
 	bool ContainsProp();

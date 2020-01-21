@@ -1,7 +1,20 @@
--Delete log messages after each turn?
--Cache actors last known positions for when cells are not visible, but known.
+# System
 -Put in some simple debug tools (click cell to turn it into wall, disable fog of war, etc...)
 -Limit getting input somehow (if held down, only get every game logic advance time)
 -Change renderer to use tile coordinates to render instead of pixels (will be easier to do UI)
 
--Player can see through diagonal holes in walls (IMPORTANT)
+# Interface
+-Delete log messages after each turn?
+-Cache actors last known positions for when cells are not visible, but known.
+
+# Map Generation
+-Make Map generation less hardcoded
+-Create door props
+-Change props blocking pathfinding and sight to be parameters for each prop (doors will be props, and need to change themselves when open)
+
+# Actor
+-Properly implement FSM (currently always set to attack)
+-Create functions for calculating values like attack power and damage received, as well as determining if a target is an enemy.
+-Implement some sort of action points or stamina system which actors gain each turn.
+ This would allow actors to have different movement speeds.
+ Some may not act every n turns, while some may move multiple cells at once.
