@@ -1,3 +1,5 @@
+![alt text](https://ejohnd98.github.io/images/roguelike.gif "SimpleRoguelikeGif")
+
 ## About this Project
 This project was started in an effort to learn the basics of C++ while creating a simple roguelike. Generally, a roguelike is a tile and turn based game where the player delves into a procedurally generated dungeon filled with enemies and loot ([more in-depth description here](https://en.wikipedia.org/wiki/Roguelike)). 
 
