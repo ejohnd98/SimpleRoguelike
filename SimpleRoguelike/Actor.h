@@ -50,7 +50,7 @@ protected:
 	ActorState state = ActorState::ATTACK;
 	Coordinate targetLastPos;
 
-	//game parameters
+	//game parameters. Not balanced or really modified at all at the moment
 	std::string name = "";
 	int health = 10;
 	int strength = 3;

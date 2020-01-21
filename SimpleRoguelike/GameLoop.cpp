@@ -130,7 +130,7 @@ void GameLoop::AdvanceLoop() {
 	}
 }
 
-void GameLoop::GiveCommandFromMap(Command command) {
+void GameLoop::GiveCommandFromMap(Command command) { //called from the map to pass a command to the game
 	switch (command) {
 	case Command::NEXT_MAP:
 		std::cout << "Gameloop received NEXT_MAP command\n";
