@@ -17,7 +17,8 @@ public:
 			instancePtr = new GameLog;
 		return instancePtr;
 	}
-
+	void ClearLog();
+	void AdvanceTurn();
 	void AddLog(std::string v);
 	std::string GetLogs(int num);
 };

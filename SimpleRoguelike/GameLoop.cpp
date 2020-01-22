@@ -71,7 +71,7 @@ void TerminateGame() {
 }
 
 void TestMap() {
-	std::string mapLayout = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                            XX                      X     XX                      X     XX                      X     XXXXXXXXXXXXXXXXXXXXXXXXX XXXXXX      X       X             XX      X       X             XX      X       X             XXXX XXXX       X             XX                            XXXXXX XXXXXXXXXXXXXXXXXXXXXXXXX         X    X             XX         X         XXXX     XXX XXXXXXXX            XXXXX XX              X             XXXXXXXXXXXXXXXXXXXXXXXX XXXXXXX             X              XX                 X          XX             X              XX     X       X              XX    X X          X          XX   X   X     X              XX                            XX    X        X             XXXXXXX  X                  X  XX     XX      X         X   XXX    XX                      XX    X        X         X  X XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+	std::string mapLayout = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                              XX                      X     XX                      X     XX                      X     XXXXXXXXXXXXXXXXXXXXXXXXX XXXXXX      X       X             XX      X       X             XX      X       X             XXXX XXXX       X             XX                            XXXXXX XXXXXXXXXXXXXXXXXXXXXXXXX         X    X             XX         X         XXXX     XXX XXXXXXXX            XXXXX XX              X             XXXXXXXXXXXXXXXXXXXXXXXX XXXXXXX             X              XX                 X          XX             X              XX     X       X              XX    X X          X          XX   X   X     X              XX                            XX    X        X             XXXXXXX  X                  X  XX     XX      X         X   XXX    XX                      XX    X        X         X  X XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 	//std::string mapLayout = "XXXXXXXXXXXXXXXXXXXXX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XX                  XXXXXXXXXXXXXXXXXXXXX";
 	int n = mapLayout.length();
 	int w = 30;
@@ -114,6 +114,7 @@ void GameLoop::AdvanceLoop() {
 				validCommand = playerActor->GiveCommand(nextCom);
 			}
 			if (validCommand) { //advance turn
+				//GameLog::instance()->AdvanceTurn();
 				for (Actor* a : currentMap->actorList) {
 					if (a != playerActor) {
 						a->Act();

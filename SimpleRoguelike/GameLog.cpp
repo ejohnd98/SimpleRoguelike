@@ -1,6 +1,12 @@
 #include <string>
 #include "GameLog.h"
 
+void GameLog::ClearLog() {
+	logVector.clear();
+}
+void GameLog::AdvanceTurn() {
+	ClearLog();
+}
 void GameLog::AddLog(std::string str) {
 	logVector.insert(logVector.begin(),str);
 }
