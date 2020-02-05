@@ -114,13 +114,13 @@ void GameLoop::AdvanceLoop() {
 				validCommand = playerActor->GiveCommand(nextCom);
 			}
 			if (validCommand) { //advance turn
-				//GameLog::instance()->AdvanceTurn();
 				for (Actor* a : currentMap->actorList) {
 					if (a != playerActor) {
 						a->Act();
 					}
 				}
 				FieldOfView::SetFOV(currentMap, playerActor);
+				GameLog::instance()->AdvanceTurn();
 
 				//debug stuff
 				//currentMap->SetAllKnown(true); //keep map visible

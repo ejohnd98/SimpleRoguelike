@@ -1,13 +1,22 @@
 #include <string>
 #include "GameLog.h"
 
+bool clearOnNextLog = true;
+
 void GameLog::ClearLog() {
 	logVector.clear();
+	clearOnNextLog = false;
 }
 void GameLog::AdvanceTurn() {
-	ClearLog();
+	if (clearOnNextLog) {
+		ClearLog();
+	}
+	clearOnNextLog = true;
 }
 void GameLog::AddLog(std::string str) {
+	if (clearOnNextLog) {
+		ClearLog();
+	}
 	logVector.insert(logVector.begin(),str);
 }
 std::string GameLog::GetLogs(int num) {
