@@ -20,20 +20,18 @@ const int SCREEN_HEIGHT = 600;
 const int PIXEL_MULT = 2;
 
 
-//The window we'll be rendering to
+//The window that will be rendered to
 SDL_Window* SDLWindow = nullptr;
 
 //The window renderer
 SDL_Renderer* SDLRenderer = nullptr;
 
-//Tileset texture:
+//Tileset and font textures:
 ETexture tileset;
 ETexture fontTex;
 
 GameLoop* game = nullptr;
 Actor** playerPtr = nullptr;
-
-//GameLog* GameLog::instancePtr = 0;
 
 bool InitRenderer();
 bool LoadMedia();
@@ -59,9 +57,9 @@ void GameRenderer::Render() {
 		RenderMap(game->GetCurrentMap());
 		std::string ui = "Name: ";
 		ui += (*playerPtr)->GetName();
-		ui += " Health: ";
+		ui += ", Health: ";
 		ui += std::to_string((*playerPtr)->GetHealth());
-		ui += " Depth: ";
+		ui += ", Depth: ";
 		ui += std::to_string(game->GetCurrentDepth());
 		RenderString(ui, 8, SCREEN_WIDTH - 8, 0, 28);
 		RenderString(GameLog::instance()->GetLogs(4), 8, SCREEN_WIDTH-8, SCREEN_HEIGHT-152, SCREEN_HEIGHT-8);
@@ -227,10 +225,10 @@ bool LoadMedia(){
 	//Loading success flag
 	bool success = true;
 
-	if (tileset.LoadFromFile("tileset.png", SDLRenderer)) {
+	if (tileset.LoadFromFile("tilesets/tileset.png", SDLRenderer)) {
 		tileset.SetTileSetInfo(16, 16);
 	}
-	if (fontTex.LoadFromFile("font.png", SDLRenderer)) {
+	if (fontTex.LoadFromFile("fonts/font.png", SDLRenderer)) {
 		fontTex.SetTileSetInfo(8, 12);
 	}
 	else {

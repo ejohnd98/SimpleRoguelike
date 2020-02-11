@@ -44,7 +44,7 @@ void Close()
 	delete gameRenderer;
 }
 
-Command InputToCommand(SDL_Event* e) {
+Command InputToCommand(SDL_Event* e) { //hardcoded inputs currently
 	switch (e->key.keysym.sym) {
 		case SDLK_UP:
 			return Command::MOVE_UP;

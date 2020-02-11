@@ -12,9 +12,9 @@ public:
 	//Loads image at specified path
 	bool LoadFromFile(std::string path, SDL_Renderer* renderer);
 
-	void SetTileSetInfo(int tileW, int tileH);
+	void SetTileSetInfo(int tileW, int tileH); //sets tileset dimensions
 
-	SDL_Rect* GetTileRect(int tileNum);
+	SDL_Rect* GetTileRect(int tileNum); //returns a rect corresponding to tile of given index
 
 	//Deallocates texture
 	void Free();
