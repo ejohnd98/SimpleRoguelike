@@ -15,8 +15,12 @@
 #include "Prop.h"
 #include "Pathfinder.h"
 #include "FieldOfView.h"
-
+#include "DatabaseReader.h"
 #include "GameLog.h"
+
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 
 bool gameInitialized = false;
 bool playerAlive = false;
@@ -49,6 +53,18 @@ void GameLoop::InitializeGame() {
 	currentMap->SetGameLoop(this); //give map a reference to this gameloop
 	delete dungeonGen; //deallocate dungeon generator
 	//TestMap();
+
+	//--------------------------//
+	//database development tests//
+	//--------------------------//
+
+	rapidjson::Document doc = DatabaseReader::ReadJSON("database/test.json");
+	Actor* actor = DatabaseReader::DocumentToActor(doc);
+	std::cout << "Actor name and sprite: " << actor->GetName() << ", " << actor->GetSprite()->GetIndex() << "\n";
+
+	//--------------------------//
+
+
 	//place player character (hardcoded for now)
 	Coordinate playerStartPos = currentMap->GetPosAroundStairs(true);
 	playerActor = new Actor("Hero", 32);
@@ -98,15 +114,7 @@ void TestMap() {
 void GameLoop::AdvanceLoop() {
 	if (gameInitialized && playerAlive) {
 		if (!pendingCommands.empty()) {
-
-			//map debugging
-			/*
-			if (pendingCommands.front() == Command::WAIT) {
-				MapGenerator* mapGen = new MapGenerator();
-				mapGen->GenerateMap(currentMap, currentMap->GetWidth(), currentMap->GetHeight());
-				delete mapGen;
-			}*/
-
+			
 			Command nextCom = pendingCommands.front();
 			pendingCommands.pop_front();
 			bool validCommand = false;
