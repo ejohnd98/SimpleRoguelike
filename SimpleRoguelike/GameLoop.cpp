@@ -64,7 +64,6 @@ void GameLoop::InitializeGame() {
 
 	//--------------------------//
 
-
 	//place player character (hardcoded for now)
 	Coordinate playerStartPos = currentMap->GetPosAroundStairs(true);
 	playerActor = new Actor("Hero", 32);
