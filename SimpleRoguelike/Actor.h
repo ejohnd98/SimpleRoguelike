@@ -15,6 +15,7 @@ public:
 	bool playerControlled = false;
 	Actor();
 	Actor(std::string n, int sprIndex);
+	Actor(std::string n, int sprIndex, int health, int strength, int faction, int sight);
 	~Actor();
 
 	void Act();

@@ -24,9 +24,23 @@ Document DatabaseReader::ReadJSON(const std::string path) { //reads JSON at path
 	return doc;
 }
 
-Actor* DatabaseReader::DocumentToActor(Document& doc) { //placeholder json names
-	Value& name = doc["name"];
-	Value& sprite = doc["sprite"];
+void DatabaseReader::ReadActorDatabase(Document& doc) { //reads in actors from the provided doc. Currently does nothing with the data
+	Value& actors = doc["actors"];
+	for (SizeType i = 0; i < doc["actors"].Size(); i++) {
+		Actor* testActor = ValueToActor(doc["actors"][i]);
+		std::cout << "Reading in: " << testActor->GetName() << "\n"; //log the actors being read in
+		delete testActor;
+	}
+}
 
-	return new Actor(name.GetString(), sprite.GetInt());
+Actor* DatabaseReader::ValueToActor(Value& val) { //deserialize given value into Actor class
+	std::string name = val["name"].GetString();
+	int sprite = val["sprite"].GetInt();
+	int health = val["health"].GetInt();
+	int strength = val["strength"].GetInt();
+	int faction = val["faction"].GetInt();
+	int sight = val["sight"].GetInt();
+
+	Actor* actor = new Actor(name, sprite, health, strength, faction, sight);
+	return actor;
 }

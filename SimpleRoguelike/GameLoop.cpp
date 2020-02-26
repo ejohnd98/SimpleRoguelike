@@ -59,8 +59,7 @@ void GameLoop::InitializeGame() {
 	//--------------------------//
 
 	rapidjson::Document doc = DatabaseReader::ReadJSON("database/test.json");
-	Actor* actor = DatabaseReader::DocumentToActor(doc);
-	std::cout << "Actor name and sprite: " << actor->GetName() << ", " << actor->GetSprite()->GetIndex() << "\n";
+	DatabaseReader::ReadActorDatabase(doc);
 
 	//--------------------------//
 

@@ -22,6 +22,10 @@ Actor::Actor(std::string n, int sprIndex)
 	name = n;
 	actorSprite = new Sprite(sprIndex);
 }
+Actor::Actor(std::string name, int sprIndex, int health, int strength, int faction, int sight) : name(name), health(health), strength(strength), faction(faction), sight(sight)
+{
+	actorSprite = new Sprite(sprIndex);
+}
 Actor::~Actor() {
 	delete actorSprite;
 }

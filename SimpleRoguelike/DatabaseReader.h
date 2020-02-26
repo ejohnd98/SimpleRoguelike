@@ -9,7 +9,7 @@ class DatabaseReader
 {
 public:	
 	static rapidjson::Document ReadJSON(const std::string path);
-
-	static class Actor* DocumentToActor(rapidjson::Document& doc);
+	static void ReadActorDatabase(rapidjson::Document& doc);
+	static class Actor* ValueToActor(rapidjson::Value& val);
 };
 
