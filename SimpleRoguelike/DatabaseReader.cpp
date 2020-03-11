@@ -5,6 +5,7 @@
 
 #include "DatabaseReader.h"
 #include "Actor.h"
+#include "ActorDatabase.h"
 
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
@@ -27,20 +28,20 @@ Document DatabaseReader::ReadJSON(const std::string path) { //reads JSON at path
 void DatabaseReader::ReadActorDatabase(Document& doc) { //reads in actors from the provided doc. Currently does nothing with the data
 	Value& actors = doc["actors"];
 	for (SizeType i = 0; i < doc["actors"].Size(); i++) {
-		Actor* testActor = ValueToActor(doc["actors"][i]);
-		std::cout << "Reading in: " << testActor->GetName() << "\n"; //log the actors being read in
-		delete testActor;
+		Actor* newActor = ValueToActor(doc["actors"][i]);
+		std::cout << "Reading in: " << newActor->GetName() << "\n"; //log the actors being read in
+		//ActorDatabase::AddActor(newActor);
 	}
 }
 
 Actor* DatabaseReader::ValueToActor(Value& val) { //deserialize given value into Actor class
 	std::string name = val["name"].GetString();
 	int sprite = val["sprite"].GetInt();
-	int health = val["health"].GetInt();
+	int maxHealth = val["health"].GetInt();
 	int strength = val["strength"].GetInt();
 	int faction = val["faction"].GetInt();
 	int sight = val["sight"].GetInt();
 
-	Actor* actor = new Actor(name, sprite, health, strength, faction, sight);
+	Actor* actor = new Actor(name, sprite, maxHealth, strength, faction, sight);
 	return actor;
 }

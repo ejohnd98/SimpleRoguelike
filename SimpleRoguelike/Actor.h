@@ -16,6 +16,7 @@ public:
 	Actor();
 	Actor(std::string n, int sprIndex);
 	Actor(std::string n, int sprIndex, int health, int strength, int faction, int sight);
+	Actor(Actor* a);
 	~Actor();
 
 	void Act();
@@ -33,6 +34,8 @@ public:
 	int GetHealth();
 	void SetFaction(int newFaction);
 	void SetMapRef(class Map* mapRef);
+
+	Actor* GetCopy();
 
 	//game functions
 	void AttackUpon(int attackPower, Actor* attacker);
@@ -53,6 +56,7 @@ protected:
 
 	//game parameters. Not balanced or really modified at all at the moment
 	std::string name = "";
+	int maxHealth = 10;
 	int health = 10;
 	int strength = 3;
 	int faction = 0;

@@ -17,6 +17,7 @@
 #include "FieldOfView.h"
 #include "DatabaseReader.h"
 #include "GameLog.h"
+#include "ActorDatabase.h"
 
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"

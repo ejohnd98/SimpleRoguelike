@@ -19,12 +19,24 @@ Actor::Actor() {
 }
 Actor::Actor(std::string n, int sprIndex)
 {
+	health = maxHealth;
 	name = n;
 	actorSprite = new Sprite(sprIndex);
 }
-Actor::Actor(std::string name, int sprIndex, int health, int strength, int faction, int sight) : name(name), health(health), strength(strength), faction(faction), sight(sight)
+Actor::Actor(std::string name, int sprIndex, int maxHealth, int strength, int faction, int sight) : name(name), maxHealth(maxHealth), strength(strength), faction(faction), sight(sight)
 {
+	health = maxHealth;
 	actorSprite = new Sprite(sprIndex);
+}
+Actor::Actor(Actor* a)
+{
+	name = a->name;
+	maxHealth = a->maxHealth;
+	strength = a->strength;
+	faction = a->faction;
+	sight = a->sight;
+	health = maxHealth;
+	actorSprite = new Sprite(actorSprite->GetIndex());
 }
 Actor::~Actor() {
 	delete actorSprite;
@@ -127,6 +139,10 @@ void Actor::SetMapRef(Map* mapRef) {
 	currentMapRef = mapRef;
 }
 
+Actor*  Actor::GetCopy() {
+	return new Actor(this);
+}
+
 //Private:
 bool Actor::Move(int x, int y) {
 	return currentMapRef->MoveActor(this, x, y);
@@ -150,6 +166,9 @@ void Actor::DealDamage(int damage) {
 	if (health <= 0) {
 		health = 0;
 		Kill();
+	}
+	else if (health > maxHealth) {
+		health = maxHealth;
 	}
 }
 
