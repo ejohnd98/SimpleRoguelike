@@ -36,7 +36,7 @@ Actor::Actor(Actor* a)
 	faction = a->faction;
 	sight = a->sight;
 	health = maxHealth;
-	actorSprite = new Sprite(actorSprite->GetIndex());
+	actorSprite = new Sprite(a->actorSprite->GetIndex());
 }
 Actor::~Actor() {
 	delete actorSprite;
@@ -140,7 +140,8 @@ void Actor::SetMapRef(Map* mapRef) {
 }
 
 Actor*  Actor::GetCopy() {
-	return new Actor(this);
+	Actor* copy = new Actor(this);
+	return copy;
 }
 
 //Private:

@@ -7,8 +7,9 @@ void ActorDatabase::AddActor(Actor* a) {
 }
 
 Actor* ActorDatabase::GetActor(int i) {
-	if (i >= 0 && i < actorList.size()) {
-		return actorList[i]->GetCopy();
+	if (i >= 0 && i < actorList.size() && actorList[i]!=nullptr) {
+		Actor* copy = actorList[i]->GetCopy();
+		return copy;
 	}
 	else {
 		std::cout << "ERROR: No actor with index: " << i << ".\n";

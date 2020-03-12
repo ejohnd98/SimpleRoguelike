@@ -30,7 +30,7 @@ void DatabaseReader::ReadActorDatabase(Document& doc) { //reads in actors from t
 	for (SizeType i = 0; i < doc["actors"].Size(); i++) {
 		Actor* newActor = ValueToActor(doc["actors"][i]);
 		std::cout << "Reading in: " << newActor->GetName() << "\n"; //log the actors being read in
-		//ActorDatabase::AddActor(newActor);
+		ActorDatabase::instance()->AddActor(newActor);
 	}
 }
 

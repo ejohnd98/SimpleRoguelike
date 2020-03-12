@@ -32,6 +32,7 @@ Actor* playerActor = nullptr;
 std::list<Command> pendingCommands = {};
 
 GameLog* GameLog::instancePtr = 0;
+ActorDatabase* ActorDatabase::instancePtr = 0;
 
 void TerminateGame();
 void TestMap();
@@ -66,7 +67,7 @@ void GameLoop::InitializeGame() {
 
 	//place player character (hardcoded for now)
 	Coordinate playerStartPos = currentMap->GetPosAroundStairs(true);
-	playerActor = new Actor("Hero", 32);
+	playerActor = ActorDatabase::instance()->GetActor(0);// new Actor("Hero", 32);
 	if (currentMap->PlaceActor(playerActor, playerStartPos.x, playerStartPos.y)) {
 		playerActor->playerControlled = true;
 		playerActor->SetFaction(1);
@@ -82,6 +83,9 @@ void GameLoop::InitializeGame() {
 
 void TerminateGame() {
 	gameInitialized = false;
+
+	delete GameLog::instance();
+	delete ActorDatabase::instance();
 	delete currentDungeon;
 }
 

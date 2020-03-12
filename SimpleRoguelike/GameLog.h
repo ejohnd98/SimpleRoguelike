@@ -6,8 +6,7 @@ class GameLog
 	std::vector<std::string> logVector;
 	std::string value;
 	static GameLog* instancePtr;
-	GameLog(std::string v = "")
-	{
+	GameLog(std::string v = ""){
 		logVector.push_back(v);
 	}
 public:
