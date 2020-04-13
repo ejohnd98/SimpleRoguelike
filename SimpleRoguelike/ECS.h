@@ -10,6 +10,7 @@
 #include "Components.h"
 #include "PositionSystem.h"
 #include "TurnSystem.h"
+#include "MapSystem.h"
 
 //Heavily based on https://austinmorlan.com/posts/entity_component_system/
 
@@ -27,7 +28,6 @@ public:
 	//Entity functions
 	Entity CreateEntity() {
 		Entity e = entityManager->CreateEntity();
-		std::cout << e << " created\n";
 		return e;
 	}
 

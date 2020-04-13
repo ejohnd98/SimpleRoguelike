@@ -21,6 +21,10 @@
 
    NEW:
 
+   Work on renderer next
+	Access MapSystem to draw walls and floors (later the visibility too)
+	Cycle through all renderable entities and render based on their position (renderable position later for animations)
+
    Create components to represent original OOP actor class
 	Position (x, y)
 	Renderable (index, render x, render y)
@@ -28,5 +32,3 @@
 	Sight(distance)
 	Faction(string faction)
 	StatusCondition (int damage (for now))
-	
-	FIX THE CONST VARIABLES 

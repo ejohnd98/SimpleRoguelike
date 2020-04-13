@@ -2,6 +2,7 @@
 #include <Set>
 
 #include "Constants.h"
+#include "Components.h"
 
 class System
 {

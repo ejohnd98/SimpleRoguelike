@@ -5,6 +5,7 @@ int tickCounter;
 ECS ecs;
 std::shared_ptr<PositionSystem> positionSystem;
 std::shared_ptr<TurnSystem> turnSystem;
+std::shared_ptr<MapSystem> mapSystem;
 
 Game::Game(){
 	InitGame();
@@ -34,11 +35,22 @@ bool Game::InitGame() {
 	signature.set(ecs.GetComponentType<Actor>());
 	ecs.SetSystemSignature<TurnSystem>(signature);
 
-	//Debugging
-	Entity test = ecs.CreateEntity();
-	ecs.AddComponent(test, Actor{});
-	test = ecs.CreateEntity();
-	ecs.AddComponent(test, Actor{50});
+	//Register Map System
+	mapSystem = ecs.RegisterSystem<MapSystem>();
+	signature.reset();
+	signature.set(ecs.GetComponentType<Map>());
+	ecs.SetSystemSignature<MapSystem>(signature);
+
+	//hardcoded first map
+	Entity mapEntity = ecs.CreateEntity();
+	ecs.AddComponent(mapEntity, Map{});
+	mapSystem->SetMap(mapEntity);
+
+	Entity player = ecs.CreateEntity();
+	ecs.AddComponent(player, Actor{0});
+	ecs.AddComponent(player, PlayerControlled{});
+	ecs.AddComponent(player, Position{-44,-414});
+	mapSystem->PlaceEntity(player, { 1,1 });
 
 	//Game setup
 	tickCounter = 0;
@@ -52,11 +64,16 @@ void Game::CloseGame() {
 void Game::Advance() {
 	switch (state) {
 		case GameState::WAITING_INPUT:
-			//if(valid input)
-				//take action and indebt player
-				//state = GameState::RUNNING;
-			//else
-				//do nothing
+			if (!pendingCommands.empty()) {
+				Command command = pendingCommands.front();
+				pendingCommands.pop();
+				Entity entity = turnSystem->PeekNextActor();
+				//if valid move:
+					std::cout << "Player acting\n";
+					turnSystem->AddDebt(entity, 50); //temp, simulate an action
+					turnSystem->PopNextActor();
+					state = GameState::RUNNING;
+			}
 			break;
 		case GameState::ANIMATING:
 			//if(animations finished)
@@ -64,12 +81,15 @@ void Game::Advance() {
 			break;
 		case GameState::RUNNING:
 			if (turnSystem->EntityCanAct()) {
-				Entity entity = turnSystem->GetNextActor();
-				if (ecs.HasComponent<PlayerControlled>(entity)) {
+				if (turnSystem->PlayerActsNext()) {
 					state = GameState::WAITING_INPUT;
 				}
 				else {
+					Entity entity = turnSystem->PeekNextActor();
+					turnSystem->PopNextActor();
 					std::cout << "Entity acting\n";
+					//Add some sort of component to entity
+					//call system to run AI for the entity
 					turnSystem->AddDebt(entity, 100); //temp, simulate an action
 				}
 			}
@@ -82,8 +102,6 @@ void Game::Advance() {
 				}
 			}
 			break;
-
-			break;
 		case GameState::ADVANCE_TURN:
 			//increment turns counter
 			//do turn effects like poison
@@ -91,9 +109,14 @@ void Game::Advance() {
 			state = GameState::RUNNING;
 			break;
 	}
-
 }
 
 void Game::GiveInput(Command command) {
-	pendingCommands.push_back(command);
+	if (AcceptingInput()) { //use switch statement later to still accept input for things like menu that don't depend on game state
+		pendingCommands.push(command);
+	}
+}
+
+bool Game::AcceptingInput() {
+	return state == GameState::WAITING_INPUT;
 }

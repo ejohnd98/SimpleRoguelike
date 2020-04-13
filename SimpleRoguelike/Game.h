@@ -1,7 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include <iostream>
-#include <list>
+#include <queue>
 
 #include "Commands.h"
 #include "ECS.h"
@@ -16,6 +16,7 @@ public:
 
 	void Advance();
 	void GiveInput(Command command);
+	bool AcceptingInput();
 
 	enum class GameState {
 		ANIMATING,
@@ -26,6 +27,6 @@ public:
 
 private:
 	GameState state;
-	std::list<Command> pendingCommands = {};
+	std::queue<Command> pendingCommands = {};
 };
 

@@ -13,16 +13,29 @@ bool TurnSystem::EntityCanAct() {
 	return !canAct.empty();
 }
 
-Entity TurnSystem::GetNextActor() {
+void TurnSystem::PopNextActor() {
 	if (EntityCanAct()) {
 		Entity next = actingOrder.front();
 		actingOrder.pop();
 		canAct.erase(next);
-		return next;
+	}
+}
+
+Entity TurnSystem::PeekNextActor() {
+	if (EntityCanAct()) {
+		return actingOrder.front();
 	}
 	else {
 		return NULL_ENTITY;
 	}
+}
+
+bool TurnSystem::PlayerActsNext() {
+	if (EntityCanAct()) {
+		Entity next = actingOrder.front();
+		return ecs.HasComponent<PlayerControlled>(next);
+	}
+	return false;
 }
 
 void TurnSystem::DecreaseDebt(int amount) {

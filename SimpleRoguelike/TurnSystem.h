@@ -7,7 +7,9 @@ class TurnSystem : public System
 public:
 	void Init();
 	bool EntityCanAct();
-	Entity GetNextActor();
+	void PopNextActor();
+	Entity PeekNextActor();
+	bool PlayerActsNext();
 	void DecreaseDebt(int amount);
 	void AddDebt(Entity entity, int amount);
 
