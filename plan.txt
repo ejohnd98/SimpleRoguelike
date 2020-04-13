@@ -1,0 +1,22 @@
+Each entity has action debt (starts at 0)
+different actions cost different amounts
+
+Each logic update: (10 per second)
+	While player cannot act:
+		increment turn counter by 10:
+			check if any actors have 0 debt and let them act (speed breaks ties)
+			subtract 10 from each actor's debt.
+
+Each render update: (60fps)
+	Loop through and render map tiles
+	
+		
+		
+Animation:
+	
+
+	Each entity has an animation component
+		sprite indicies
+		current animation index
+		last rendered coordinate
+		

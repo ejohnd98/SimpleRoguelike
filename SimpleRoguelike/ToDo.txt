@@ -18,3 +18,15 @@
 ---Implement some sort of action points or stamina system which actors gain each turn.
    This would allow actors to have different movement speeds.
    Some may not act every n turns, while some may move multiple cells at once.
+
+   NEW:
+
+   Create components to represent original OOP actor class
+	Position (x, y)
+	Renderable (index, render x, render y)
+	Health(int hp)
+	Sight(distance)
+	Faction(string faction)
+	StatusCondition (int damage (for now))
+	
+	FIX THE CONST VARIABLES 

@@ -1,47 +1,42 @@
 #include <SDL.h>
-#include <SDL_image.h>
 #include <stdio.h>
 #include <iostream>
-#include <string>
 
-#include "GameLoop.h"
+#include "Game.h"
 #include "GameRenderer.h"
 #include "Commands.h"
 
 //Screen constants
 const int SCREEN_FPS = 60;
-const int UPDATES_PER_SECOND = 60;
+const int UPDATES_PER_SECOND = 6;
 const int MS_PER_FRAME = 1000 / SCREEN_FPS;
 const int MS_PER_UPDATE = 1000 / UPDATES_PER_SECOND;
 
-//Starts up SDL and creates window
-bool Init();
-void Close();
+//Functions
+bool Initialize();
+void Terminate();
 Command InputToCommand(SDL_Event* e);
 
-//Game loop handler
-GameLoop* gameLoop = nullptr;
-//Game Renderer
-GameRenderer* gameRenderer = nullptr;
+//Variables
+std::shared_ptr<Game> game;
+std::shared_ptr<GameRenderer> gameRenderer;
 
-bool Init()
+bool Initialize()
 {
 	bool success = true;
 
-	gameLoop = new GameLoop();
-	gameRenderer = new GameRenderer();
-	gameRenderer->SetGameLoop(gameLoop);
-	if (!success) {
-		printf("Failed to initialize!\n");
+	game = std::make_shared<Game>();
+
+	gameRenderer = std::make_shared<GameRenderer>();
+
+	if (!game || !gameRenderer) {
+		printf("ERROR: Failed to initialize!\n");
 	}
 	return success;
 }
 
-void Close()
+void Terminate()
 {
-	//Free up game systems
-	delete gameLoop;
-	delete gameRenderer;
 }
 
 Command InputToCommand(SDL_Event* e) { //hardcoded inputs currently
@@ -62,7 +57,7 @@ Command InputToCommand(SDL_Event* e) { //hardcoded inputs currently
 int main(int argc, char* args[])
 {
 	//Start up SDL and create window
-	if (Init())
+	if (Initialize())
 	{
 		bool quit = false; //Main loop flag
 
@@ -77,7 +72,7 @@ int main(int argc, char* args[])
 			while (SDL_PollEvent(&event) != 0){
 				switch (event.type) {
 					case SDL_KEYDOWN:
-						gameLoop->GiveInput(InputToCommand(&event));
+						game->GiveInput(InputToCommand(&event));
 						break;
 					case SDL_QUIT:
 						quit = true;
@@ -90,7 +85,7 @@ int main(int argc, char* args[])
 				nextGameUpdateTime += MS_PER_UPDATE;
 				int diff = ((int)nextGameUpdateTime) - ((int)currentTime);
 				//std::cout << "Advancing loop at: " << currentTime << " Next: " << nextGameUpdateTime << " Diff: " << diff << "\n";
-				gameLoop->AdvanceLoop();
+				game->Advance();
 			}
 			if (currentTime >= nextRenderTime) {
 				nextRenderTime += MS_PER_FRAME;
@@ -98,6 +93,6 @@ int main(int argc, char* args[])
 			}
 		}
 	}
-	Close(); //Free resources and close SDL
+	Terminate(); //Free resources and close SDL
 	return 0;
 }

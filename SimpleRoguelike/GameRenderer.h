@@ -7,6 +7,7 @@ public:
 	~GameRenderer();
 
 	void Render();
-	void SetGameLoop(class GameLoop* loop);
+private:
+	std::shared_ptr<class Game> game;
 };
 
