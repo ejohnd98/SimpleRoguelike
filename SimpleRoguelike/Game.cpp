@@ -1,9 +1,12 @@
+#include <stdio.h>
+#include <iostream>
+
 #include "Game.h"
+#include "ECS.h"
 
 //variables
 int tickCounter;
-ECS ecs;
-std::shared_ptr<PositionSystem> positionSystem;
+extern ECS ecs;
 std::shared_ptr<TurnSystem> turnSystem;
 std::shared_ptr<MapSystem> mapSystem;
 
@@ -15,23 +18,15 @@ Game::~Game(){
 }
 
 bool Game::InitGame() {
-	ecs.Init();
-
 	//Register components
 	ecs.RegisterComponent<Map>();
 	ecs.RegisterComponent<Position>();
 	ecs.RegisterComponent<Actor>();
 	ecs.RegisterComponent<PlayerControlled>();
 
-	//Register Position System
-	positionSystem = ecs.RegisterSystem<PositionSystem>();
-	Signature signature;
-	signature.set(ecs.GetComponentType<Position>());
-	ecs.SetSystemSignature<PositionSystem>(signature);
-
 	//Register Turn System
 	turnSystem = ecs.RegisterSystem<TurnSystem>();
-	signature.reset();
+	Signature signature;
 	signature.set(ecs.GetComponentType<Actor>());
 	ecs.SetSystemSignature<TurnSystem>(signature);
 
@@ -96,7 +91,7 @@ void Game::Advance() {
 			else {
 				turnSystem->DecreaseDebt(10);
 				tickCounter++;
-				std::cout << tickCounter << "\n";
+				//std::cout << tickCounter << "\n";
 				if (tickCounter % 10 == 0) {
 					state = GameState::ADVANCE_TURN;
 				}

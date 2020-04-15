@@ -8,7 +8,7 @@
 #include "SystemManager.h"
 
 #include "Components.h"
-#include "PositionSystem.h"
+#include "RendererSystem.h"
 #include "TurnSystem.h"
 #include "MapSystem.h"
 

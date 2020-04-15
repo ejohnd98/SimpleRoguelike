@@ -2,13 +2,14 @@
 #include <stdio.h>
 #include <iostream>
 
+#include "ECS.h"
 #include "Game.h"
-#include "GameRenderer.h"
 #include "Commands.h"
+#include "Constants.h"
 
 //Screen constants
 const int SCREEN_FPS = 60;
-const int UPDATES_PER_SECOND = 6;
+const int UPDATES_PER_SECOND = 60;
 const int MS_PER_FRAME = 1000 / SCREEN_FPS;
 const int MS_PER_UPDATE = 1000 / UPDATES_PER_SECOND;
 
@@ -18,18 +19,29 @@ void Terminate();
 Command InputToCommand(SDL_Event* e);
 
 //Variables
+ECS ecs;
+
+std::shared_ptr<RendererSystem> rendererSystem;
 std::shared_ptr<Game> game;
-std::shared_ptr<GameRenderer> gameRenderer;
+
 
 bool Initialize()
 {
 	bool success = true;
+	ecs.Init();
+	ecs.RegisterComponent<Renderable>();
+
+	//Register Renderer System
+	rendererSystem = ecs.RegisterSystem<RendererSystem>();
+	Signature signature;
+	signature.set(ecs.GetComponentType<Renderable>());
+	ecs.SetSystemSignature<RendererSystem>(signature);
+
+	rendererSystem->Init();
 
 	game = std::make_shared<Game>();
 
-	gameRenderer = std::make_shared<GameRenderer>();
-
-	if (!game || !gameRenderer) {
+	if (!game) {
 		printf("ERROR: Failed to initialize!\n");
 	}
 	return success;
@@ -37,6 +49,7 @@ bool Initialize()
 
 void Terminate()
 {
+	rendererSystem->Close();
 }
 
 Command InputToCommand(SDL_Event* e) { //hardcoded inputs currently
@@ -54,11 +67,10 @@ Command InputToCommand(SDL_Event* e) { //hardcoded inputs currently
 	}
 }
 
-int main(int argc, char* args[])
-{
+int main(int argc, char* args[]){
+
 	//Start up SDL and create window
-	if (Initialize())
-	{
+	if (Initialize()){
 		bool quit = false; //Main loop flag
 
 		Uint32 currentTime = SDL_GetTicks();
@@ -87,9 +99,9 @@ int main(int argc, char* args[])
 				//std::cout << "Advancing loop at: " << currentTime << " Next: " << nextGameUpdateTime << " Diff: " << diff << "\n";
 				game->Advance();
 			}
-			if (currentTime >= nextRenderTime) {
+			if (currentTime >= nextRenderTime) { //quite flawed, as there is no need to "catch up" on missed frames (unlike game updates), but will correct later.
 				nextRenderTime += MS_PER_FRAME;
-				gameRenderer->Render();
+				rendererSystem->Render();
 			}
 		}
 	}

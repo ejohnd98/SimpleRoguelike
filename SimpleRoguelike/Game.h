@@ -2,9 +2,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <queue>
-
 #include "Commands.h"
-#include "ECS.h"
 
 class Game
 {

@@ -69,6 +69,9 @@ struct Map { //hardcoded default map
 		{true, true, true, true, true, true}
 	};
 
+	int wallSprite = 3;
+	int floorSprite = 1;
+
 	//std::shared_ptr<bool[MAX_MAP_SIZE][MAX_MAP_SIZE]> visited;
 	//std::shared_ptr<bool[MAX_MAP_SIZE][MAX_MAP_SIZE]> visible;
 

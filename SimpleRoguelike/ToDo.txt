@@ -1,6 +1,5 @@
 # System
 ---Put in some simple debug tools (click cell to turn it into wall, disable fog of war, etc...)
----Limit getting input somehow (if held down, only get every game logic advance time)
 ---Change renderer to use tile coordinates to render instead of pixels (will be easier to do UI)
 --Create text class which stores string itself along with color (create syntax for coloring parts of string?)
 -Start working on JSON reader for actor and item database
