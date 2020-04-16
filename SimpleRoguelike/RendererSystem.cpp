@@ -8,17 +8,26 @@
 #include "ETexture.h"
 #include "ECS.h"
 
-extern ECS ecs;
+extern std::shared_ptr <ECS> ecs;
+extern std::shared_ptr<MapSystem> mapSystem;
 
 const char* WINDOW_TITLE = "Roguelike Rework";
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int PIXEL_MULT = 2;
 
+int centerTileX;
+int centerTileY;
+int tileScreenSize;
+
 SDL_Window* SDLWindow = nullptr; //The window that will be rendered to
 SDL_Renderer* SDLRenderer = nullptr; //The window renderer
 ETexture tileset;
 ETexture fontTex;
+
+RendererSystem::~RendererSystem() {
+	Close();
+}
 
 void RendererSystem::Init() {
 	bool success = true;
@@ -67,9 +76,66 @@ void RendererSystem::Render() {
 	SDL_SetRenderDrawColor(SDLRenderer, 31, 14, 28, 0x00);
 	SDL_RenderClear(SDLRenderer);
 
-	//render stuff
+	RenderMap(mapSystem->map);
 
 	SDL_RenderPresent(SDLRenderer);
+}
+
+void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
+	int height = map->height;
+	int width = map->width;
+	tileScreenSize = 32;// tileset.GetTileWidth()* PIXEL_MULT;
+
+	//number of tiles to render
+	int horzTiles = ceil(SCREEN_WIDTH / tileScreenSize);
+	int vertTiles = ceil(SCREEN_HEIGHT / tileScreenSize);
+
+	//center
+	centerTileX = 2;
+	centerTileY = 2;
+
+	//range of tiles to render
+	int renderX1 = centerTileX - ceil(horzTiles * 0.5);
+	int renderX2 = centerTileX + ceil(horzTiles * 0.5);
+	int renderY1 = centerTileY - ceil(vertTiles * 0.5);
+	int renderY2 = centerTileY + ceil(vertTiles * 0.5);
+
+	for (int y = renderY1; y <= renderY2; y++) {
+		for (int x = renderX1; x <= renderX2; x++) {
+			if (!mapSystem->ValidPosition({ x, y })) { //if position is invalid
+				RenderTile(x, y, 5, tileScreenSize); //render '?'
+				continue;
+			}
+			int spr = map->floorSprite;
+			if (map->cells[x][y]) { //if wall
+				spr = map->wallSprite;
+			}
+			RenderTile(x, y, spr, tileScreenSize);
+		}
+	}
+}
+//should change the following to use Position and condense into 1 function
+int TileCoordXToScreenCoordX(int x) {
+	int tileScreenSize = tileset.GetTileWidth() * PIXEL_MULT;
+	int playerX = centerTileX * tileScreenSize;
+	int desiredPlayerRenderPos = (SCREEN_WIDTH * 0.5) - (tileScreenSize * 0.5);
+	int shiftAmount = desiredPlayerRenderPos - playerX;
+	return (x * tileScreenSize) + shiftAmount;
+}
+int TileCoordYToScreenCoordY(int y) {
+	int tileScreenSize = tileset.GetTileHeight() * PIXEL_MULT;
+	int playerY = centerTileY * tileScreenSize;
+	int desiredPlayerRenderPos = (SCREEN_HEIGHT * 0.5) - (tileScreenSize * 0.5);
+	int shiftAmount = desiredPlayerRenderPos - playerY;
+	return (y * tileScreenSize) + shiftAmount;
+}
+
+void RendererSystem::RenderTile(int x, int y, int tileIndex, int tileScreenSize) {
+	SDL_Rect texQuad = *tileset.GetTileRect(tileIndex);
+	int renderX = TileCoordXToScreenCoordX(x);
+	int renderY = TileCoordYToScreenCoordY(y);
+	SDL_Rect renderQuad = { renderX, renderY, tileScreenSize, tileScreenSize };
+	SDL_RenderCopy(SDLRenderer, tileset.GetTexture(), &texQuad, &renderQuad);
 }
 
 bool RendererSystem::LoadMedia() {

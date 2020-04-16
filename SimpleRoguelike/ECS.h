@@ -14,8 +14,6 @@
 
 //Heavily based on https://austinmorlan.com/posts/entity_component_system/
 
-
-
 class ECS
 {
 public:

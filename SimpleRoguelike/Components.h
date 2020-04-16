@@ -16,6 +16,18 @@ struct Position {
 	bool operator<(const Position& other) const {
 		return (x < other.x && y < other.y);
 	}
+
+	Position& operator+(int a){
+		x += a;
+		y += a;
+		return *this;
+	}
+
+	Position& operator-(int a) {
+		x -= a;
+		y -= a;
+		return *this;
+	}
 };
 
 namespace std {
@@ -60,11 +72,11 @@ struct Map { //hardcoded default map
 	int width = 6;
 	int height = 6;
 
-	bool cells[MAX_MAP_SIZE][MAX_MAP_SIZE] = {
+	bool cells[6][6] = {
 		{true, true, true, true, true, true},
+		{true, true, false, false, false, true},
 		{true, false, false, false, false, true},
-		{true, false, false, false, false, true},
-		{true, false, false, false, false, true},
+		{true, false, false, true, false, true},
 		{true, false, false, false, false, true},
 		{true, true, true, true, true, true}
 	};

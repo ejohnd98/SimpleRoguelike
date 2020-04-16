@@ -11,7 +11,7 @@ public:
 	void MoveEntity(Entity entity, Position pos);
 	bool ValidPosition(Position pos);
 
-private:
+//private:
 	Entity mapEntity;
 	std::shared_ptr<Map> map;
 };

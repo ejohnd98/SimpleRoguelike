@@ -4,7 +4,7 @@
 #include "TurnSystem.h"
 #include "ECS.h"
 
-extern ECS ecs;
+extern std::shared_ptr <ECS> ecs;
 
 void TurnSystem::Init() {
 }
@@ -33,7 +33,7 @@ Entity TurnSystem::PeekNextActor() {
 bool TurnSystem::PlayerActsNext() {
 	if (EntityCanAct()) {
 		Entity next = actingOrder.front();
-		return ecs.HasComponent<PlayerControlled>(next);
+		return ecs->HasComponent<PlayerControlled>(next);
 	}
 	return false;
 }
@@ -41,7 +41,7 @@ bool TurnSystem::PlayerActsNext() {
 void TurnSystem::DecreaseDebt(int amount) {
 	for (auto const& entity : entities) //iterate through all actors
 	{
-		Actor& actor = ecs.GetComponent<Actor>(entity);
+		Actor& actor = ecs->GetComponent<Actor>(entity);
 
 		if (actor.actionDebt > 0) { //if actor has debt, decrease by given amount
 			actor.actionDebt -= amount;
@@ -57,6 +57,6 @@ void TurnSystem::DecreaseDebt(int amount) {
 }
 
 void TurnSystem::AddDebt(Entity entity, int amount) {
-	Actor& actor = ecs.GetComponent<Actor>(entity);
+	Actor& actor = ecs->GetComponent<Actor>(entity);
 	actor.actionDebt += amount;
 }

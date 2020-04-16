@@ -6,9 +6,9 @@
 
 //variables
 int tickCounter;
-extern ECS ecs;
-std::shared_ptr<TurnSystem> turnSystem;
-std::shared_ptr<MapSystem> mapSystem;
+extern std::shared_ptr <ECS> ecs;
+extern std::shared_ptr<TurnSystem> turnSystem;
+extern std::shared_ptr<MapSystem> mapSystem;
 
 Game::Game(){
 	InitGame();
@@ -18,33 +18,15 @@ Game::~Game(){
 }
 
 bool Game::InitGame() {
-	//Register components
-	ecs.RegisterComponent<Map>();
-	ecs.RegisterComponent<Position>();
-	ecs.RegisterComponent<Actor>();
-	ecs.RegisterComponent<PlayerControlled>();
-
-	//Register Turn System
-	turnSystem = ecs.RegisterSystem<TurnSystem>();
-	Signature signature;
-	signature.set(ecs.GetComponentType<Actor>());
-	ecs.SetSystemSignature<TurnSystem>(signature);
-
-	//Register Map System
-	mapSystem = ecs.RegisterSystem<MapSystem>();
-	signature.reset();
-	signature.set(ecs.GetComponentType<Map>());
-	ecs.SetSystemSignature<MapSystem>(signature);
-
 	//hardcoded first map
-	Entity mapEntity = ecs.CreateEntity();
-	ecs.AddComponent(mapEntity, Map{});
+	Entity mapEntity = ecs->CreateEntity();
+	ecs->AddComponent(mapEntity, Map{6,6});
 	mapSystem->SetMap(mapEntity);
 
-	Entity player = ecs.CreateEntity();
-	ecs.AddComponent(player, Actor{0});
-	ecs.AddComponent(player, PlayerControlled{});
-	ecs.AddComponent(player, Position{-44,-414});
+	Entity player = ecs->CreateEntity();
+	ecs->AddComponent(player, Actor{0});
+	ecs->AddComponent(player, PlayerControlled{});
+	ecs->AddComponent(player, Position{-44,-414});
 	mapSystem->PlaceEntity(player, { 1,1 });
 
 	//Game setup

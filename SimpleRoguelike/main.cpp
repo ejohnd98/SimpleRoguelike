@@ -19,26 +19,45 @@ void Terminate();
 Command InputToCommand(SDL_Event* e);
 
 //Variables
-ECS ecs;
-
+std::shared_ptr <ECS> ecs;
 std::shared_ptr<RendererSystem> rendererSystem;
+std::shared_ptr<TurnSystem> turnSystem;
+std::shared_ptr<MapSystem> mapSystem;
 std::shared_ptr<Game> game;
 
 
 bool Initialize()
 {
 	bool success = true;
-	ecs.Init();
-	ecs.RegisterComponent<Renderable>();
+	ecs = std::make_unique<ECS>();
+	ecs->Init();
+	
+	//Register components
+	ecs->RegisterComponent<Map>();
+	ecs->RegisterComponent<Position>();
+	ecs->RegisterComponent<Actor>();
+	ecs->RegisterComponent<PlayerControlled>();
+	ecs->RegisterComponent<Renderable>();
 
 	//Register Renderer System
-	rendererSystem = ecs.RegisterSystem<RendererSystem>();
+	rendererSystem = ecs->RegisterSystem<RendererSystem>();
 	Signature signature;
-	signature.set(ecs.GetComponentType<Renderable>());
-	ecs.SetSystemSignature<RendererSystem>(signature);
+	signature.set(ecs->GetComponentType<Renderable>());
+	ecs->SetSystemSignature<RendererSystem>(signature);
+
+	//Register Turn System
+	turnSystem = ecs->RegisterSystem<TurnSystem>();
+	signature.reset();
+	signature.set(ecs->GetComponentType<Actor>());
+	ecs->SetSystemSignature<TurnSystem>(signature);
+
+	//Register Map System
+	mapSystem = ecs->RegisterSystem<MapSystem>();
+	signature.reset();
+	signature.set(ecs->GetComponentType<Map>());
+	ecs->SetSystemSignature<MapSystem>(signature);
 
 	rendererSystem->Init();
-
 	game = std::make_shared<Game>();
 
 	if (!game) {
