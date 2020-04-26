@@ -10,8 +10,9 @@ public:
 	void RemoveEntity(Entity entity);
 	void MoveEntity(Entity entity, Position pos);
 	bool ValidPosition(Position pos);
+	bool CanMoveTo(Position pos);
+	Entity GetEntityAt(Position pos);
 
-//private:
 	Entity mapEntity;
 	std::shared_ptr<Map> map;
 };

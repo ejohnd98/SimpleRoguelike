@@ -84,7 +84,7 @@ void RendererSystem::Render() {
 void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 	int height = map->height;
 	int width = map->width;
-	tileScreenSize = 32;// tileset.GetTileWidth()* PIXEL_MULT;
+	tileScreenSize = tileset.GetTileWidth()* PIXEL_MULT;
 
 	//number of tiles to render
 	int horzTiles = ceil(SCREEN_WIDTH / tileScreenSize);
@@ -106,14 +106,23 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 				RenderTile(x, y, 5, tileScreenSize); //render '?'
 				continue;
 			}
-			int spr = map->floorSprite;
+			Sprite spr = map->floorSprite;
 			if (map->cells[x][y]) { //if wall
 				spr = map->wallSprite;
 			}
 			RenderTile(x, y, spr, tileScreenSize);
 		}
 	}
+
+	for (auto const& entity : entities) { //iterate through renderable entities
+		
+		Renderable r = ecs->GetComponent<Renderable>(entity);
+		Position pos = ecs->GetComponent<Position>(entity);
+		RenderTile(pos.x, pos.y, r.sprite, tileScreenSize);
+	}
+
 }
+
 //should change the following to use Position and condense into 1 function
 int TileCoordXToScreenCoordX(int x) {
 	int tileScreenSize = tileset.GetTileWidth() * PIXEL_MULT;
@@ -130,8 +139,8 @@ int TileCoordYToScreenCoordY(int y) {
 	return (y * tileScreenSize) + shiftAmount;
 }
 
-void RendererSystem::RenderTile(int x, int y, int tileIndex, int tileScreenSize) {
-	SDL_Rect texQuad = *tileset.GetTileRect(tileIndex);
+void RendererSystem::RenderTile(int x, int y, Sprite spr, int tileScreenSize) {
+	SDL_Rect texQuad = *tileset.GetTileRect(spr);
 	int renderX = TileCoordXToScreenCoordX(x);
 	int renderY = TileCoordYToScreenCoordY(y);
 	SDL_Rect renderQuad = { renderX, renderY, tileScreenSize, tileScreenSize };

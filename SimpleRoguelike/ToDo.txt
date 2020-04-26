@@ -1,33 +1,17 @@
-# System
----Put in some simple debug tools (click cell to turn it into wall, disable fog of war, etc...)
----Change renderer to use tile coordinates to render instead of pixels (will be easier to do UI)
---Create text class which stores string itself along with color (create syntax for coloring parts of string?)
--Start working on JSON reader for actor and item database
+NEXT:
+	Create animation system (new design)
+		Any entity that can animate has Animation component
+		Also has component specific to animation (idle, moving, attack)
 
-# Interface
----Cache actors last known positions for when cells are not visible, but known.
---Redo gamelogs to have vector of above mentioned text objects.
+		Renderer loops through all entities with Animation component and handles animation in order of priority (Move is more important than idle)
+		each step it moves progress variable in animation forward
+		if not set to loop, remove component after progress is done
 
-# Map Generation
---Make Map generation less hardcoded
+		When moving an entity, add MoveAnim component to entity
+		Also keep track of pending animations in Renderer (list of enum AnimType). Add to when adding these components.
+		When the added AnimType is different to last one (ie, adding attack when last was move) then store that new one somewhere
+			then, set a flag so Game remains in Animating state. Once anim are done playing, clear queue and add AnimType that triggered the pause
 
-# Actor
---Properly implement FSM (currently always set to attack)
----Create functions for calculating values like attack power and damage received, as well as determining if a target is an enemy.
----Implement some sort of action points or stamina system which actors gain each turn.
-   This would allow actors to have different movement speeds.
-   Some may not act every n turns, while some may move multiple cells at once.
-
-   NEW:
-
-   Work on renderer next
+Work on renderer
 	Access MapSystem to draw walls and floors (later the visibility too)
 	Cycle through all renderable entities and render based on their position (renderable position later for animations)
-
-   Create components to represent original OOP actor class
-	Position (x, y)
-	Renderable (index, render x, render y)
-	Health(int hp)
-	Sight(distance)
-	Faction(string faction)
-	StatusCondition (int damage (for now))

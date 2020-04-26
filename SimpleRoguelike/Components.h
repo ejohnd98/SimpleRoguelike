@@ -17,6 +17,12 @@ struct Position {
 		return (x < other.x && y < other.y);
 	}
 
+	Position& operator+(const Position& other) {
+		x += other.x;
+		y += other.y;
+		return *this;
+	}
+
 	Position& operator+(int a){
 		x += a;
 		y += a;
@@ -50,9 +56,11 @@ struct Actor {
 };
 
 struct Renderable {
-	int sprite = 0;
-	float x = 0;
-	float y = 0;
+	Sprite sprite = 0;
+	float x1 = 0;
+	float y1 = 0;
+	float x2 = 0;
+	float y2 = 0;
 };
 
 struct Info {
@@ -81,8 +89,8 @@ struct Map { //hardcoded default map
 		{true, true, true, true, true, true}
 	};
 
-	int wallSprite = 3;
-	int floorSprite = 1;
+	Sprite wallSprite = 3;
+	Sprite floorSprite = 1;
 
 	//std::shared_ptr<bool[MAX_MAP_SIZE][MAX_MAP_SIZE]> visited;
 	//std::shared_ptr<bool[MAX_MAP_SIZE][MAX_MAP_SIZE]> visible;

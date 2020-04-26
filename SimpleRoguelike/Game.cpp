@@ -9,6 +9,7 @@ int tickCounter;
 extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr<TurnSystem> turnSystem;
 extern std::shared_ptr<MapSystem> mapSystem;
+extern std::shared_ptr<PlayerSystem> playerSystem;
 
 Game::Game(){
 	InitGame();
@@ -27,6 +28,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(player, Actor{0});
 	ecs->AddComponent(player, PlayerControlled{});
 	ecs->AddComponent(player, Position{-44,-414});
+	ecs->AddComponent(player, Renderable{32});
 	mapSystem->PlaceEntity(player, { 1,1 });
 
 	//Game setup
@@ -45,11 +47,12 @@ void Game::Advance() {
 				Command command = pendingCommands.front();
 				pendingCommands.pop();
 				Entity entity = turnSystem->PeekNextActor();
-				//if valid move:
+				if (playerSystem->DetermineAction(command)) {
 					std::cout << "Player acting\n";
 					turnSystem->AddDebt(entity, 50); //temp, simulate an action
 					turnSystem->PopNextActor();
 					state = GameState::RUNNING;
+				}
 			}
 			break;
 		case GameState::ANIMATING:

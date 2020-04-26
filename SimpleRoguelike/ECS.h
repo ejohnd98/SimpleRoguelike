@@ -11,6 +11,7 @@
 #include "RendererSystem.h"
 #include "TurnSystem.h"
 #include "MapSystem.h"
+#include "PlayerSystem.h"
 
 //Heavily based on https://austinmorlan.com/posts/entity_component_system/
 

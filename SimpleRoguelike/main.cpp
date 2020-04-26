@@ -23,6 +23,7 @@ std::shared_ptr <ECS> ecs;
 std::shared_ptr<RendererSystem> rendererSystem;
 std::shared_ptr<TurnSystem> turnSystem;
 std::shared_ptr<MapSystem> mapSystem;
+std::shared_ptr<PlayerSystem> playerSystem;
 std::shared_ptr<Game> game;
 
 
@@ -56,6 +57,12 @@ bool Initialize()
 	signature.reset();
 	signature.set(ecs->GetComponentType<Map>());
 	ecs->SetSystemSignature<MapSystem>(signature);
+
+	//Register Player System
+	playerSystem = ecs->RegisterSystem<PlayerSystem>();
+	signature.reset();
+	signature.set(ecs->GetComponentType<PlayerControlled>());
+	ecs->SetSystemSignature<PlayerSystem>(signature);
 
 	rendererSystem->Init();
 	game = std::make_shared<Game>();

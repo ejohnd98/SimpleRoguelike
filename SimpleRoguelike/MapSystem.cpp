@@ -40,15 +40,26 @@ void MapSystem::MoveEntity(Entity entity, Position newPos) {
 	assert(ValidPosition(newPos));
 
 	Position& pos = ecs->GetComponent<Position>(entity);
-	if (map->positionEntityMap[pos] == entity) {
+	if (GetEntityAt(pos) == entity) { //if entity in map, remove
 		map->positionEntityMap.erase(pos);
 	}
 
-	map->positionEntityMap[newPos] = entity;
-	pos = newPos;
+	map->positionEntityMap[newPos] = entity; //update map with new position
+	pos = newPos; //update entity's position
 
 }
 
 bool MapSystem::ValidPosition(Position pos) {
 	return (pos.x >= 0 && pos.x < map->width && pos.y >= 0 && pos.y < map->height);
+}
+
+bool MapSystem::CanMoveTo(Position pos) { //returns true if position isn't a wall and contains no entity
+	return (!map->cells[pos.x][pos.y]) && (GetEntityAt(pos) == NULL_ENTITY);
+}
+
+Entity MapSystem::GetEntityAt(Position pos) {
+	if (map->positionEntityMap.find(pos) != map->positionEntityMap.end()) {
+		return map->positionEntityMap[pos];
+	}
+	return NULL_ENTITY;
 }
