@@ -18,6 +18,17 @@ Game::~Game(){
 	CloseGame();
 }
 
+AnimSprite& CreateIdleAnim(Sprite spriteArr[], int l, int fps){ //CREATE NEW CLASS FOR CREATING ANIMATIONS
+	AnimSprite anim = {};
+	anim.length = l;
+	anim.framesPerSprite = fps;
+	for (int i = 0; i < l; i++) {
+		anim.sprites[i] = spriteArr[i];
+	}
+	anim.loop = true;
+	return anim;
+}
+
 bool Game::InitGame() {
 	//hardcoded first map
 	Entity mapEntity = ecs->CreateEntity();
@@ -28,7 +39,10 @@ bool Game::InitGame() {
 	ecs->AddComponent(player, Actor{0});
 	ecs->AddComponent(player, PlayerControlled{});
 	ecs->AddComponent(player, Position{-44,-414});
-	ecs->AddComponent(player, Renderable{32});
+	ecs->AddComponent(player, Renderable{0});
+	
+	Sprite anim[] = { 32,33 };
+	ecs->AddComponent(player, CreateIdleAnim(anim, 2, 30));
 	mapSystem->PlaceEntity(player, { 1,1 });
 
 	//Game setup

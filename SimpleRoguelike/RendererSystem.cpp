@@ -118,7 +118,13 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 		
 		Renderable r = ecs->GetComponent<Renderable>(entity);
 		Position pos = ecs->GetComponent<Position>(entity);
-		RenderTile(pos.x, pos.y, r.sprite, tileScreenSize);
+		Sprite spr = r.sprite;
+		if (ecs->HasComponent<AnimSprite>(entity)) {
+			AnimSprite& anim = ecs->GetComponent<AnimSprite>(entity);
+			anim.AnimStep();
+			spr = anim.CurrentSprite();
+		}
+		RenderTile(pos.x, pos.y, spr, tileScreenSize);
 	}
 
 }

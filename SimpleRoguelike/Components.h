@@ -3,7 +3,14 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-const int MAX_MAP_SIZE = 100;
+
+#include "Constants.h"
+
+enum class AnimType {
+	IDLE,
+	MOVE,
+	ATTACK
+};
 
 struct Position {
 	int x = 0;
@@ -57,10 +64,40 @@ struct Actor {
 
 struct Renderable {
 	Sprite sprite = 0;
-	float x1 = 0;
-	float y1 = 0;
-	float x2 = 0;
-	float y2 = 0;
+};
+
+struct AnimSprite {
+	Sprite sprites[32];
+	int length;
+	int framesPerSprite;
+	bool loop;
+
+	int index = 0;
+	int frameCounter = 0;
+	bool finished = false;
+
+	void AnimStep() {
+		if (!finished) {
+			frameCounter++;
+			if (frameCounter >= framesPerSprite) {
+				std::cout << index << "," << CurrentSprite()<<"\n";
+				frameCounter = 0;
+				index++;
+				if (index >= length) {
+					if (loop) {
+						index = 0;
+					}
+					else {
+						index--;
+						finished = true;
+					}
+				}
+			}
+		}
+	}
+	Sprite CurrentSprite() {
+		return sprites[index];
+	}
 };
 
 struct Info {
@@ -82,10 +119,10 @@ struct Map { //hardcoded default map
 
 	bool cells[6][6] = {
 		{true, true, true, true, true, true},
-		{true, true, false, false, false, true},
 		{true, false, false, false, false, true},
 		{true, false, false, true, false, true},
-		{true, false, false, false, false, true},
+		{true, false, true, true, false, true},
+		{true, false, true, false, false, true},
 		{true, true, true, true, true, true}
 	};
 

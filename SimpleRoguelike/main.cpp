@@ -9,7 +9,7 @@
 
 //Screen constants
 const int SCREEN_FPS = 60;
-const int UPDATES_PER_SECOND = 60;
+const int UPDATES_PER_SECOND = 120;
 const int MS_PER_FRAME = 1000 / SCREEN_FPS;
 const int MS_PER_UPDATE = 1000 / UPDATES_PER_SECOND;
 
@@ -27,6 +27,7 @@ std::shared_ptr<PlayerSystem> playerSystem;
 std::shared_ptr<Game> game;
 
 
+
 bool Initialize()
 {
 	bool success = true;
@@ -39,6 +40,7 @@ bool Initialize()
 	ecs->RegisterComponent<Actor>();
 	ecs->RegisterComponent<PlayerControlled>();
 	ecs->RegisterComponent<Renderable>();
+	ecs->RegisterComponent<AnimSprite>();
 
 	//Register Renderer System
 	rendererSystem = ecs->RegisterSystem<RendererSystem>();

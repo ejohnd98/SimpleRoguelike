@@ -1,4 +1,4 @@
-NEXT:
+NEXT: MOVE ANIMATIONS (TOP PRIORITY)
 	Create animation system (new design)
 		Any entity that can animate has Animation component
 		Also has component specific to animation (idle, moving, attack)
@@ -12,6 +12,9 @@ NEXT:
 		When the added AnimType is different to last one (ie, adding attack when last was move) then store that new one somewhere
 			then, set a flag so Game remains in Animating state. Once anim are done playing, clear queue and add AnimType that triggered the pause
 
-Work on renderer
-	Access MapSystem to draw walls and floors (later the visibility too)
-	Cycle through all renderable entities and render based on their position (renderable position later for animations)
+	Allow sprites of varying sizes to be rendered (bigger than standard tiles)
+	Auto load tilesets in folder and store in a map by name
+
+Later:
+	Create FX entities (ex. temporary flames during an attack, hit effects, or ailment effects like poison)
+		FX system with an FX component. Checks to see if animation is done and if so, erases component

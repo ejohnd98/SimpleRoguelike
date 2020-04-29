@@ -11,3 +11,5 @@ const Entity NULL_ENTITY = 0;
 const ComponentType MAX_COMPONENTS = 32;
 
 using Signature = std::bitset<MAX_COMPONENTS>;
+
+const int MAX_MAP_SIZE = 100;
