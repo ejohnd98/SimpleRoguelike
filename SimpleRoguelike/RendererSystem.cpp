@@ -10,6 +10,7 @@
 
 extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr<MapSystem> mapSystem;
+extern std::shared_ptr<PlayerSystem> playerSystem;
 
 const char* WINDOW_TITLE = "Roguelike Rework";
 const int SCREEN_WIDTH = 800;
@@ -18,6 +19,7 @@ const int PIXEL_MULT = 2;
 
 int centerTileX;
 int centerTileY;
+FloatPosition TileToCenter; //position in-game that will be rendered in center
 int tileScreenSize;
 
 SDL_Window* SDLWindow = nullptr; //The window that will be rendered to
@@ -90,66 +92,72 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 	int horzTiles = ceil(SCREEN_WIDTH / tileScreenSize);
 	int vertTiles = ceil(SCREEN_HEIGHT / tileScreenSize);
 
+	Entity player = playerSystem->GetPlayerEntity();
 	//center
-	centerTileX = 2;
-	centerTileY = 2;
+	centerTileX = ecs->GetComponent<Position>(player).x;
+	centerTileY = ecs->GetComponent<Position>(player).y;
+	TileToCenter = ecs->GetComponent<Position>(player).ToFloat();
 
 	//range of tiles to render
-	int renderX1 = centerTileX - ceil(horzTiles * 0.5);
-	int renderX2 = centerTileX + ceil(horzTiles * 0.5);
-	int renderY1 = centerTileY - ceil(vertTiles * 0.5);
-	int renderY2 = centerTileY + ceil(vertTiles * 0.5);
+	int renderX1 = (int)(TileToCenter.x - ceil(horzTiles * 0.5));
+	int renderX2 = (int)(TileToCenter.x + ceil(horzTiles * 0.5));
+	int renderY1 = (int)(TileToCenter.y - ceil(vertTiles * 0.5));
+	int renderY2 = (int)(TileToCenter.y + ceil(vertTiles * 0.5));
 
 	for (int y = renderY1; y <= renderY2; y++) {
 		for (int x = renderX1; x <= renderX2; x++) {
 			if (!mapSystem->ValidPosition({ x, y })) { //if position is invalid
-				RenderTile(x, y, 5, tileScreenSize); //render '?'
+				RenderTile({ (float)x, (float)y }, 5, tileScreenSize); //render '?'
 				continue;
 			}
 			Sprite spr = map->floorSprite;
 			if (map->cells[x][y]) { //if wall
 				spr = map->wallSprite;
 			}
-			RenderTile(x, y, spr, tileScreenSize);
+			RenderTile({ (float)x, (float)y }, spr, tileScreenSize);
 		}
 	}
 
 	for (auto const& entity : entities) { //iterate through renderable entities
 		
 		Renderable r = ecs->GetComponent<Renderable>(entity);
-		Position pos = ecs->GetComponent<Position>(entity);
+		FloatPosition pos = ecs->GetComponent<Position>(entity).ToFloat();
 		Sprite spr = r.sprite;
 		if (ecs->HasComponent<AnimSprite>(entity)) {
 			AnimSprite& anim = ecs->GetComponent<AnimSprite>(entity);
 			anim.AnimStep();
 			spr = anim.CurrentSprite();
 		}
-		RenderTile(pos.x, pos.y, spr, tileScreenSize);
+		if (ecs->HasComponent<AnimMove>(entity)) {
+			AnimMove& anim = ecs->GetComponent<AnimMove>(entity);
+			anim.AnimStep();
+			pos = anim.CurrentPos();
+		}
+		RenderTile(pos, spr, tileScreenSize);
 	}
 
 }
 
-//should change the following to use Position and condense into 1 function
-int TileCoordXToScreenCoordX(int x) {
-	int tileScreenSize = tileset.GetTileWidth() * PIXEL_MULT;
-	int playerX = centerTileX * tileScreenSize;
-	int desiredPlayerRenderPos = (SCREEN_WIDTH * 0.5) - (tileScreenSize * 0.5);
-	int shiftAmount = desiredPlayerRenderPos - playerX;
-	return (x * tileScreenSize) + shiftAmount;
-}
-int TileCoordYToScreenCoordY(int y) {
-	int tileScreenSize = tileset.GetTileHeight() * PIXEL_MULT;
-	int playerY = centerTileY * tileScreenSize;
-	int desiredPlayerRenderPos = (SCREEN_HEIGHT * 0.5) - (tileScreenSize * 0.5);
-	int shiftAmount = desiredPlayerRenderPos - playerY;
-	return (y * tileScreenSize) + shiftAmount;
+Position TilePosToScreenPos(FloatPosition tilePos) { //converts from tile position to screen position (pixels) based on centered tile (usually the player)
+	
+	FloatPosition tileScreenSize = { tileset.GetTileWidth(), tileset.GetTileHeight() }; //size of a tile in pixels
+	tileScreenSize = tileScreenSize * PIXEL_MULT; //adjust for scale factor
+	FloatPosition centerTileScreenPos = TileToCenter * tileScreenSize; //center if rendered without offset
+	
+	FloatPosition desiredScreenPos = {SCREEN_WIDTH * 0.5, SCREEN_HEIGHT * 0.5 }; //set to center of screen
+	desiredScreenPos = desiredScreenPos - tileScreenSize * 0.5; //offset by half tile size to correctly center tile
+
+	FloatPosition offset = desiredScreenPos - centerTileScreenPos; //difference in where tile would be rendered and where we want to render it
+	FloatPosition screenPos = (tilePos * tileScreenSize) + offset; //resultant position in pixels
+	return Position{ screenPos }; // dealing with pixels now so round to int position
 }
 
-void RendererSystem::RenderTile(int x, int y, Sprite spr, int tileScreenSize) {
+void RendererSystem::RenderTile(FloatPosition pos, Sprite spr, int tileScreenSize) {
+	
 	SDL_Rect texQuad = *tileset.GetTileRect(spr);
-	int renderX = TileCoordXToScreenCoordX(x);
-	int renderY = TileCoordYToScreenCoordY(y);
-	SDL_Rect renderQuad = { renderX, renderY, tileScreenSize, tileScreenSize };
+	Position renderPos = TilePosToScreenPos(pos);
+	
+	SDL_Rect renderQuad = { renderPos.x, renderPos.y, tileScreenSize, tileScreenSize };
 	SDL_RenderCopy(SDLRenderer, tileset.GetTexture(), &texQuad, &renderQuad);
 }
 

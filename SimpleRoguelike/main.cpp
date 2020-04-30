@@ -41,6 +41,7 @@ bool Initialize()
 	ecs->RegisterComponent<PlayerControlled>();
 	ecs->RegisterComponent<Renderable>();
 	ecs->RegisterComponent<AnimSprite>();
+	ecs->RegisterComponent<AnimMove>();
 
 	//Register Renderer System
 	rendererSystem = ecs->RegisterSystem<RendererSystem>();

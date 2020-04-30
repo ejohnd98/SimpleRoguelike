@@ -29,6 +29,14 @@ AnimSprite& CreateIdleAnim(Sprite spriteArr[], int l, int fps){ //CREATE NEW CLA
 	return anim;
 }
 
+AnimMove& CreateMoveAnim(Entity entity, FloatPosition offset, float length) { //CREATE NEW CLASS FOR CREATING ANIMATIONS
+	AnimMove anim = {};
+	anim.start = ecs->GetComponent<Position>(entity).ToFloat();
+	anim.end = anim.start + offset;
+	anim.length = length;
+	return anim;
+}
+
 bool Game::InitGame() {
 	//hardcoded first map
 	Entity mapEntity = ecs->CreateEntity();
@@ -38,12 +46,22 @@ bool Game::InitGame() {
 	Entity player = ecs->CreateEntity();
 	ecs->AddComponent(player, Actor{0});
 	ecs->AddComponent(player, PlayerControlled{});
-	ecs->AddComponent(player, Position{-44,-414});
+	ecs->AddComponent(player, Position{});
 	ecs->AddComponent(player, Renderable{0});
-	
 	Sprite anim[] = { 32,33 };
 	ecs->AddComponent(player, CreateIdleAnim(anim, 2, 30));
+
+	Entity enemy = ecs->CreateEntity();
+	ecs->AddComponent(enemy, Actor{0});
+	ecs->AddComponent(enemy, Position{});
+	ecs->AddComponent(enemy, Renderable{0});
+	Sprite anim2[] = { 37,38 };
+	ecs->AddComponent(enemy, CreateIdleAnim(anim2, 2, 60));
+	
 	mapSystem->PlaceEntity(player, { 1,1 });
+	mapSystem->PlaceEntity(enemy, { 3,1 });
+
+	//ecs->AddComponent(player, CreateMoveAnim(player, { 0,2 }, 2));
 
 	//Game setup
 	tickCounter = 0;

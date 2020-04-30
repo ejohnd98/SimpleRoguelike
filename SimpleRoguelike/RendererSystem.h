@@ -12,5 +12,5 @@ public:
 private:
 	bool LoadMedia();
 	void RenderMap(std::shared_ptr<Map> map);
-	void RenderTile(int x, int y, Sprite spr, int tileScreenSize);
+	void RenderTile(FloatPosition pos, Sprite spr, int tileScreenSize);
 };
