@@ -15,7 +15,7 @@ extern std::shared_ptr<PlayerSystem> playerSystem;
 const char* WINDOW_TITLE = "Roguelike Rework";
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
-const int PIXEL_MULT = 2;
+const int PIXEL_MULT = 4;
 
 int centerTileX;
 int centerTileY;
@@ -89,14 +89,13 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 	tileScreenSize = tileset.GetTileWidth()* PIXEL_MULT;
 
 	//number of tiles to render
-	int horzTiles = ceil(SCREEN_WIDTH / tileScreenSize);
-	int vertTiles = ceil(SCREEN_HEIGHT / tileScreenSize);
+	int horzTiles = ceil(SCREEN_WIDTH / tileScreenSize) + 2;
+	int vertTiles = ceil(SCREEN_HEIGHT / tileScreenSize) + 2;
 
 	Entity player = playerSystem->GetPlayerEntity();
-	//center
-	centerTileX = ecs->GetComponent<Position>(player).x;
-	centerTileY = ecs->GetComponent<Position>(player).y;
-	TileToCenter = ecs->GetComponent<Position>(player).ToFloat();
+	Renderable& r = ecs->GetComponent<Renderable>(player);
+	TileToCenter = r.position;
+
 
 	//range of tiles to render
 	int renderX1 = (int)(TileToCenter.x - ceil(horzTiles * 0.5));
@@ -111,27 +110,50 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 				continue;
 			}
 			Sprite spr = map->floorSprite;
-			if (map->cells[x][y]) { //if wall
+			if (map->GetCell(x,y)) { //if wall
 				spr = map->wallSprite;
 			}
 			RenderTile({ (float)x, (float)y }, spr, tileScreenSize);
 		}
 	}
 
+	animating = false;
+
 	for (auto const& entity : entities) { //iterate through renderable entities
 		
-		Renderable r = ecs->GetComponent<Renderable>(entity);
-		FloatPosition pos = ecs->GetComponent<Position>(entity).ToFloat();
+		Renderable& r = ecs->GetComponent<Renderable>(entity);
+		FloatPosition pos;
+		pos = r.position;	
 		Sprite spr = r.sprite;
+		
 		if (ecs->HasComponent<AnimSprite>(entity)) {
 			AnimSprite& anim = ecs->GetComponent<AnimSprite>(entity);
+			animating = true;
+			if (anim.finished) {
+				animating = false;
+				ecs->RemoveComponent<AnimSprite>(entity);
+			}
+			else {
+				anim.AnimStep();
+				spr = anim.CurrentSprite();
+			}
+		}
+		else if (ecs->HasComponent<AnimIdle>(entity)) {
+			AnimIdle& anim = ecs->GetComponent<AnimIdle>(entity);
 			anim.AnimStep();
 			spr = anim.CurrentSprite();
 		}
+		
 		if (ecs->HasComponent<AnimMove>(entity)) {
 			AnimMove& anim = ecs->GetComponent<AnimMove>(entity);
+			animating = true;
 			anim.AnimStep();
 			pos = anim.CurrentPos();
+			r.position = anim.CurrentPos();
+			if (anim.finished) {
+				ecs->RemoveComponent<AnimMove>(entity);
+				animating = false;
+			}
 		}
 		RenderTile(pos, spr, tileScreenSize);
 	}
@@ -177,4 +199,8 @@ bool RendererSystem::LoadMedia() {
 		success = false;
 	}
 	return success;
+}
+
+bool RendererSystem::AnimationPlaying() {
+	return animating;
 }

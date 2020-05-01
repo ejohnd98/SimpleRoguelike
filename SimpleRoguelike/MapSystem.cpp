@@ -5,6 +5,7 @@
 #include "ECS.h"
 
 extern std::shared_ptr <ECS> ecs;
+extern std::shared_ptr<AnimationSystem> animationSystem;
 
 void MapSystem::Init() {
 }
@@ -22,6 +23,8 @@ void MapSystem::PlaceEntity(Entity entity, Position newPos) {
 
 	map->positionEntityMap[newPos] = entity;
 	Position& pos = ecs->GetComponent<Position>(entity);
+	Renderable& res = ecs->GetComponent<Renderable>(entity);
+	res.position = newPos.ToFloat();
 	pos = newPos;
 }
 
@@ -35,6 +38,10 @@ void MapSystem::RemoveEntity(Entity entity) {
 	pos = { -1,-1 };
 }
 
+void MapSystem::MoveEntityRelative(Entity entity, Position offset) {
+	MoveEntity(entity, ecs->GetComponent<Position>(entity) + offset);
+}
+
 void MapSystem::MoveEntity(Entity entity, Position newPos) {
 	assert(ecs->HasComponent<Position>(entity));
 	assert(ValidPosition(newPos));
@@ -45,6 +52,7 @@ void MapSystem::MoveEntity(Entity entity, Position newPos) {
 	}
 
 	map->positionEntityMap[newPos] = entity; //update map with new position
+	animationSystem->AddMoveAnim(entity, newPos.ToFloat(), 0.25f);
 	pos = newPos; //update entity's position
 
 }
@@ -54,7 +62,7 @@ bool MapSystem::ValidPosition(Position pos) {
 }
 
 bool MapSystem::CanMoveTo(Position pos) { //returns true if position isn't a wall and contains no entity
-	return (!map->cells[pos.x][pos.y]) && (GetEntityAt(pos) == NULL_ENTITY);
+	return (!map->GetCell(pos.x,pos.y)) && (GetEntityAt(pos) == NULL_ENTITY);
 }
 
 Entity MapSystem::GetEntityAt(Position pos) {

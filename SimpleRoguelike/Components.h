@@ -1,5 +1,7 @@
 #pragma once
 #include <stdio.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -156,6 +158,27 @@ struct Actor {
 
 struct Renderable {
 	Sprite sprite = 0;
+	FloatPosition position = {0,0};
+};
+
+struct AnimIdle {
+	Sprite sprites[32];
+	int length;
+	int framesPerSprite;
+
+	int index = 0;
+	int frameCounter = 0;
+
+	void AnimStep() {
+			frameCounter++;
+			if (frameCounter >= framesPerSprite) {
+				frameCounter = 0;
+				index = (index+1)%length;
+			}
+	}
+	Sprite CurrentSprite() {
+		return sprites[index];
+	}
 };
 
 struct AnimSprite {
@@ -199,8 +222,8 @@ struct AnimMove {
 	bool finished = false;
 
 	void AnimStep() {
-		if (!finished) {
-			time += (length / 60);
+		if (!finished) { 
+			time += 1/(length*60);
 			if (time >= 1.0) {
 				finished = true;
 				time = 1.0;
@@ -212,7 +235,8 @@ struct AnimMove {
 			return end;
 		}
 		else {
-			return (start * (1.0 - time)) + (end * (time));
+			float val = (cos(time*M_PI) + 1)*0.5f;
+			return (start * (val)) + (end * (1.0-val));
 		}
 	}
 };
@@ -231,16 +255,18 @@ struct Active {
 };
 
 struct Map { //hardcoded default map
-	int width = 6;
-	int height = 6;
+	int width = 19;
+	int height = 8;
 
-	bool cells[6][6] = {
-		{true, true, true, true, true, true},
-		{true, false, false, false, false, true},
-		{true, false, false, true, false, true},
-		{true, false, true, true, false, true},
-		{true, false, true, false, false, true},
-		{true, true, true, true, true, true}
+	bool cells[8][19] = {
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1},
+		{1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,1},
+		{1,1,1,1,1,1,1,1,1,0,0,0,0,0,1,0,1,0,1},
+		{1,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,1,0,1},
+		{1,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1},
+		{1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 	};
 
 	Sprite wallSprite = 3;
@@ -250,4 +276,8 @@ struct Map { //hardcoded default map
 	//std::shared_ptr<bool[MAX_MAP_SIZE][MAX_MAP_SIZE]> visible;
 
 	std::unordered_map<Position, Entity> positionEntityMap;
+
+	bool GetCell(int x, int y) {
+		return cells[y][x];
+	}
 };

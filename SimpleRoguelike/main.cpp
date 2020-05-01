@@ -9,7 +9,7 @@
 
 //Screen constants
 const int SCREEN_FPS = 60;
-const int UPDATES_PER_SECOND = 120;
+const int UPDATES_PER_SECOND = 60;
 const int MS_PER_FRAME = 1000 / SCREEN_FPS;
 const int MS_PER_UPDATE = 1000 / UPDATES_PER_SECOND;
 
@@ -24,9 +24,8 @@ std::shared_ptr<RendererSystem> rendererSystem;
 std::shared_ptr<TurnSystem> turnSystem;
 std::shared_ptr<MapSystem> mapSystem;
 std::shared_ptr<PlayerSystem> playerSystem;
+std::shared_ptr<AnimationSystem> animationSystem;
 std::shared_ptr<Game> game;
-
-
 
 bool Initialize()
 {
@@ -40,38 +39,45 @@ bool Initialize()
 	ecs->RegisterComponent<Actor>();
 	ecs->RegisterComponent<PlayerControlled>();
 	ecs->RegisterComponent<Renderable>();
+	ecs->RegisterComponent<AnimIdle>();
 	ecs->RegisterComponent<AnimSprite>();
 	ecs->RegisterComponent<AnimMove>();
 
-	//Register Renderer System
+	//Register Renderer System (Interfaces with SDL to render game)
 	rendererSystem = ecs->RegisterSystem<RendererSystem>();
 	Signature signature;
 	signature.set(ecs->GetComponentType<Renderable>());
 	ecs->SetSystemSignature<RendererSystem>(signature);
+	rendererSystem->Init();
 
-	//Register Turn System
+	//Register Turn System (Handles turn order and action debts)
 	turnSystem = ecs->RegisterSystem<TurnSystem>();
 	signature.reset();
 	signature.set(ecs->GetComponentType<Actor>());
 	ecs->SetSystemSignature<TurnSystem>(signature);
 
-	//Register Map System
+	//Register Map System (Handles all interactions with Map)
 	mapSystem = ecs->RegisterSystem<MapSystem>();
 	signature.reset();
 	signature.set(ecs->GetComponentType<Map>());
 	ecs->SetSystemSignature<MapSystem>(signature);
 
-	//Register Player System
+	//Register Player System (Interface between incoming commands and player controlled character)
 	playerSystem = ecs->RegisterSystem<PlayerSystem>();
 	signature.reset();
 	signature.set(ecs->GetComponentType<PlayerControlled>());
 	ecs->SetSystemSignature<PlayerSystem>(signature);
 
-	rendererSystem->Init();
+	//Register Animation System (Interface for adding animations to entities)
+	animationSystem = ecs->RegisterSystem<AnimationSystem>();
+	signature.reset();
+	ecs->SetSystemSignature<PlayerSystem>(signature);
+
+	//Create Game (Contains main game loop)
 	game = std::make_shared<Game>();
 
 	if (!game) {
-		printf("ERROR: Failed to initialize!\n");
+		printf("ERROR: Failed to create game!\n");
 	}
 	return success;
 }
@@ -81,19 +87,23 @@ void Terminate()
 	rendererSystem->Close();
 }
 
-Command InputToCommand(SDL_Event* e) { //hardcoded inputs currently
-	switch (e->key.keysym.sym) {
-		case SDLK_UP:
-			return Command::MOVE_UP;
-		case SDLK_DOWN:
-			return Command::MOVE_DOWN;
-		case SDLK_RIGHT:
-			return Command::MOVE_RIGHT;
-		case SDLK_LEFT:
-			return Command::MOVE_LEFT;
-		case SDLK_SPACE:
-			return Command::WAIT;
+Command InputToCommand() { //hardcoded inputs currently
+	void SDL_PumpEvents(void);
+	const Uint8* keys = SDL_GetKeyboardState(NULL);
+
+	if (keys[SDL_GetScancodeFromKey(SDLK_UP)]) {
+		return Command::MOVE_UP;
 	}
+	if (keys[SDL_GetScancodeFromKey(SDLK_DOWN)]) {
+		return Command::MOVE_DOWN;
+	}
+	if (keys[SDL_GetScancodeFromKey(SDLK_RIGHT)]) {
+		return Command::MOVE_RIGHT;
+	}
+	if (keys[SDL_GetScancodeFromKey(SDLK_LEFT)]) {
+		return Command::MOVE_LEFT;
+	}
+	return Command::NONE;
 }
 
 int main(int argc, char* args[]){
@@ -108,17 +118,27 @@ int main(int argc, char* args[]){
 
 		SDL_Event event; //Event handler
 
+
 		while (!quit) {
 			//Handle events on queue
 			while (SDL_PollEvent(&event) != 0){
 				switch (event.type) {
 					case SDL_KEYDOWN:
-						game->GiveInput(InputToCommand(&event));
+						//game->GiveInput(InputToCommand(&event));
 						break;
 					case SDL_QUIT:
 						quit = true;
 						break;
+					default:
+						break;
+						//game->ClearHeldInput();
 				}
+			}
+			Command input = InputToCommand();
+			if (input != Command::NONE) {
+				game->GiveInput(input);
+			}else {
+				game->ClearHeldInput();
 			}
 			currentTime = SDL_GetTicks();
 

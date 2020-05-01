@@ -1,16 +1,15 @@
-NEXT: MOVE ANIMATIONS (TOP PRIORITY)
-	Create animation system (new design)
-		Any entity that can animate has Animation component
-		Also has component specific to animation (idle, moving, attack)
+NEXT: 
+	Cleanup Stuff:
+		Create util class for things like lerping and cos interpolation (move out of AnimMove component)
+		Make input code neater
+		Do once over of input thresholds in Game (time since last command, etc...)
+		Tie above numbers to the framerate;
+		Tie animations to framerate properly (instead of just saying 60 in the function)
 
-		Renderer loops through all entities with Animation component and handles animation in order of priority (Move is more important than idle)
-		each step it moves progress variable in animation forward
-		if not set to loop, remove component after progress is done
-
-		When moving an entity, add MoveAnim component to entity
-		Also keep track of pending animations in Renderer (list of enum AnimType). Add to when adding these components.
-		When the added AnimType is different to last one (ie, adding attack when last was move) then store that new one somewhere
-			then, set a flag so Game remains in Animating state. Once anim are done playing, clear queue and add AnimType that triggered the pause
+	AI System (Next big thing)
+		create component that stores AI state (last known target position, current FSM state, etc...)
+		attach active component to entity on its turn
+		access from system and determine next course of action through FSM
 
 	Allow sprites of varying sizes to be rendered (bigger than standard tiles)
 	Auto load tilesets in folder and store in a map by name

@@ -14,17 +14,18 @@ public:
 
 	void Advance();
 	void GiveInput(Command command);
+	void ClearHeldInput();
 	bool AcceptingInput();
+	void AdvanceTurn();
 
 	enum class GameState {
 		ANIMATING,
 		WAITING_INPUT,
-		RUNNING,
-		ADVANCE_TURN
+		RUNNING
 	};
 
 private:
 	GameState state;
-	std::queue<Command> pendingCommands = {};
+	Command nextCommand = Command::NONE;
 };
 
