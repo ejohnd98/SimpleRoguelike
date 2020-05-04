@@ -118,20 +118,15 @@ int main(int argc, char* args[]){
 
 		SDL_Event event; //Event handler
 
-
 		while (!quit) {
 			//Handle events on queue
 			while (SDL_PollEvent(&event) != 0){
 				switch (event.type) {
-					case SDL_KEYDOWN:
-						//game->GiveInput(InputToCommand(&event));
-						break;
 					case SDL_QUIT:
 						quit = true;
 						break;
 					default:
 						break;
-						//game->ClearHeldInput();
 				}
 			}
 			Command input = InputToCommand();
@@ -140,8 +135,8 @@ int main(int argc, char* args[]){
 			}else {
 				game->ClearHeldInput();
 			}
-			currentTime = SDL_GetTicks();
 
+			currentTime = SDL_GetTicks();
 			if (currentTime >= nextGameUpdateTime) {
 				nextGameUpdateTime += MS_PER_UPDATE;
 				int diff = ((int)nextGameUpdateTime) - ((int)currentTime);

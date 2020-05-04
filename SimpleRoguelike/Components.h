@@ -7,12 +7,14 @@
 #include <unordered_map>
 
 #include "Constants.h"
+#include "Animation.h"
 
-enum class AnimType {
-	IDLE,
-	MOVE,
-	ATTACK
+enum class EaseType {
+	LINEAR,
+	SMOOTH
 };
+
+
 
 struct FloatPosition {
 	float x = 0;
@@ -217,6 +219,7 @@ struct AnimSprite {
 struct AnimMove {
 	FloatPosition start, end;
 	float length;
+	EaseType easeType = EaseType::SMOOTH;
 
 	float time = 0;
 	bool finished = false;
@@ -235,8 +238,12 @@ struct AnimMove {
 			return end;
 		}
 		else {
-			float val = (cos(time*M_PI) + 1)*0.5f;
-			return (start * (val)) + (end * (1.0-val));
+			switch (easeType) {
+			case EaseType::LINEAR:
+				return Animation::LinearEase(start, end, time);
+			case EaseType::SMOOTH:
+				return Animation::SmoothEase(start, end, time);
+			}
 		}
 	}
 };
