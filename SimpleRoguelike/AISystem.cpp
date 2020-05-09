@@ -6,11 +6,13 @@
 
 extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr <TurnSystem> turnSystem;
+extern std::shared_ptr <AnimationSystem> animationSystem;
 
 void AISystem::DetermineAction() {
 	Entity entity = *(entities.begin());
 	AIControlled& ai = ecs->GetComponent<AIControlled>(entity);
-
+	Sprite anim[] = { 112,113,114,115 };
+	animationSystem->AddSpriteAnim(entity, anim, 4, 10);
 	ActionType chosenAction = ActionType::NONE;
 
 	//while(chosenAction!=ActionType::None){
