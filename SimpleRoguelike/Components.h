@@ -14,7 +14,19 @@ enum class EaseType {
 	SMOOTH
 };
 
+enum class AIState {
+	IDLE,
+	WANDERING,
+	ATTACKING,
+	FLEEING
+};
 
+enum class ActionType {
+	MOVE,
+	ATTACK,
+	WAIT,
+	NONE
+};
 
 struct FloatPosition {
 	float x = 0;
@@ -257,7 +269,11 @@ struct PlayerControlled {
 
 };
 
-struct Active {
+struct AIControlled {
+	AIState currentState = AIState::IDLE;
+};
+
+struct ActiveAIEntity {
 
 };
 

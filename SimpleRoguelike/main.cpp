@@ -24,6 +24,7 @@ std::shared_ptr<RendererSystem> rendererSystem;
 std::shared_ptr<TurnSystem> turnSystem;
 std::shared_ptr<MapSystem> mapSystem;
 std::shared_ptr<PlayerSystem> playerSystem;
+std::shared_ptr<AISystem> aiSystem;
 std::shared_ptr<AnimationSystem> animationSystem;
 std::shared_ptr<Game> game;
 
@@ -38,6 +39,8 @@ bool Initialize()
 	ecs->RegisterComponent<Position>();
 	ecs->RegisterComponent<Actor>();
 	ecs->RegisterComponent<PlayerControlled>();
+	ecs->RegisterComponent<ActiveAIEntity>();
+	ecs->RegisterComponent<AIControlled>();
 	ecs->RegisterComponent<Renderable>();
 	ecs->RegisterComponent<AnimIdle>();
 	ecs->RegisterComponent<AnimSprite>();
@@ -67,6 +70,12 @@ bool Initialize()
 	signature.reset();
 	signature.set(ecs->GetComponentType<PlayerControlled>());
 	ecs->SetSystemSignature<PlayerSystem>(signature);
+
+	//Register AI System (Takes in active AI entity and decides their actions)
+	aiSystem = ecs->RegisterSystem<AISystem>();
+	signature.reset();
+	signature.set(ecs->GetComponentType<ActiveAIEntity>());
+	ecs->SetSystemSignature<AISystem>(signature);
 
 	//Register Animation System (Interface for adding animations to entities)
 	animationSystem = ecs->RegisterSystem<AnimationSystem>();

@@ -12,6 +12,7 @@
 #include "TurnSystem.h"
 #include "MapSystem.h"
 #include "PlayerSystem.h"
+#include "AISystem.h"
 #include "AnimationSystem.h"
 
 //Heavily based on https://austinmorlan.com/posts/entity_component_system/

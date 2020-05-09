@@ -1,15 +1,16 @@
 NEXT: 
-	Cleanup Stuff:
-		Create util class for things like lerping and cos interpolation (move out of AnimMove component)
-		Make input code neater
-		Do once over of input thresholds in Game (time since last command, etc...)
-		Tie above numbers to the framerate;
-		Tie animations to framerate properly (instead of just saying 60 in the function)
-
-	AI System (Next big thing)
-		create component that stores AI state (last known target position, current FSM state, etc...)
-		attach active component to entity on its turn
-		access from system and determine next course of action through FSM
+	Pathfinding (NEXT)
+		Create class to handle pathfinding
+		keep generic
+			take in Positions a and b
+			return path component OR just next pos in path
+	AI System
+		turn commented outline into code
+	TurnSystem Debts (NEXT)
+		change debt function to take in an ActionType and determine debt from that
+		determines value from entity stats (can hardcode to start)
+	Entity stats
+		create components to give entities some base stats (hp, pwr, mag, def, res, spd, lck)
 
 	Allow sprites of varying sizes to be rendered (bigger than standard tiles)
 	Auto load tilesets in folder and store in a map by name
@@ -17,3 +18,6 @@ NEXT:
 Later:
 	Create FX entities (ex. temporary flames during an attack, hit effects, or ailment effects like poison)
 		FX system with an FX component. Checks to see if animation is done and if so, erases component
+	Make input code neater/more robust
+	Do once over of input thresholds in Game (time since last command, etc...)
+	Tie above numbers to the framerate, along with animations;

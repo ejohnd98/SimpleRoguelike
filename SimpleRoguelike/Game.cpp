@@ -13,6 +13,7 @@ extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr<TurnSystem> turnSystem;
 extern std::shared_ptr<MapSystem> mapSystem;
 extern std::shared_ptr<PlayerSystem> playerSystem;
+extern std::shared_ptr<AISystem> aiSystem;
 extern std::shared_ptr<RendererSystem> rendererSystem;
 extern std::shared_ptr<AnimationSystem> animationSystem;
 
@@ -39,6 +40,7 @@ bool Game::InitGame() {
 
 	Entity enemy = ecs->CreateEntity();
 	ecs->AddComponent(enemy, Actor{0});
+	ecs->AddComponent(enemy, AIControlled{});
 	ecs->AddComponent(enemy, Position{});
 	ecs->AddComponent(enemy, Renderable{0});
 	Sprite anim2[] = { 37,38 };
@@ -71,7 +73,7 @@ void Game::Advance() {
 				state = GameState::RUNNING;
 			}
 		case GameState::RUNNING:
-			while (!turnSystem->EntityCanAct() && tickLimit++ < 50) {
+			while (!turnSystem->EntityCanAct() && tickLimit++ < 10) {
 				turnSystem->DecreaseDebt(10);
 				tickCounter++;
 				if (tickCounter % 10 == 0) {
@@ -87,9 +89,9 @@ void Game::Advance() {
 				Entity entity = turnSystem->PeekNextActor();
 				turnSystem->PopNextActor();
 				std::cout << "Entity acting\n";
-				//Add some sort of component to entity
-				//call system to run AI for the entity
-				turnSystem->AddDebt(entity, 100); //temp, simulate an action
+				ecs->AddComponent<ActiveAIEntity>(entity, {});
+				aiSystem->DetermineAction();
+				ecs->RemoveComponent<ActiveAIEntity>(entity);
 				break;
 			}
 			else {
