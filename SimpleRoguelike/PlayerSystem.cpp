@@ -33,7 +33,7 @@ bool PlayerSystem::DetermineAction(Command command) {
 	}
 	//Create function in turn system to calculate debt
 	if (chosenAction != ActionType::NONE) {
-		turnSystem->AddDebt(GetPlayerEntity(), 50);
+		turnSystem->AddDebt(GetPlayerEntity(), chosenAction);
 	}
 	return (chosenAction != ActionType::NONE);
 }

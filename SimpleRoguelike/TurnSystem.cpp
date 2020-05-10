@@ -56,7 +56,19 @@ void TurnSystem::DecreaseDebt(int amount) {
 	}
 }
 
-void TurnSystem::AddDebt(Entity entity, int amount) {
+void TurnSystem::AddDebt(Entity entity, ActionType action) {
 	Actor& actor = ecs->GetComponent<Actor>(entity);
-	actor.actionDebt += amount;
+	int debt = 0;
+	switch (action) {
+		case ActionType::MOVE:
+			debt = 100;
+			break;
+		case ActionType::ATTACK:
+			debt = 50;
+			break;
+		case ActionType::WAIT:
+			debt = 100;
+			break;
+	}
+	actor.actionDebt += debt;
 }

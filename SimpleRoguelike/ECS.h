@@ -15,6 +15,8 @@
 #include "AISystem.h"
 #include "AnimationSystem.h"
 
+#include "Pathfinding.h"
+
 //Heavily based on https://austinmorlan.com/posts/entity_component_system/
 
 class ECS

@@ -1,14 +1,19 @@
 NEXT: 
 	Pathfinding (NEXT)
-		Create class to handle pathfinding
-		keep generic
-			take in Positions a and b
-			return path component OR just next pos in path
+		Implement pathfinding algorithm (look at code before refactor)
+		Have AI default target player while FoV isn't in
+	Field of View (NEXT)
+		CalculateVisibleCells (entity, map)
+			fills out a bool array of visible/not visible for given entity(OR fill in array in map component?)
+		GetVisibleEntities (entity, map)
+			creates a list of entities within certain range, then trims down to entities with line of sight
+		HasLineOfSight (entity, entity, map)
+			returns true if 2 entities have line of sight
+		Create function that takes in 
 	AI System
-		turn commented outline into code
-	TurnSystem Debts (NEXT)
-		change debt function to take in an ActionType and determine debt from that
-		determines value from entity stats (can hardcode to start)
+		Flesh out as functionality becomes available
+	TurnSystem Debts
+		determines debt value from entity stats
 	Entity stats
 		create components to give entities some base stats (hp, pwr, mag, def, res, spd, lck)
 

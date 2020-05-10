@@ -7,19 +7,23 @@
 extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr <TurnSystem> turnSystem;
 extern std::shared_ptr <AnimationSystem> animationSystem;
+extern std::shared_ptr <MapSystem> mapSystem;
 
 void AISystem::DetermineAction() {
 	Entity entity = *(entities.begin());
 	AIControlled& ai = ecs->GetComponent<AIControlled>(entity);
 	Sprite anim[] = { 112,113,114,115 };
 	animationSystem->AddSpriteAnim(entity, anim, 4, 10);
-	ActionType chosenAction = ActionType::NONE;
+	ActionType chosenAction = ActionType::NONE; //change to NONE once rest is implemented
 
-	//while(chosenAction!=ActionType::None){
+	Position targetPos;
+	Position nextPos;
+
+	while(chosenAction==ActionType::NONE){
 		switch (ai.currentState) {
 		case AIState::IDLE:
 			//if sighted target
-				//ai.currentState = AIState::ATTACKING;
+				ai.currentState = AIState::ATTACKING;
 			//else if [some timer]
 				//ai.currentState = AIState::WANDERING;
 			//else
@@ -28,7 +32,7 @@ void AISystem::DetermineAction() {
 			break;
 		case AIState::WANDERING:
 			//if sighted target
-				//ai.currentState = AIState::ATTACKING;
+				ai.currentState = AIState::ATTACKING;
 			//move randomly, or to random spot
 			//chosenAction = ActionType::MOVE;
 			break;
@@ -40,20 +44,25 @@ void AISystem::DetermineAction() {
 				//Attack
 			//else if last known position is recent
 				//Move towards target
-				//chosenAction = ActionType::MOVE;
+			targetPos = { 5,6 };
+			nextPos = Pathfinding::GetPath(ecs->GetComponent<Position>(entity), targetPos, mapSystem->map);
+			//move to position
+			if (mapSystem->CanMoveTo(nextPos)) {
+				mapSystem->MoveEntity(entity, nextPos);
+			}
+			chosenAction = ActionType::MOVE;
 			//else
 				//ai.currentState = AIState::WANDERING;
 			break;
 		case AIState::FLEEING:
 			//if [some timer]
-				//ai.currentState = AIState::IDLE;
+				ai.currentState = AIState::IDLE;
 			//else
 				//move away from last known enemy pos
 				//chosenAction = ActionType::MOVE;
 			break;
 		}
-	//}
-	//Create function in turn system to calculate debt
-	turnSystem->AddDebt(entity, 200);
+	}
 
+	turnSystem->AddDebt(entity, chosenAction);
 }
