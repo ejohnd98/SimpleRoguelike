@@ -265,6 +265,13 @@ struct Info {
 	std::string info = "No description.";
 };
 
+struct Stats {
+	int health = 10;
+	int strength = 5;
+	int defense = 5;
+	int dexterity = 5;
+};
+
 struct PlayerControlled {
 
 };
@@ -281,7 +288,7 @@ struct Map { //hardcoded default map
 	int width = 19;
 	int height = 8;
 
-	bool cells[8][19] = {
+	bool cells[MAX_MAP_SIZE][MAX_MAP_SIZE] = {
 		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1},
 		{1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,1},

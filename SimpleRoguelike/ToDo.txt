@@ -1,17 +1,16 @@
 NEXT: 
-	Pathfinding (NEXT)
-		Implement pathfinding algorithm (look at code before refactor)
-		Have AI default target player while FoV isn't in
 	Field of View (NEXT)
 		CalculateVisibleCells (entity, map)
 			fills out a bool array of visible/not visible for given entity(OR fill in array in map component?)
 		GetVisibleEntities (entity, map)
 			creates a list of entities within certain range, then trims down to entities with line of sight
 		HasLineOfSight (entity, entity, map)
-			returns true if 2 entities have line of sight
-		Create function that takes in 
+			TOUCH UP FUNCTION
 	AI System
 		Flesh out as functionality becomes available
+	Actor Factory
+		give it some basic stats
+		creates entity and attaches all the correct components
 	TurnSystem Debts
 		determines debt value from entity stats
 	Entity stats
@@ -26,3 +25,7 @@ Later:
 	Make input code neater/more robust
 	Do once over of input thresholds in Game (time since last command, etc...)
 	Tie above numbers to the framerate, along with animations;
+
+Bugs:
+	player animation should always be shown first (since it is their turn to act)
+		Keep completely indpendant of other animations maybe?

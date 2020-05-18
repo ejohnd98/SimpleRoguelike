@@ -12,6 +12,7 @@ public:
 	void MoveEntity(Entity entity, Position pos);
 	bool ValidPosition(Position pos);
 	bool CanMoveTo(Position pos);
+	bool IsWall(Position pos);
 	Entity GetEntityAt(Position pos);
 
 	Entity mapEntity;

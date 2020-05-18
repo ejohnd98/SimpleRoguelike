@@ -71,3 +71,7 @@ Entity MapSystem::GetEntityAt(Position pos) {
 	}
 	return NULL_ENTITY;
 }
+
+bool MapSystem::IsWall(Position pos) {
+	return (map->GetCell(pos.x, pos.y) || !ValidPosition(pos));
+}

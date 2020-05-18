@@ -16,7 +16,6 @@ const int MS_PER_UPDATE = 1000 / UPDATES_PER_SECOND;
 //Functions
 bool Initialize();
 void Terminate();
-Command InputToCommand(SDL_Event* e);
 
 //Variables
 std::shared_ptr <ECS> ecs;
@@ -26,7 +25,10 @@ std::shared_ptr<MapSystem> mapSystem;
 std::shared_ptr<PlayerSystem> playerSystem;
 std::shared_ptr<AISystem> aiSystem;
 std::shared_ptr<AnimationSystem> animationSystem;
+
 std::shared_ptr<Game> game;
+std::shared_ptr<Pathfinding> pathfinding;
+std::shared_ptr<FieldOfView> fov;
 
 bool Initialize()
 {
@@ -45,6 +47,8 @@ bool Initialize()
 	ecs->RegisterComponent<AnimIdle>();
 	ecs->RegisterComponent<AnimSprite>();
 	ecs->RegisterComponent<AnimMove>();
+	ecs->RegisterComponent<Info>();
+	ecs->RegisterComponent<Stats>();
 
 	//Register Renderer System (Interfaces with SDL to render game)
 	rendererSystem = ecs->RegisterSystem<RendererSystem>();
@@ -85,6 +89,12 @@ bool Initialize()
 	//Create Game (Contains main game loop)
 	game = std::make_shared<Game>();
 
+	//Create Pathfinding
+	pathfinding = std::make_shared<Pathfinding>();
+
+	//Create FOV
+	fov = std::make_shared<FieldOfView>();
+
 	if (!game) {
 		printf("ERROR: Failed to create game!\n");
 	}
@@ -111,6 +121,9 @@ Command InputToCommand() { //hardcoded inputs currently
 	}
 	if (keys[SDL_GetScancodeFromKey(SDLK_LEFT)]) {
 		return Command::MOVE_LEFT;
+	}
+	if (keys[SDL_GetScancodeFromKey(SDLK_SPACE)]) {
+		return Command::WAIT;
 	}
 	return Command::NONE;
 }

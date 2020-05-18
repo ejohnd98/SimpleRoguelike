@@ -15,7 +15,7 @@ extern std::shared_ptr<PlayerSystem> playerSystem;
 const char* WINDOW_TITLE = "Roguelike Rework";
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
-const int PIXEL_MULT = 4;
+const int PIXEL_MULT = 2;
 
 int centerTileX;
 int centerTileY;

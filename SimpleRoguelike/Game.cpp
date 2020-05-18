@@ -46,7 +46,7 @@ bool Game::InitGame() {
 	Sprite anim2[] = { 37,38 };
 	animationSystem->AddIdleAnim(enemy, anim2, 2, 60);
 	
-	mapSystem->PlaceEntity(player, { 1,1 });
+	mapSystem->PlaceEntity(player, { 1,5 });
 	mapSystem->PlaceEntity(enemy, { 3,1 });
 
 	//Game setup
