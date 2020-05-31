@@ -11,61 +11,52 @@ extern std::shared_ptr <MapSystem> mapSystem;
 extern std::shared_ptr <Pathfinding> pathfinding;
 extern std::shared_ptr <PlayerSystem> playerSystem;
 extern std::shared_ptr<FieldOfView> fov;
+extern std::shared_ptr<AttackSystem> attackSystem;
 
 void AISystem::DetermineAction() {
 	Entity entity = *(entities.begin());
 	AIControlled& ai = ecs->GetComponent<AIControlled>(entity);
 	ActionType chosenAction = ActionType::NONE; //change to NONE once rest is implemented
+	Entity targetEntity = playerSystem->GetPlayerEntity();
 
 	Position& pos = ecs->GetComponent<Position>(entity);
-	Position targetPos = ecs->GetComponent<Position>(playerSystem->GetPlayerEntity());
+	Position targetPos = ecs->GetComponent<Position>(targetEntity);
 	Position nextPos;
 
 	while(chosenAction==ActionType::NONE){
 		switch (ai.currentState) {
 		case AIState::IDLE:
-			//if sighted target
-			if (fov->HasLineOfSight(pos, targetPos)) {
+			if (fov->HasLineOfSight(pos, targetPos)) { //if target sighted, switch to attacking
 				ai.currentState = AIState::ATTACKING;
-				break;
 			}
 			else {
 				chosenAction = ActionType::WAIT;
-				break;
-			}
-			//else if [some timer]
-				//ai.currentState = AIState::WANDERING;
-				
+			}		
 			break;
+
 		case AIState::WANDERING:
-			//if sighted target
-				ai.currentState = AIState::ATTACKING;
-			//move randomly, or to random spot
-			//chosenAction = ActionType::MOVE;
+			ai.currentState = AIState::IDLE;
 			break;
+
 		case AIState::ATTACKING:
-			//if [should flee]
-				//ai.currentState = AIState::FLEEING;
-			//else if target in range
-				//chosenAction = ActionType::ATTACK;
-				//Attack
-			//else if last known position is recent
-				//Move towards target
-			nextPos = pathfinding->GetPath(pos, targetPos, mapSystem->map);
-			//move to position
-			if (mapSystem->CanMoveTo(nextPos)) {
-				mapSystem->MoveEntity(entity, nextPos);
+			if (attackSystem->WithinAttackRange(entity, targetEntity)) { //if target within range, attack
+				attackSystem->Attack(entity, targetEntity);
+				chosenAction = ActionType::ATTACK;
 			}
-			chosenAction = ActionType::MOVE;
-			//else
-				//ai.currentState = AIState::WANDERING;
+			else { //otherwise move towards target
+				nextPos = pathfinding->GetPath(pos, targetPos, mapSystem->map);
+				if (mapSystem->CanMoveTo(nextPos)) { 
+					mapSystem->MoveEntity(entity, nextPos);
+					chosenAction = ActionType::MOVE;
+				}
+				else {
+					chosenAction = ActionType::WAIT;
+				}
+			}
 			break;
+
 		case AIState::FLEEING:
-			//if [some timer]
-				ai.currentState = AIState::IDLE;
-			//else
-				//move away from last known enemy pos
-				//chosenAction = ActionType::MOVE;
+			ai.currentState = AIState::IDLE;
 			break;
 		}
 	}

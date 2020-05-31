@@ -145,6 +145,10 @@ struct Position {
 		return pos;
 	}
 
+	float Magnitude() {
+		return sqrt((x * x) + (y * y));
+	}
+
 	FloatPosition ToFloat() {
 		return FloatPosition{ (float)x, (float)y };
 	}

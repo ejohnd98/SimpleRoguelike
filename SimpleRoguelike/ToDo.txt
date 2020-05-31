@@ -1,3 +1,6 @@
+TOP NEXT:
+	Handle Death
+
 NEXT: 
 	Field of View (NEXT)
 		CalculateVisibleCells (entity, map)
@@ -11,10 +14,6 @@ NEXT:
 	Actor Factory
 		give it some basic stats
 		creates entity and attaches all the correct components
-	TurnSystem Debts
-		determines debt value from entity stats
-	Entity stats
-		create components to give entities some base stats (hp, pwr, mag, def, res, spd, lck)
 
 	Allow sprites of varying sizes to be rendered (bigger than standard tiles)
 	Auto load tilesets in folder and store in a map by name
@@ -29,3 +28,11 @@ Later:
 Bugs:
 	player animation should always be shown first (since it is their turn to act)
 		Keep completely indpendant of other animations maybe?
+
+Ideas:
+	Have damage system and damage component
+	Resolve damage after each action
+	Go through each entity with a damage component
+	call an AddDamage function to add damage to entity and provide the attacker
+
+	Allow creation of new entities with animation system (ie. attack anim fx)

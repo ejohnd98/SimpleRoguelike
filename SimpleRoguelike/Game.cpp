@@ -35,6 +35,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(player, PlayerControlled{});
 	ecs->AddComponent(player, Position{});
 	ecs->AddComponent(player, Renderable{0});
+	ecs->AddComponent(player, Stats{20,5,2,10});
 	Sprite anim[] = { 32,33 };
 	animationSystem->AddIdleAnim(player, anim, 2, 30);
 
@@ -43,6 +44,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy, AIControlled{});
 	ecs->AddComponent(enemy, Position{});
 	ecs->AddComponent(enemy, Renderable{0});
+	ecs->AddComponent(enemy, Stats{10,3,3,5});
 	Sprite anim2[] = { 37,38 };
 	animationSystem->AddIdleAnim(enemy, anim2, 2, 60);
 	
@@ -88,7 +90,7 @@ void Game::Advance() {
 			else if (turnSystem->EntityCanAct()) {
 				Entity entity = turnSystem->PeekNextActor();
 				turnSystem->PopNextActor();
-				std::cout << "Entity acting\n";
+				//std::cout << "Entity acting\n";
 				ecs->AddComponent<ActiveAIEntity>(entity, {});
 				aiSystem->DetermineAction();
 				ecs->RemoveComponent<ActiveAIEntity>(entity);
@@ -105,7 +107,7 @@ void Game::Advance() {
 			if (nextCommand!=Command::NONE) {
 				Entity entity = turnSystem->PeekNextActor();
 				if (playerSystem->DetermineAction(nextCommand)) { //only remove player from queue if they performed an action
-					std::cout << "Player acting\n";
+					//std::cout << "---Player acting---\n";
 					turnSystem->PopNextActor();
 					state = GameState::RUNNING;
 				}

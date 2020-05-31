@@ -14,6 +14,7 @@
 #include "PlayerSystem.h"
 #include "AISystem.h"
 #include "AnimationSystem.h"
+#include "AttackSystem.h"
 
 #include "Pathfinding.h"
 #include "FieldOfView.h"

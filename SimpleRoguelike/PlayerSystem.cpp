@@ -8,6 +8,7 @@ extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr<MapSystem> mapSystem;
 extern std::shared_ptr<AnimationSystem> animationSystem; //shouldn't need later (temp)
 extern std::shared_ptr<TurnSystem> turnSystem;
+extern std::shared_ptr<AttackSystem> attackSystem;
 
 void PlayerSystem::Init() {
 }
@@ -52,9 +53,7 @@ ActionType PlayerSystem::InteractWithCell(Position offset) {
 		
 		Entity other = mapSystem->GetEntityAt(pos + offset);
 		if (other != NULL_ENTITY) {
-			Sprite anim[] = { 112,113,114,115 };
-			animationSystem->AddSpriteAnim(GetPlayerEntity(), anim, 4, 10);
-			//act upon actor in position
+			attackSystem->Attack(GetPlayerEntity(), other);
 			return ActionType::ATTACK;
 		}
 

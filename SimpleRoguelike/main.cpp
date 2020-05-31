@@ -25,6 +25,7 @@ std::shared_ptr<MapSystem> mapSystem;
 std::shared_ptr<PlayerSystem> playerSystem;
 std::shared_ptr<AISystem> aiSystem;
 std::shared_ptr<AnimationSystem> animationSystem;
+std::shared_ptr<AttackSystem> attackSystem;
 
 std::shared_ptr<Game> game;
 std::shared_ptr<Pathfinding> pathfinding;
@@ -84,7 +85,12 @@ bool Initialize()
 	//Register Animation System (Interface for adding animations to entities)
 	animationSystem = ecs->RegisterSystem<AnimationSystem>();
 	signature.reset();
-	ecs->SetSystemSignature<PlayerSystem>(signature);
+	ecs->SetSystemSignature<AnimationSystem>(signature);
+
+	//Register Attack System (Performs damage calculations and damage dealing)
+	attackSystem = ecs->RegisterSystem<AttackSystem>();
+	signature.reset();
+	ecs->SetSystemSignature<AttackSystem>(signature);
 
 	//Create Game (Contains main game loop)
 	game = std::make_shared<Game>();
