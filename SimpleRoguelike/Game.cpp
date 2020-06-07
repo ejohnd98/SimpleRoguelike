@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <assert.h>
 
 #include "Game.h"
 #include "ECS.h"
@@ -34,8 +35,9 @@ bool Game::InitGame() {
 	ecs->AddComponent(player, Actor{0});
 	ecs->AddComponent(player, PlayerControlled{});
 	ecs->AddComponent(player, Position{});
+	ecs->AddComponent(player, Active{});
 	ecs->AddComponent(player, Renderable{0});
-	ecs->AddComponent(player, Stats{20,5,2,10});
+	ecs->AddComponent(player, Stats{20,6,1,10});
 	Sprite anim[] = { 32,33 };
 	animationSystem->AddIdleAnim(player, anim, 2, 30);
 
@@ -43,13 +45,34 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy, Actor{0});
 	ecs->AddComponent(enemy, AIControlled{});
 	ecs->AddComponent(enemy, Position{});
+	ecs->AddComponent(enemy, Active{});
 	ecs->AddComponent(enemy, Renderable{0});
 	ecs->AddComponent(enemy, Stats{10,3,3,5});
 	Sprite anim2[] = { 37,38 };
 	animationSystem->AddIdleAnim(enemy, anim2, 2, 60);
+
+	Entity enemy2 = ecs->CreateEntity();
+	ecs->AddComponent(enemy2, Actor{ 0 });
+	ecs->AddComponent(enemy2, AIControlled{});
+	ecs->AddComponent(enemy2, Position{});
+	ecs->AddComponent(enemy2, Active{});
+	ecs->AddComponent(enemy2, Renderable{ 0 });
+	ecs->AddComponent(enemy2, Stats{ 10,3,3,5 });
+	animationSystem->AddIdleAnim(enemy2, anim2, 2, 60);
+
+	Entity enemy3 = ecs->CreateEntity();
+	ecs->AddComponent(enemy3, Actor{ 0 });
+	ecs->AddComponent(enemy3, AIControlled{});
+	ecs->AddComponent(enemy3, Position{});
+	ecs->AddComponent(enemy3, Active{});
+	ecs->AddComponent(enemy3, Renderable{ 0 });
+	ecs->AddComponent(enemy3, Stats{ 10,3,3,5 });
+	animationSystem->AddIdleAnim(enemy3, anim2, 2, 60);
 	
 	mapSystem->PlaceEntity(player, { 1,5 });
 	mapSystem->PlaceEntity(enemy, { 3,1 });
+	mapSystem->PlaceEntity(enemy2, { 5,1 });
+	mapSystem->PlaceEntity(enemy3, { 7,2 });
 
 	//Game setup
 	tickCounter = 0;
@@ -88,9 +111,12 @@ void Game::Advance() {
 				state = GameState::WAITING_INPUT;
 			}
 			else if (turnSystem->EntityCanAct()) {
+				//Get entity
 				Entity entity = turnSystem->PeekNextActor();
 				turnSystem->PopNextActor();
-				//std::cout << "Entity acting\n";
+				assert(ecs->HasComponent<Active>(entity));
+
+				//Let entity act
 				ecs->AddComponent<ActiveAIEntity>(entity, {});
 				aiSystem->DetermineAction();
 				ecs->RemoveComponent<ActiveAIEntity>(entity);

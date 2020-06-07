@@ -288,6 +288,10 @@ struct ActiveAIEntity {
 
 };
 
+struct Active {
+
+};
+
 struct Map { //hardcoded default map
 	int width = 19;
 	int height = 8;

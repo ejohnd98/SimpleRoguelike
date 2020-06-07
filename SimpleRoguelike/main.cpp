@@ -25,7 +25,7 @@ std::shared_ptr<MapSystem> mapSystem;
 std::shared_ptr<PlayerSystem> playerSystem;
 std::shared_ptr<AISystem> aiSystem;
 std::shared_ptr<AnimationSystem> animationSystem;
-std::shared_ptr<AttackSystem> attackSystem;
+std::shared_ptr<DamageSystem> damageSystem;
 
 std::shared_ptr<Game> game;
 std::shared_ptr<Pathfinding> pathfinding;
@@ -50,6 +50,7 @@ bool Initialize()
 	ecs->RegisterComponent<AnimMove>();
 	ecs->RegisterComponent<Info>();
 	ecs->RegisterComponent<Stats>();
+	ecs->RegisterComponent<Active>();
 
 	//Register Renderer System (Interfaces with SDL to render game)
 	rendererSystem = ecs->RegisterSystem<RendererSystem>();
@@ -62,6 +63,7 @@ bool Initialize()
 	turnSystem = ecs->RegisterSystem<TurnSystem>();
 	signature.reset();
 	signature.set(ecs->GetComponentType<Actor>());
+	signature.set(ecs->GetComponentType<Active>());
 	ecs->SetSystemSignature<TurnSystem>(signature);
 
 	//Register Map System (Handles all interactions with Map)
@@ -88,9 +90,9 @@ bool Initialize()
 	ecs->SetSystemSignature<AnimationSystem>(signature);
 
 	//Register Attack System (Performs damage calculations and damage dealing)
-	attackSystem = ecs->RegisterSystem<AttackSystem>();
+	damageSystem = ecs->RegisterSystem<DamageSystem>();
 	signature.reset();
-	ecs->SetSystemSignature<AttackSystem>(signature);
+	ecs->SetSystemSignature<DamageSystem>(signature);
 
 	//Create Game (Contains main game loop)
 	game = std::make_shared<Game>();

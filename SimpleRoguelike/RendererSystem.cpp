@@ -130,7 +130,7 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 			AnimSprite& anim = ecs->GetComponent<AnimSprite>(entity);
 			animating = true;
 			if (anim.finished) {
-				animating = false;
+				//animating = false;
 				ecs->RemoveComponent<AnimSprite>(entity);
 			}
 			else {
@@ -152,7 +152,7 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 			r.position = anim.CurrentPos();
 			if (anim.finished) {
 				ecs->RemoveComponent<AnimMove>(entity);
-				animating = false;
+				//animating = false;
 			}
 		}
 		RenderTile(pos, spr, tileScreenSize);

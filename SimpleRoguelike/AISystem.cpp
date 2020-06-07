@@ -11,7 +11,7 @@ extern std::shared_ptr <MapSystem> mapSystem;
 extern std::shared_ptr <Pathfinding> pathfinding;
 extern std::shared_ptr <PlayerSystem> playerSystem;
 extern std::shared_ptr<FieldOfView> fov;
-extern std::shared_ptr<AttackSystem> attackSystem;
+extern std::shared_ptr<DamageSystem> damageSystem;
 
 void AISystem::DetermineAction() {
 	Entity entity = *(entities.begin());
@@ -39,8 +39,8 @@ void AISystem::DetermineAction() {
 			break;
 
 		case AIState::ATTACKING:
-			if (attackSystem->WithinAttackRange(entity, targetEntity)) { //if target within range, attack
-				attackSystem->Attack(entity, targetEntity);
+			if (damageSystem->WithinAttackRange(entity, targetEntity)) { //if target within range, attack
+				damageSystem->Attack(entity, targetEntity);
 				chosenAction = ActionType::ATTACK;
 			}
 			else { //otherwise move towards target
