@@ -1,16 +1,14 @@
-TOP NEXT:
-	Handle Death
-
 NEXT: 
 	Field of View (NEXT)
 		CalculateVisibleCells (entity, map)
 			fills out a bool array of visible/not visible for given entity(OR fill in array in map component?)
-		GetVisibleEntities (entity, map)
-			creates a list of entities within certain range, then trims down to entities with line of sight
 		HasLineOfSight (entity, entity, map)
 			TOUCH UP FUNCTION
+		Check distance to entites before seeing if they're in sight (based on given entities stats)
 	AI System
-		Flesh out as functionality becomes available
+		Create wandering system
+	Cleanup
+		Every so often check if anything references an entity and destroy it if not (look through AI components for instance) (mark for cleanup upon death?)
 	Actor Factory
 		give it some basic stats
 		creates entity and attaches all the correct components

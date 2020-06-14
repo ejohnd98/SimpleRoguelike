@@ -38,11 +38,12 @@ bool DamageSystem::WithinAttackRange(Entity attacker, Entity target) {
 void DamageSystem::KillEntity(Entity entity) {
 	//[place dropped items and corpse graphic here]
 	if (ecs->HasComponent<Active>(entity)) {
-		ecs->RemoveComponent<Active>(entity);
 		mapSystem->RemoveEntity(entity);
-		if (!ecs->HasComponent<PlayerControlled>(entity)) {
-			ecs->DestroyEntity(entity);
-		}
+		ecs->RemoveComponent<Active>(entity);
+		if (ecs->HasComponent<Renderable>(entity)) { ecs->RemoveComponent<Renderable>(entity); }
+		if (ecs->HasComponent<AnimIdle>(entity)) {	ecs->RemoveComponent<AnimIdle>(entity);	}
+		if (ecs->HasComponent<AnimMove>(entity)) { ecs->RemoveComponent<AnimMove>(entity); }
+		if (ecs->HasComponent<AnimSprite>(entity)) { ecs->RemoveComponent<AnimSprite>(entity); }
 	}
 }
 

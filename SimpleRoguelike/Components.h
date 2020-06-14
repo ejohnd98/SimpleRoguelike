@@ -282,6 +282,8 @@ struct PlayerControlled {
 
 struct AIControlled {
 	AIState currentState = AIState::IDLE;
+	Entity targetEntity = NULL_ENTITY;
+	Position lastTargetPos;
 };
 
 struct ActiveAIEntity {

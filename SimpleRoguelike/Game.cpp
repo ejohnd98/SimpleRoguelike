@@ -47,7 +47,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy, Position{});
 	ecs->AddComponent(enemy, Active{});
 	ecs->AddComponent(enemy, Renderable{0});
-	ecs->AddComponent(enemy, Stats{10,3,3,5});
+	ecs->AddComponent(enemy, Stats{5,4,3,5});
 	Sprite anim2[] = { 37,38 };
 	animationSystem->AddIdleAnim(enemy, anim2, 2, 60);
 
@@ -57,7 +57,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy2, Position{});
 	ecs->AddComponent(enemy2, Active{});
 	ecs->AddComponent(enemy2, Renderable{ 0 });
-	ecs->AddComponent(enemy2, Stats{ 10,3,3,5 });
+	ecs->AddComponent(enemy2, Stats{ 5,4,3,5 });
 	animationSystem->AddIdleAnim(enemy2, anim2, 2, 60);
 
 	Entity enemy3 = ecs->CreateEntity();
@@ -66,7 +66,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy3, Position{});
 	ecs->AddComponent(enemy3, Active{});
 	ecs->AddComponent(enemy3, Renderable{ 0 });
-	ecs->AddComponent(enemy3, Stats{ 10,3,3,5 });
+	ecs->AddComponent(enemy3, Stats{ 5,4,3,5 });
 	animationSystem->AddIdleAnim(enemy3, anim2, 2, 60);
 	
 	mapSystem->PlaceEntity(player, { 1,5 });

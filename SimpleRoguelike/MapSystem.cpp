@@ -35,7 +35,6 @@ void MapSystem::RemoveEntity(Entity entity) {
 	if (ValidPosition(pos) && map->positionEntityMap[pos] == entity) { 
 		map->positionEntityMap.erase(pos);
 	}
-	pos = { -1,-1 };
 }
 
 void MapSystem::MoveEntityRelative(Entity entity, Position offset) {

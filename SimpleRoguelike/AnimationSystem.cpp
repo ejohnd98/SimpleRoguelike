@@ -61,7 +61,9 @@ void AnimationSystem::ActivateMoveAnims() {
 		pendingMoveAnimEntities.pop();
 		AnimMove anim = pendingMoveAnim.front();
 		pendingMoveAnim.pop();
-		ecs->AddComponent<AnimMove>(entity, anim);
+		if (ecs->HasComponent<Active>(entity)) {
+			ecs->AddComponent<AnimMove>(entity, anim);
+		}
 	}
 }
 
@@ -74,7 +76,9 @@ void AnimationSystem::ActivateSpriteAnims() {
 		pendingSpriteAnimEntities.pop();
 		AnimSprite anim = pendingSpriteAnim.front();
 		pendingSpriteAnim.pop();
-		ecs->AddComponent<AnimSprite>(entity, anim);
+		if (ecs->HasComponent<Active>(entity)) {
+			ecs->AddComponent<AnimSprite>(entity, anim);
+		}
 	}
 }
 

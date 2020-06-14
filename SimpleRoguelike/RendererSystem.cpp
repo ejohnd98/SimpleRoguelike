@@ -93,8 +93,10 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 	int vertTiles = ceil(SCREEN_HEIGHT / tileScreenSize) + 2;
 
 	Entity player = playerSystem->GetPlayerEntity();
-	Renderable& r = ecs->GetComponent<Renderable>(player);
-	TileToCenter = r.position;
+	if (ecs->HasComponent<Active>(player)) {
+		lastPlayerPos = ecs->GetComponent<Renderable>(player).position;
+	}
+	TileToCenter = lastPlayerPos;
 
 
 	//range of tiles to render

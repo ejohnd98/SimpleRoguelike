@@ -14,19 +14,23 @@ extern std::shared_ptr<FieldOfView> fov;
 extern std::shared_ptr<DamageSystem> damageSystem;
 
 void AISystem::DetermineAction() {
-	Entity entity = *(entities.begin());
-	AIControlled& ai = ecs->GetComponent<AIControlled>(entity);
-	ActionType chosenAction = ActionType::NONE; //change to NONE once rest is implemented
-	Entity targetEntity = playerSystem->GetPlayerEntity();
+	currentEntity = *(entities.begin());
+	AIControlled& ai = ecs->GetComponent<AIControlled>(currentEntity);
+	ActionType chosenAction = ActionType::NONE;
 
-	Position& pos = ecs->GetComponent<Position>(entity);
-	Position targetPos = ecs->GetComponent<Position>(targetEntity);
+	Position& pos = ecs->GetComponent<Position>(currentEntity);
 	Position nextPos;
+	Position targetPos;
+	if (ai.targetEntity != NULL_ENTITY && !ecs->HasComponent<Active>(ai.targetEntity)) {
+		ai.targetEntity = NULL_ENTITY;
+		ai.currentState = AIState::IDLE;
+	}
 
 	while(chosenAction==ActionType::NONE){
 		switch (ai.currentState) {
 		case AIState::IDLE:
-			if (fov->HasLineOfSight(pos, targetPos)) { //if target sighted, switch to attacking
+			ai.targetEntity = GetTarget();
+			if (ai.targetEntity != NULL_ENTITY) { //if target sighted, switch to attacking
 				ai.currentState = AIState::ATTACKING;
 			}
 			else {
@@ -39,14 +43,19 @@ void AISystem::DetermineAction() {
 			break;
 
 		case AIState::ATTACKING:
-			if (damageSystem->WithinAttackRange(entity, targetEntity)) { //if target within range, attack
-				damageSystem->Attack(entity, targetEntity);
-				chosenAction = ActionType::ATTACK;
+			targetPos = ecs->GetComponent<Position>(ai.targetEntity);
+			if (fov->HasLineOfSight(pos, targetPos)) { //if target is visible, update last known position
+				ai.lastTargetPos = targetPos;
 			}
-			else { //otherwise move towards target
-				nextPos = pathfinding->GetPath(pos, targetPos, mapSystem->map);
+			
+			if (damageSystem->WithinAttackRange(currentEntity, ai.targetEntity)) { //if target within range, attack
+				chosenAction = ActionType::ATTACK;
+				damageSystem->Attack(currentEntity, ai.targetEntity);
+			}
+			else { //otherwise move towards last known target position
+				nextPos = pathfinding->GetPath(pos, ai.lastTargetPos, mapSystem->map);
 				if (mapSystem->CanMoveTo(nextPos)) { 
-					mapSystem->MoveEntity(entity, nextPos);
+					mapSystem->MoveEntity(currentEntity, nextPos);
 					chosenAction = ActionType::MOVE;
 				}
 				else {
@@ -60,5 +69,15 @@ void AISystem::DetermineAction() {
 			break;
 		}
 	}
-	turnSystem->AddDebt(entity, chosenAction);
+	turnSystem->AddDebt(currentEntity, chosenAction);
+}
+
+Entity AISystem::GetTarget() {
+	auto visibleEntities = fov->GetVisibleEntities(currentEntity);
+	for (Entity e : visibleEntities) {
+		if (ecs->HasComponent<PlayerControlled>(e)) {
+			return e;
+		}
+	}
+	return NULL_ENTITY;
 }

@@ -1,3 +1,5 @@
+#include <vector>
+
 #include "FieldOfView.h"
 #include "ECS.h"
 
@@ -7,11 +9,21 @@ extern std::shared_ptr <MapSystem> mapSystem;
 void FieldOfView::CalculateVisibleCells(Entity e) {
 
 }
-void FieldOfView::GetVisibleEntities(Entity e) {
 
+std::vector<Entity> FieldOfView::GetVisibleEntities(Entity e) {
+	std::vector<Entity> visibleEntities;
+	auto map = mapSystem->map;
+	Position pos = ecs->GetComponent<Position>(e);
+
+	for (std::pair<Position, Entity> entityPosPair : map->positionEntityMap){
+		if (entityPosPair.second != e && HasLineOfSight(pos, entityPosPair.first)) {
+			visibleEntities.push_back(entityPosPair.second);
+		}
+	}
+	return visibleEntities;
 }
 bool FieldOfView::HasLineOfSight(Position a, Position b) {
-	Map& map = ecs->GetComponent<Map>(mapSystem->mapEntity);
+	//auto map = mapSystem->map;
 	int sight = 1000;
 	float x, y, dx, dy, ox, oy, stepDist;
 	int lastX, lastY, dirXMod, dirYMod; //used for diagonal wall checking (an edge case)
