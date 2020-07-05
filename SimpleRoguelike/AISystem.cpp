@@ -17,6 +17,7 @@ void AISystem::DetermineAction() {
 	currentEntity = *(entities.begin());
 	AIControlled& ai = ecs->GetComponent<AIControlled>(currentEntity);
 	ActionType chosenAction = ActionType::NONE;
+	Stats& stats = ecs->GetComponent<Stats>(currentEntity);
 
 	Position& pos = ecs->GetComponent<Position>(currentEntity);
 	Position nextPos;
@@ -44,7 +45,7 @@ void AISystem::DetermineAction() {
 
 		case AIState::ATTACKING:
 			targetPos = ecs->GetComponent<Position>(ai.targetEntity);
-			if (fov->HasLineOfSight(pos, targetPos)) { //if target is visible, update last known position
+			if (fov->HasLineOfSight(pos, targetPos, stats.sight)) { //if target is visible, update last known position
 				ai.lastTargetPos = targetPos;
 			}
 			

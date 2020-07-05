@@ -1,9 +1,5 @@
 NEXT: 
 	Field of View (NEXT)
-		CalculateVisibleCells (entity, map)
-			fills out a bool array of visible/not visible for given entity(OR fill in array in map component?)
-		HasLineOfSight (entity, entity, map)
-			TOUCH UP FUNCTION
 		Check distance to entites before seeing if they're in sight (based on given entities stats)
 	AI System
 		Create wandering system

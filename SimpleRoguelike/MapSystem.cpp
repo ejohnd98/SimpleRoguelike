@@ -74,3 +74,27 @@ Entity MapSystem::GetEntityAt(Position pos) {
 bool MapSystem::IsWall(Position pos) {
 	return (map->GetCell(pos.x, pos.y) || !ValidPosition(pos));
 }
+
+void MapSystem::ClearVisible(bool includeVisited) {
+	for (int y = 0; y < map->height; y++) {
+		for (int x = 0; x < map->width; x++) {
+			visible[y][x] = false;
+			if (includeVisited) {
+				known[y][x] = false;
+			}
+		}
+	}
+}
+
+void MapSystem::SetVisible(int x, int y) {
+	visible[y][x] = true;
+}
+void MapSystem::SetKnown(int x, int y) {
+	known[y][x] = true;
+}
+bool MapSystem::IsVisible(int x, int y) {
+	return visible[y][x];
+}
+bool MapSystem::IsKnown(int x, int y) {
+	return known[y][x];
+}

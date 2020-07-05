@@ -17,6 +17,7 @@ extern std::shared_ptr<PlayerSystem> playerSystem;
 extern std::shared_ptr<AISystem> aiSystem;
 extern std::shared_ptr<RendererSystem> rendererSystem;
 extern std::shared_ptr<AnimationSystem> animationSystem;
+extern std::shared_ptr<FieldOfView> fov;
 
 Game::Game(){
 	InitGame();
@@ -37,7 +38,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(player, Position{});
 	ecs->AddComponent(player, Active{});
 	ecs->AddComponent(player, Renderable{0});
-	ecs->AddComponent(player, Stats{20,6,1,10});
+	ecs->AddComponent(player, Stats{20,6,1,10,10});
 	Sprite anim[] = { 32,33 };
 	animationSystem->AddIdleAnim(player, anim, 2, 30);
 
@@ -47,7 +48,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy, Position{});
 	ecs->AddComponent(enemy, Active{});
 	ecs->AddComponent(enemy, Renderable{0});
-	ecs->AddComponent(enemy, Stats{5,4,3,5});
+	ecs->AddComponent(enemy, Stats{5,4,3,5,2});
 	Sprite anim2[] = { 37,38 };
 	animationSystem->AddIdleAnim(enemy, anim2, 2, 60);
 
@@ -57,7 +58,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy2, Position{});
 	ecs->AddComponent(enemy2, Active{});
 	ecs->AddComponent(enemy2, Renderable{ 0 });
-	ecs->AddComponent(enemy2, Stats{ 5,4,3,5 });
+	ecs->AddComponent(enemy2, Stats{ 5,4,3,5,2 });
 	animationSystem->AddIdleAnim(enemy2, anim2, 2, 60);
 
 	Entity enemy3 = ecs->CreateEntity();
@@ -66,13 +67,15 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy3, Position{});
 	ecs->AddComponent(enemy3, Active{});
 	ecs->AddComponent(enemy3, Renderable{ 0 });
-	ecs->AddComponent(enemy3, Stats{ 5,4,3,5 });
+	ecs->AddComponent(enemy3, Stats{ 5,4,3,5,2 });
 	animationSystem->AddIdleAnim(enemy3, anim2, 2, 60);
-	
+
 	mapSystem->PlaceEntity(player, { 1,5 });
 	mapSystem->PlaceEntity(enemy, { 3,1 });
 	mapSystem->PlaceEntity(enemy2, { 5,1 });
-	mapSystem->PlaceEntity(enemy3, { 7,2 });
+	mapSystem->PlaceEntity(enemy3, { 7,5 });
+
+	fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
 
 	//Game setup
 	tickCounter = 0;
@@ -95,6 +98,7 @@ void Game::Advance() {
 				break;
 			}
 			else {
+				fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
 				state = GameState::RUNNING;
 			}
 		case GameState::RUNNING:

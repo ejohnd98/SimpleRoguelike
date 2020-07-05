@@ -107,7 +107,7 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 
 	for (int y = renderY1; y <= renderY2; y++) {
 		for (int x = renderX1; x <= renderX2; x++) {
-			if (!mapSystem->ValidPosition({ x, y })) { //if position is invalid
+			if (!mapSystem->ValidPosition({ x, y }) || (!mapSystem->IsVisible(x, y) && !mapSystem->IsKnown(x, y))) { //if position is invalid or not visible/known
 				RenderTile({ (float)x, (float)y }, 5, tileScreenSize); //render '?'
 				continue;
 			}
@@ -116,6 +116,9 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 				spr = map->wallSprite;
 			}
 			RenderTile({ (float)x, (float)y }, spr, tileScreenSize);
+			if (!mapSystem->IsVisible(x, y) && mapSystem->IsKnown(x, y)) {
+				RenderTile({ (float)x, (float)y }, 6, tileScreenSize); //render fog if position not visible but known
+			}
 		}
 	}
 
@@ -157,7 +160,9 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 				//animating = false;
 			}
 		}
-		RenderTile(pos, spr, tileScreenSize);
+		if (mapSystem->IsVisible(pos.x, pos.y)) {
+			RenderTile(pos, spr, tileScreenSize);
+		}
 	}
 
 }

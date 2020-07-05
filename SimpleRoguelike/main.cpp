@@ -94,14 +94,14 @@ bool Initialize()
 	signature.reset();
 	ecs->SetSystemSignature<DamageSystem>(signature);
 
-	//Create Game (Contains main game loop)
-	game = std::make_shared<Game>();
-
 	//Create Pathfinding
 	pathfinding = std::make_shared<Pathfinding>();
 
 	//Create FOV
 	fov = std::make_shared<FieldOfView>();
+
+	//Create Game (Contains main game loop)
+	game = std::make_shared<Game>();
 
 	if (!game) {
 		printf("ERROR: Failed to create game!\n");
