@@ -1,11 +1,9 @@
 NEXT: 
-	Field of View (NEXT)
-		Check distance to entites before seeing if they're in sight (based on given entities stats)
 	AI System
 		Create wandering system
 	Cleanup
 		Every so often check if anything references an entity and destroy it if not (look through AI components for instance) (mark for cleanup upon death?)
-	Actor Factory
+	Actor Factory (NEXT)
 		give it some basic stats
 		creates entity and attaches all the correct components
 

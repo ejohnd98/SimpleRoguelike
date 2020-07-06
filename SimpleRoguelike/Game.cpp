@@ -48,7 +48,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy, Position{});
 	ecs->AddComponent(enemy, Active{});
 	ecs->AddComponent(enemy, Renderable{0});
-	ecs->AddComponent(enemy, Stats{5,4,3,5,2});
+	ecs->AddComponent(enemy, Stats{5,4,3,5,10});
 	Sprite anim2[] = { 37,38 };
 	animationSystem->AddIdleAnim(enemy, anim2, 2, 60);
 
@@ -58,7 +58,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy2, Position{});
 	ecs->AddComponent(enemy2, Active{});
 	ecs->AddComponent(enemy2, Renderable{ 0 });
-	ecs->AddComponent(enemy2, Stats{ 5,4,3,5,2 });
+	ecs->AddComponent(enemy2, Stats{ 5,4,3,5,10 });
 	animationSystem->AddIdleAnim(enemy2, anim2, 2, 60);
 
 	Entity enemy3 = ecs->CreateEntity();
@@ -67,13 +67,13 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy3, Position{});
 	ecs->AddComponent(enemy3, Active{});
 	ecs->AddComponent(enemy3, Renderable{ 0 });
-	ecs->AddComponent(enemy3, Stats{ 5,4,3,5,2 });
+	ecs->AddComponent(enemy3, Stats{ 5,4,3,5,10 });
 	animationSystem->AddIdleAnim(enemy3, anim2, 2, 60);
 
-	mapSystem->PlaceEntity(player, { 1,5 });
-	mapSystem->PlaceEntity(enemy, { 3,1 });
-	mapSystem->PlaceEntity(enemy2, { 5,1 });
-	mapSystem->PlaceEntity(enemy3, { 7,5 });
+	mapSystem->PlaceEntity(player, { 12,24 });
+	mapSystem->PlaceEntity(enemy, { 4,16 });
+	mapSystem->PlaceEntity(enemy2, { 32,19 });
+	mapSystem->PlaceEntity(enemy3, { 18,9 });
 
 	fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
 
