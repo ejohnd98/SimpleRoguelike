@@ -48,6 +48,7 @@ bool Initialize()
 	ecs->RegisterComponent<AnimIdle>();
 	ecs->RegisterComponent<AnimSprite>();
 	ecs->RegisterComponent<AnimMove>();
+	ecs->RegisterComponent<DeleteAfterAnim>();
 	ecs->RegisterComponent<Info>();
 	ecs->RegisterComponent<Stats>();
 	ecs->RegisterComponent<Active>();

@@ -130,6 +130,7 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 		FloatPosition pos;
 		pos = r.position;	
 		Sprite spr = r.sprite;
+		bool remove = false;
 		
 		if (ecs->HasComponent<AnimSprite>(entity)) {
 			AnimSprite& anim = ecs->GetComponent<AnimSprite>(entity);
@@ -137,6 +138,9 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 			if (anim.finished) {
 				//animating = false;
 				ecs->RemoveComponent<AnimSprite>(entity);
+				if (ecs->HasComponent<DeleteAfterAnim>(entity)) {
+					remove = true;
+				}
 			}
 			else {
 				anim.AnimStep();
@@ -157,11 +161,16 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 			r.position = anim.CurrentPos();
 			if (anim.finished) {
 				ecs->RemoveComponent<AnimMove>(entity);
-				//animating = false;
+				if (ecs->HasComponent<DeleteAfterAnim>(entity)) {
+					remove = true;
+				}
 			}
 		}
 		if (mapSystem->IsVisible(pos.x, pos.y)) {
 			RenderTile(pos, spr, tileScreenSize);
+		}
+		if (remove) {
+			ecs->DestroyEntity(entity);
 		}
 	}
 

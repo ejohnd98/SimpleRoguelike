@@ -270,6 +270,8 @@ struct AnimMove {
 	}
 };
 
+struct DeleteAfterAnim {};
+
 struct Info {
 	std::string name = "Untitled";
 	std::string info = "No description.";

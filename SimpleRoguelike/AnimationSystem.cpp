@@ -17,6 +17,14 @@ void AnimationSystem::AddIdleAnim(Entity entity, Sprite spriteArr[], int l, int 
 	ecs->AddComponent<AnimIdle>(entity, anim);
 }
 
+void AnimationSystem::AddSpriteAnim(FloatPosition pos, Sprite spriteArr[], int l, int fps) {
+	Entity animEntity = ecs->CreateEntity();
+	ecs->AddComponent<Renderable>(animEntity, {255, pos});
+	ecs->AddComponent<Active>(animEntity, {});
+	ecs->AddComponent<DeleteAfterAnim>(animEntity, {});
+	AddSpriteAnim(animEntity, spriteArr, l, fps);
+}
+
 void AnimationSystem::AddSpriteAnim(Entity entity, Sprite spriteArr[], int l, int fps) {
 	AnimSprite anim = {};
 	anim.length = l;
@@ -33,9 +41,17 @@ void AnimationSystem::AddSpriteAnim(Entity entity, Sprite spriteArr[], int l, in
 	}
 }
 
-void AnimationSystem::AddMoveAnim(Entity entity, FloatPosition endPos, float length) {
+void AnimationSystem::AddMoveAnim(FloatPosition startPos, FloatPosition endPos, float length) {
+	Entity animEntity = ecs->CreateEntity();
+	ecs->AddComponent<Renderable>(animEntity, {});
+	ecs->AddComponent<Active>(animEntity, {});
+	ecs->AddComponent<DeleteAfterAnim>(animEntity, {});
+	AddMoveAnim(animEntity, startPos, endPos, length);
+}
+
+void AnimationSystem::AddMoveAnim(Entity entity, FloatPosition startPos, FloatPosition endPos, float length) {
 	AnimMove anim = {};
-	anim.start = ecs->GetComponent<Position>(entity).ToFloat();
+	anim.start = startPos;
 	anim.end = endPos;
 	anim.length = length;
 	pendingMoveAnim.push(anim);
