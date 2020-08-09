@@ -1,12 +1,11 @@
 #include <SDL.h>
-#include <SDL_image.h>
 #include <stdio.h>
 #include <iostream>
-#include <string>
 
-#include "GameLoop.h"
-#include "GameRenderer.h"
+#include "ECS.h"
+#include "Game.h"
 #include "Commands.h"
+#include "Constants.h"
 
 //Screen constants
 const int SCREEN_FPS = 60;
@@ -14,56 +13,134 @@ const int UPDATES_PER_SECOND = 60;
 const int MS_PER_FRAME = 1000 / SCREEN_FPS;
 const int MS_PER_UPDATE = 1000 / UPDATES_PER_SECOND;
 
-//Starts up SDL and creates window
-bool Init();
-void Close();
-Command InputToCommand(SDL_Event* e);
+//Functions
+bool Initialize();
+void Terminate();
 
-//Game loop handler
-GameLoop* gameLoop = nullptr;
-//Game Renderer
-GameRenderer* gameRenderer = nullptr;
+//Variables
+std::shared_ptr <ECS> ecs;
+std::shared_ptr<RendererSystem> rendererSystem;
+std::shared_ptr<TurnSystem> turnSystem;
+std::shared_ptr<MapSystem> mapSystem;
+std::shared_ptr<PlayerSystem> playerSystem;
+std::shared_ptr<AISystem> aiSystem;
+std::shared_ptr<AnimationSystem> animationSystem;
+std::shared_ptr<DamageSystem> damageSystem;
 
-bool Init()
+std::shared_ptr<Game> game;
+std::shared_ptr<Pathfinding> pathfinding;
+std::shared_ptr<FieldOfView> fov;
+
+bool Initialize()
 {
 	bool success = true;
+	ecs = std::make_unique<ECS>();
+	ecs->Init();
+	
+	//Register components
+	ecs->RegisterComponent<Map>();
+	ecs->RegisterComponent<Position>();
+	ecs->RegisterComponent<Actor>();
+	ecs->RegisterComponent<PlayerControlled>();
+	ecs->RegisterComponent<ActiveAIEntity>();
+	ecs->RegisterComponent<AIControlled>();
+	ecs->RegisterComponent<Renderable>();
+	ecs->RegisterComponent<AnimIdle>();
+	ecs->RegisterComponent<AnimSprite>();
+	ecs->RegisterComponent<AnimMove>();
+	ecs->RegisterComponent<DeleteAfterAnim>();
+	ecs->RegisterComponent<Info>();
+	ecs->RegisterComponent<Stats>();
+	ecs->RegisterComponent<Active>();
 
-	gameLoop = new GameLoop();
-	gameRenderer = new GameRenderer();
-	gameRenderer->SetGameLoop(gameLoop);
-	if (!success) {
-		printf("Failed to initialize!\n");
+	//Register Renderer System (Interfaces with SDL to render game)
+	rendererSystem = ecs->RegisterSystem<RendererSystem>();
+	Signature signature;
+	signature.set(ecs->GetComponentType<Renderable>());
+	ecs->SetSystemSignature<RendererSystem>(signature);
+	rendererSystem->Init();
+
+	//Register Turn System (Handles turn order and action debts)
+	turnSystem = ecs->RegisterSystem<TurnSystem>();
+	signature.reset();
+	signature.set(ecs->GetComponentType<Actor>());
+	signature.set(ecs->GetComponentType<Active>());
+	ecs->SetSystemSignature<TurnSystem>(signature);
+
+	//Register Map System (Handles all interactions with Map)
+	mapSystem = ecs->RegisterSystem<MapSystem>();
+	signature.reset();
+	signature.set(ecs->GetComponentType<Map>());
+	ecs->SetSystemSignature<MapSystem>(signature);
+
+	//Register Player System (Interface between incoming commands and player controlled character)
+	playerSystem = ecs->RegisterSystem<PlayerSystem>();
+	signature.reset();
+	signature.set(ecs->GetComponentType<PlayerControlled>());
+	ecs->SetSystemSignature<PlayerSystem>(signature);
+
+	//Register AI System (Takes in active AI entity and decides their actions)
+	aiSystem = ecs->RegisterSystem<AISystem>();
+	signature.reset();
+	signature.set(ecs->GetComponentType<ActiveAIEntity>());
+	ecs->SetSystemSignature<AISystem>(signature);
+
+	//Register Animation System (Interface for adding animations to entities)
+	animationSystem = ecs->RegisterSystem<AnimationSystem>();
+	signature.reset();
+	ecs->SetSystemSignature<AnimationSystem>(signature);
+
+	//Register Attack System (Performs damage calculations and damage dealing)
+	damageSystem = ecs->RegisterSystem<DamageSystem>();
+	signature.reset();
+	ecs->SetSystemSignature<DamageSystem>(signature);
+
+	//Create Pathfinding
+	pathfinding = std::make_shared<Pathfinding>();
+
+	//Create FOV
+	fov = std::make_shared<FieldOfView>();
+
+	//Create Game (Contains main game loop)
+	game = std::make_shared<Game>();
+
+	if (!game) {
+		printf("ERROR: Failed to create game!\n");
 	}
 	return success;
 }
 
-void Close()
+void Terminate()
 {
-	//Free up game systems
-	delete gameLoop;
-	delete gameRenderer;
+	rendererSystem->Close();
 }
 
-Command InputToCommand(SDL_Event* e) {
-	switch (e->key.keysym.sym) {
-		case SDLK_UP:
-			return Command::MOVE_UP;
-		case SDLK_DOWN:
-			return Command::MOVE_DOWN;
-		case SDLK_RIGHT:
-			return Command::MOVE_RIGHT;
-		case SDLK_LEFT:
-			return Command::MOVE_LEFT;
-		case SDLK_SPACE:
-			return Command::WAIT;
+Command InputToCommand() { //hardcoded inputs currently
+	void SDL_PumpEvents(void);
+	const Uint8* keys = SDL_GetKeyboardState(NULL);
+
+	if (keys[SDL_GetScancodeFromKey(SDLK_UP)]) {
+		return Command::MOVE_UP;
 	}
+	if (keys[SDL_GetScancodeFromKey(SDLK_DOWN)]) {
+		return Command::MOVE_DOWN;
+	}
+	if (keys[SDL_GetScancodeFromKey(SDLK_RIGHT)]) {
+		return Command::MOVE_RIGHT;
+	}
+	if (keys[SDL_GetScancodeFromKey(SDLK_LEFT)]) {
+		return Command::MOVE_LEFT;
+	}
+	if (keys[SDL_GetScancodeFromKey(SDLK_SPACE)]) {
+		return Command::WAIT;
+	}
+	return Command::NONE;
 }
 
-int main(int argc, char* args[])
-{
+int main(int argc, char* args[]){
+
 	//Start up SDL and create window
-	if (Init())
-	{
+	if (Initialize()){
 		bool quit = false; //Main loop flag
 
 		Uint32 currentTime = SDL_GetTicks();
@@ -76,28 +153,33 @@ int main(int argc, char* args[])
 			//Handle events on queue
 			while (SDL_PollEvent(&event) != 0){
 				switch (event.type) {
-					case SDL_KEYDOWN:
-						gameLoop->GiveInput(InputToCommand(&event));
-						break;
 					case SDL_QUIT:
 						quit = true;
 						break;
+					default:
+						break;
 				}
 			}
-			currentTime = SDL_GetTicks();
+			Command input = InputToCommand();
+			if (input != Command::NONE) {
+				game->GiveInput(input);
+			}else {
+				game->ClearHeldInput();
+			}
 
+			currentTime = SDL_GetTicks();
 			if (currentTime >= nextGameUpdateTime) {
 				nextGameUpdateTime += MS_PER_UPDATE;
 				int diff = ((int)nextGameUpdateTime) - ((int)currentTime);
 				//std::cout << "Advancing loop at: " << currentTime << " Next: " << nextGameUpdateTime << " Diff: " << diff << "\n";
-				gameLoop->AdvanceLoop();
+				game->Advance();
 			}
-			if (currentTime >= nextRenderTime) {
+			if (currentTime >= nextRenderTime) { //quite flawed, as there is no need to "catch up" on missed frames (unlike game updates), but will correct later.
 				nextRenderTime += MS_PER_FRAME;
-				gameRenderer->Render();
+				rendererSystem->Render();
 			}
 		}
 	}
-	Close(); //Free resources and close SDL
+	Terminate(); //Free resources and close SDL
 	return 0;
 }

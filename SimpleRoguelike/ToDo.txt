@@ -1,20 +1,30 @@
-# System
----Put in some simple debug tools (click cell to turn it into wall, disable fog of war, etc...)
----Limit getting input somehow (if held down, only get every game logic advance time)
----Change renderer to use tile coordinates to render instead of pixels (will be easier to do UI)
---Create text class which stores string itself along with color (create syntax for coloring parts of string?)
--Start working on JSON reader for actor and item database
+NEXT: 
+	AI System
+		Create wandering system
+	Cleanup
+		Every so often check if anything references an entity and destroy it if not (look through AI components for instance) (mark for cleanup upon death?)
+	Actor Factory (NEXT)
+		give it some basic stats
+		creates entity and attaches all the correct components
 
-# Interface
----Cache actors last known positions for when cells are not visible, but known.
---Redo gamelogs to have vector of above mentioned text objects.
+	Allow sprites of varying sizes to be rendered (bigger than standard tiles)
+	Auto load tilesets in folder and store in a map by name
 
-# Map Generation
---Make Map generation less hardcoded
+Later:
+	Create FX entities (ex. temporary flames during an attack, hit effects, or ailment effects like poison)
+		FX system with an FX component. Checks to see if animation is done and if so, erases component
+	Make input code neater/more robust
+	Do once over of input thresholds in Game (time since last command, etc...)
+	Tie above numbers to the framerate, along with animations;
 
-# Actor
---Properly implement FSM (currently always set to attack)
----Create functions for calculating values like attack power and damage received, as well as determining if a target is an enemy.
----Implement some sort of action points or stamina system which actors gain each turn.
-   This would allow actors to have different movement speeds.
-   Some may not act every n turns, while some may move multiple cells at once.
+Bugs:
+	player animation should always be shown first (since it is their turn to act)
+		Keep completely indpendant of other animations maybe?
+
+Ideas:
+	Have damage system and damage component
+	Resolve damage after each action
+	Go through each entity with a damage component
+	call an AddDamage function to add damage to entity and provide the attacker
+
+	Allow creation of new entities with animation system (ie. attack anim fx)

@@ -1,9 +1,13 @@
 #pragma once
+#include "Constants.h"
+#include "Components.h"
+
 class FieldOfView
 {
-public:
-	static void SetFOV(class Map* m, class Actor* p);
-	static bool CanSeeCell(Map* m, Actor* s, int x, int y);
-	static bool InSight(int x1, int y1, int x2, int y2, int sight);
+	public:
+		void CalculateVisibleCells(Entity e);
+		void CastRay(float ex, float ey, float ox, float oy, float stepDist, int sight);
+		std::vector<Entity> GetVisibleEntities(Entity e);
+		bool HasLineOfSight(Position a, Position b, int sight = 1000);
 };
 

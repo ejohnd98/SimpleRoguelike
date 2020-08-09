@@ -1,0 +1,28 @@
+{
+    "actors" : [
+		{
+			"name" : "Hero",
+			"sprite" : 32,
+			"health" : 50,
+			"strength" : 3,
+			"faction" : 1,
+			"sight" : 8
+		},
+		{
+			"name" : "Ghost",
+			"sprite" : 33,
+			"health" : 3,
+			"strength" : 1,
+			"faction" : 0,
+			"sight" : 6
+		},
+		{
+			"name" : "Skeleton",
+			"sprite" : 34,
+			"health" : 6,
+			"strength" : 2,
+			"faction" : 0,
+			"sight" : 4
+		}
+    ]
+}
