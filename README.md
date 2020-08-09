@@ -1,4 +1,5 @@
-![alt text](https://ejohnd98.github.io/images/roguelike.gif "Roguelike")
+[See here for a gif](https://ejohnd98.github.io/images/roguelike.gif)
+
 The gif quality isn't the best, but shows roughly what things look like (as of August 8th 2020)
 
 ## About this Project
