@@ -6,7 +6,8 @@
 #include <string>
 #include <sstream>
 
-#include "ETexture.h";
+#include "ETexture.h"
+#include "Components.h"
 
 
 ETexture::ETexture() {
@@ -67,9 +68,9 @@ void ETexture::Free() {
 	}
 }
 
-void ETexture::SetTileSetInfo(int w, int h) {
-	tileW = w;
-	tileH = h;
+void ETexture::SetTileSetInfo(Position tileSize) {
+	tileW = tileSize.x;
+	tileH = tileSize.y;
 }
 
 SDL_Rect* ETexture::GetTileRect(int tileNum) { //returns rect corresponding to tile number (top right -> bottom left)

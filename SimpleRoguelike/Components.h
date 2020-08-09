@@ -182,20 +182,21 @@ struct Actor {
 
 struct Renderable {
 	Sprite sprite = 0;
+	Tileset tileset = "16x16_tileset";
 	FloatPosition position = {0,0};
 };
 
 struct AnimIdle {
 	Sprite sprites[32];
+	int frameLengths[32];
 	int length;
-	int framesPerSprite;
 
 	int index = 0;
 	int frameCounter = 0;
 
 	void AnimStep() {
 			frameCounter++;
-			if (frameCounter >= framesPerSprite) {
+			if (frameCounter > frameLengths[index]) {
 				frameCounter = 0;
 				index = (index+1)%length;
 			}
@@ -207,8 +208,8 @@ struct AnimIdle {
 
 struct AnimSprite {
 	Sprite sprites[32];
+	int frameLengths[32];
 	int length;
-	int framesPerSprite;
 	bool loop;
 
 	int index = 0;
@@ -218,7 +219,7 @@ struct AnimSprite {
 	void AnimStep() {
 		if (!finished) {
 			frameCounter++;
-			if (frameCounter >= framesPerSprite) {
+			if (frameCounter > frameLengths[index]) {
 				frameCounter = 0;
 				index++;
 				if (index >= length) {

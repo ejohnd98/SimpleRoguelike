@@ -5,9 +5,9 @@
 class AnimationSystem : public System
 {
 public:
-	void AddIdleAnim(Entity entity, Sprite spriteArr[], int l, int fps);
-	void AddSpriteAnim(FloatPosition pos, Sprite spriteArr[], int l, int fps);
-	void AddSpriteAnim(Entity entity, Sprite spriteArr[], int l, int fps);
+	void AddIdleAnim(Entity entity, Sprite spriteArr[], int l, int frameLengths[]);
+	void AddSpriteAnim(FloatPosition pos, Sprite spriteArr[], Tileset tileset, int l, int frameLengths[]);
+	void AddSpriteAnim(Entity entity, Sprite spriteArr[], int l, int frameLengths[]);
 	void AddMoveAnim(FloatPosition startPos, FloatPosition endPos, float length);
 	void AddMoveAnim(Entity entity, FloatPosition startPos, FloatPosition endPos, float length);
 

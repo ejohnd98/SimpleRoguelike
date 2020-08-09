@@ -4,6 +4,7 @@
 
 using Entity = std::uint16_t;
 using Sprite = std::uint16_t;
+using Tileset = std::string;
 using ComponentType = std::uint8_t;
 
 const Entity MAX_ENTITIES = 5000;

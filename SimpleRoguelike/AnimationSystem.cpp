@@ -7,31 +7,31 @@
 
 extern std::shared_ptr <ECS> ecs;
 
-void AnimationSystem::AddIdleAnim(Entity entity, Sprite spriteArr[], int l, int fps) {
+void AnimationSystem::AddIdleAnim(Entity entity, Sprite spriteArr[], int l, int frameLengths[]) {
 	AnimIdle anim = {};
 	anim.length = l;
-	anim.framesPerSprite = fps;
 	for (int i = 0; i < l; i++) {
 		anim.sprites[i] = spriteArr[i];
+		anim.frameLengths[i] = frameLengths[i];
 	}
 	ecs->AddComponent<AnimIdle>(entity, anim);
 }
 
-void AnimationSystem::AddSpriteAnim(FloatPosition pos, Sprite spriteArr[], int l, int fps) {
+void AnimationSystem::AddSpriteAnim(FloatPosition pos, Sprite spriteArr[], Tileset tileset, int l, int frameLengths[]) {
 	Entity animEntity = ecs->CreateEntity();
-	ecs->AddComponent<Renderable>(animEntity, {255, pos});
+	ecs->AddComponent<Renderable>(animEntity, {255, tileset, pos});
 	ecs->AddComponent<Active>(animEntity, {});
 	ecs->AddComponent<DeleteAfterAnim>(animEntity, {});
-	AddSpriteAnim(animEntity, spriteArr, l, fps);
+	AddSpriteAnim(animEntity, spriteArr, l, frameLengths);
 }
 
-void AnimationSystem::AddSpriteAnim(Entity entity, Sprite spriteArr[], int l, int fps) {
+void AnimationSystem::AddSpriteAnim(Entity entity, Sprite spriteArr[], int l, int frameLengths[]) {
 	AnimSprite anim = {};
 	anim.length = l;
-	anim.framesPerSprite = fps;
 	anim.loop = false;
 	for (int i = 0; i < l; i++) {
 		anim.sprites[i] = spriteArr[i];
+		anim.frameLengths[i] = frameLengths[i];
 	}
 	pendingSpriteAnim.push(anim);
 	pendingSpriteAnimEntities.push(entity);

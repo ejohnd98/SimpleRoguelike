@@ -51,7 +51,7 @@ void MapSystem::MoveEntity(Entity entity, Position newPos) {
 	}
 
 	map->positionEntityMap[newPos] = entity; //update map with new position
-	animationSystem->AddMoveAnim(entity, pos.ToFloat(), newPos.ToFloat(), 0.25f);
+	animationSystem->AddMoveAnim(entity, pos.ToFloat(), newPos.ToFloat(), 0.2f);
 	pos = newPos; //update entity's position
 
 }

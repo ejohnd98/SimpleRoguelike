@@ -1,5 +1,7 @@
 #pragma once
 #include<string>
+#include <SDL.h>
+#include <SDL_image.h>
 class ETexture
 {
 public:
@@ -12,7 +14,7 @@ public:
 	//Loads image at specified path
 	bool LoadFromFile(std::string path, SDL_Renderer* renderer);
 
-	void SetTileSetInfo(int tileW, int tileH); //sets tileset dimensions
+	void SetTileSetInfo(struct Position tileSize); //sets tileset dimensions
 
 	SDL_Rect* GetTileRect(int tileNum); //returns a rect corresponding to tile of given index
 
