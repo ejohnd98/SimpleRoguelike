@@ -11,7 +11,9 @@
 
 enum class EaseType {
 	LINEAR,
-	SMOOTH
+	SIN,
+	BOUNCE_OUT,
+	QUAD_OUT
 };
 
 enum class AIState {
@@ -242,7 +244,7 @@ struct AnimSprite {
 struct AnimMove {
 	FloatPosition start, end;
 	float length;
-	EaseType easeType = EaseType::SMOOTH;
+	EaseType easeType = EaseType::QUAD_OUT;
 
 	float time = 0;
 	bool finished = false;
@@ -264,8 +266,12 @@ struct AnimMove {
 			switch (easeType) {
 			case EaseType::LINEAR:
 				return Animation::LinearEase(start, end, time);
-			case EaseType::SMOOTH:
-				return Animation::SmoothEase(start, end, time);
+			case EaseType::SIN:
+				return Animation::SinEase(start, end, time);
+			case EaseType::BOUNCE_OUT:
+				return Animation::BounceEaseOut(start, end, time);
+			case EaseType::QUAD_OUT:
+				return Animation::QuadEaseOut(start, end, time);
 			}
 		}
 	}

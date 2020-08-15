@@ -40,6 +40,13 @@ bool DamageSystem::WithinAttackRange(Entity attacker, Entity target) {
 
 void DamageSystem::KillEntity(Entity entity) {
 	//[place dropped items and corpse graphic here]
+	Sprite anim[] = { 0,1,2,3,4 };
+	int lengths[] = { 4, 4, 4, 4, 4 };
+	FloatPosition pos = ecs->GetComponent<Position>(entity).ToFloat();
+
+	animationSystem->AddSpriteAnim(pos, anim, (Tileset)"33x33_boom", 5, lengths);
+
+
 	if (ecs->HasComponent<Active>(entity)) {
 		mapSystem->RemoveEntity(entity);
 		ecs->RemoveComponent<Active>(entity);

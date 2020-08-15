@@ -63,6 +63,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy2, Stats{ 5,4,3,5,10 });
 	animationSystem->AddIdleAnim(enemy2, anim2, 2, lengths2);
 
+	Sprite anim3[] = { 34, 35 };
 	Entity enemy3 = ecs->CreateEntity();
 	ecs->AddComponent(enemy3, Actor{ 0 });
 	ecs->AddComponent(enemy3, AIControlled{});
@@ -70,7 +71,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy3, Active{});
 	ecs->AddComponent(enemy3, Renderable{});
 	ecs->AddComponent(enemy3, Stats{ 5,4,3,5,10 });
-	animationSystem->AddIdleAnim(enemy3, anim2, 2, lengths2);
+	animationSystem->AddIdleAnim(enemy3, anim3, 2, lengths2);
 
 	mapSystem->PlaceEntity(player, { 12,24 });
 	mapSystem->PlaceEntity(enemy, { 4,16 });

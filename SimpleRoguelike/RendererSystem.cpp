@@ -15,10 +15,19 @@ extern std::shared_ptr<MapSystem> mapSystem;
 extern std::shared_ptr<PlayerSystem> playerSystem;
 
 const char* WINDOW_TITLE = "Roguelike Rework";
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
-const int PIXEL_MULT = 2;
+
+//Render resolution:
+const int SCREEN_WIDTH = 1600;
+const int SCREEN_HEIGHT = 1600;
+const int PIXEL_MULT = 8; 
+
+//Output resolution
+const int EXTERNAL_SCREEN_WIDTH = 800;
+const int EXTERNAL_SCREEN_HEIGHT = 800;
+
 const Tileset MAIN_TILESET = "16x16_tileset";
+const int TILESET_WIDTH = 16;
+const int TILESET_HEIGHT = 16;
 
 RendererSystem::~RendererSystem() {
 	Close();
@@ -29,19 +38,21 @@ void RendererSystem::Init() {
 
 	//initialize SDL renderer
 	assert(SDL_Init(SDL_INIT_VIDEO) >= 0);
-
-	//Set texture filtering to linear (keeps pixel art crisp)
-	if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0")) {
-		printf("Warning: Linear texture filtering not enabled!");
-	}
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 
 	//Create window
-	SDLWindow = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+	SDLWindow = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, EXTERNAL_SCREEN_WIDTH, EXTERNAL_SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	assert(SDLWindow);
 
 	//Create renderer for window
-	SDLRenderer = SDL_CreateRenderer(SDLWindow, -1, SDL_RENDERER_ACCELERATED);
+	SDLRenderer = SDL_CreateRenderer(SDLWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
 	assert(SDLRenderer != nullptr);
+
+	//Create texture to render to
+	screenRenderTexture = SDL_CreateTexture(SDLRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
+	float scale1 = (float)EXTERNAL_SCREEN_WIDTH / (float)SCREEN_WIDTH;
+	float scale2 = (float)EXTERNAL_SCREEN_HEIGHT / (float)SCREEN_HEIGHT;
+	renderTextureScale = scale1 < scale2 ? scale1 : scale2;
 
 	//Set renderer color
 	SDL_SetRenderDrawColor(SDLRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -53,7 +64,6 @@ void RendererSystem::Init() {
 	assert(LoadMedia());
 	assert(tilesets.find(MAIN_TILESET) != tilesets.end());
 	assert(tilesets.at(MAIN_TILESET).GetTileWidth() != 0 && tilesets.at(MAIN_TILESET).GetTileHeight() != 0);
-
 }
 
 void RendererSystem::Close()
@@ -74,10 +84,19 @@ void RendererSystem::Close()
 }
 
 void RendererSystem::Render() {
+	SDL_SetRenderTarget(SDLRenderer, screenRenderTexture);
 	SDL_SetRenderDrawColor(SDLRenderer, 31, 14, 28, 0x00);
 	SDL_RenderClear(SDLRenderer);
 
 	RenderMap(mapSystem->map);
+
+	SDL_SetRenderTarget(SDLRenderer, NULL);
+
+	int renderWidth = (int)(SCREEN_WIDTH * renderTextureScale);
+	int renderHeight = (int)(SCREEN_HEIGHT * renderTextureScale);
+
+	SDL_Rect renderQuad = { (EXTERNAL_SCREEN_WIDTH - renderWidth) * 0.5f, (EXTERNAL_SCREEN_HEIGHT - renderHeight) * 0.5f, renderWidth, renderHeight };
+	SDL_RenderCopy(SDLRenderer, screenRenderTexture, NULL, &renderQuad);
 
 	SDL_RenderPresent(SDLRenderer);
 }
@@ -97,26 +116,35 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 	}
 	TileToCenter = lastPlayerPos;
 
+	cameraPos = Animation::QuadEaseOut(cameraPos, TileToCenter, 0.05f);
+
 
 	//range of tiles to render
-	int renderX1 = (int)(TileToCenter.x - ceil(horzTiles * 0.5));
-	int renderX2 = (int)(TileToCenter.x + ceil(horzTiles * 0.5));
-	int renderY1 = (int)(TileToCenter.y - ceil(vertTiles * 0.5));
-	int renderY2 = (int)(TileToCenter.y + ceil(vertTiles * 0.5));
+	int renderX1 = (int)(cameraPos.x - ceil(horzTiles * 0.5)) - 1;
+	int renderX2 = (int)(cameraPos.x + ceil(horzTiles * 0.5)) + 1;
+	int renderY1 = (int)(cameraPos.y - ceil(vertTiles * 0.5)) - 1;
+	int renderY2 = (int)(cameraPos.y + ceil(vertTiles * 0.5)) + 1;
 
 	for (int y = renderY1; y <= renderY2; y++) {
 		for (int x = renderX1; x <= renderX2; x++) {
 			if (!mapSystem->ValidPosition({ x, y }) || (!mapSystem->IsVisible(x, y) && !mapSystem->IsKnown(x, y))) { //if position is invalid or not visible/known
-				RenderTile({ (float)x, (float)y }, 5, MAIN_TILESET, PIXEL_MULT); //render '?'
+				//RenderTile({ (float)x, (float)y }, 5, MAIN_TILESET, PIXEL_MULT, true, {}); //render '?'
 				continue;
 			}
 			Sprite spr = map->floorSprite;
 			if (map->GetCell(x,y)) { //if wall
 				spr = map->wallSprite;
 			}
-			RenderTile({ (float)x, (float)y }, spr, MAIN_TILESET, PIXEL_MULT);
+			RenderTile({ (float)x, (float)y }, spr, MAIN_TILESET, PIXEL_MULT, false, {});
 			if (!mapSystem->IsVisible(x, y) && mapSystem->IsKnown(x, y)) {
-				RenderTile({ (float)x, (float)y }, 6, MAIN_TILESET, PIXEL_MULT); //render fog if position not visible but known
+				RenderTile({ (float)x, (float)y }, 6, MAIN_TILESET, PIXEL_MULT, false, {}); //render fog if position not visible but known
+			}
+		}
+	}
+	for (int y = renderY1; y <= renderY2; y++) {
+		for (int x = renderX1; x <= renderX2; x++) {
+			if (!mapSystem->ValidPosition({ x, y }) || (!mapSystem->IsVisible(x, y) && !mapSystem->IsKnown(x, y))) { //if position is invalid or not visible/known
+				RenderTile({ (float)x, (float)y }, 0, "32x32_fogBlack", PIXEL_MULT, true, {}); //render '?'
 			}
 		}
 	}
@@ -166,7 +194,7 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 			}
 		}
 		if (mapSystem->IsVisible(pos.x, pos.y)) {
-			RenderTile(pos, spr, r.tileset, PIXEL_MULT);
+			RenderTile(pos, spr, r.tileset, PIXEL_MULT, true, {});
 		}
 		if (remove) {
 			ecs->DestroyEntity(entity);
@@ -175,13 +203,17 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 
 }
 
-void RendererSystem::RenderTile(FloatPosition pos, Sprite spr, Tileset tileset, int scale = 1) {
+void RendererSystem::RenderTile(FloatPosition pos, Sprite spr, Tileset tileset, int scale, bool center, Position offset) {
 	int w = tilesets.at(tileset).GetTileWidth();
 	int h = tilesets.at(tileset).GetTileHeight();
+	int wDiff = w - TILESET_WIDTH;
+	int hDiff = h - TILESET_HEIGHT;
 
 	SDL_Rect texQuad = *tilesets.at(tileset).GetTileRect(spr);
-	Position centerPos = TilePosToScreenPos(pos);
-	Position renderPos = centerPos - Position{ (int)(w * scale * 0.5f), (int)(h * scale * 0.5f) };
+	Position renderPos = TilePosToScreenPos(pos) + (offset * scale);
+	if (center) {
+		renderPos = renderPos - Position{ (int)(wDiff * 0.5f * scale), (int)(hDiff * 0.5f * scale) };
+	}
 
 	SDL_Rect renderQuad = { renderPos.x, renderPos.y, w * scale, h * scale };
 	SDL_RenderCopy(SDLRenderer, tilesets.at(tileset).GetTexture(), &texQuad, &renderQuad);
@@ -189,9 +221,9 @@ void RendererSystem::RenderTile(FloatPosition pos, Sprite spr, Tileset tileset, 
 
 Position RendererSystem::TilePosToScreenPos(FloatPosition tilePos) { //converts from tile position to screen position (pixels) based on centered tile (usually the player)
 	
-	FloatPosition tileScreenSize = { tilesets.at(MAIN_TILESET).GetTileWidth(), tilesets.at(MAIN_TILESET).GetTileHeight() }; //size of a tile in pixels
+	FloatPosition tileScreenSize = { TILESET_WIDTH, TILESET_HEIGHT }; //size of a tile in pixels
 	tileScreenSize = tileScreenSize * PIXEL_MULT; //adjust for scale factor
-	FloatPosition centerTileScreenPos = TileToCenter * tileScreenSize; //center if rendered without offset
+	FloatPosition centerTileScreenPos = cameraPos * tileScreenSize; //center if rendered without offset
 	
 	FloatPosition desiredScreenPos = {SCREEN_WIDTH * 0.5, SCREEN_HEIGHT * 0.5 }; //set to center of screen
 	desiredScreenPos = desiredScreenPos - tileScreenSize * 0.5; //offset by half tile size to correctly center tile

@@ -21,7 +21,7 @@ public:
 private:
 	bool animating = false;
 	void RenderMap(std::shared_ptr<Map> map);
-	void RenderTile(FloatPosition pos, Sprite spr, Tileset tileset, int scale);
+	void RenderTile(FloatPosition pos, Sprite spr, Tileset tileset, int scale, bool center, Position offset);
 	Position TilePosToScreenPos(FloatPosition tilePos);
 	bool LoadMedia();
 	Position GetTilesetSizeFromName(std::string name);
@@ -31,9 +31,12 @@ private:
 
 	std::unordered_map<Tileset, ETexture> tilesets;
 	ETexture fontTex;
+	SDL_Texture* screenRenderTexture;
+	float renderTextureScale;
 
 	FloatPosition lastPlayerPos;
 	FloatPosition TileToCenter; //position in-game that will be rendered in center
+	FloatPosition cameraPos;
 	int centerTileX;
 	int centerTileY;
 	int tileScreenSize;
