@@ -13,10 +13,10 @@ void DamageSystem::Attack(Entity attacker, Entity target) {
 	Stats& targetStats = ecs->GetComponent<Stats>(target);
 
 	Sprite anim[] = { 112,113,114,115,116 };
-	int lengths[] = { 5, 2, 2, 2, 5 };
+	int lengths[] = { 3, 1, 1, 2, 2 };
 	FloatPosition pos = ecs->GetComponent<Position>(target).ToFloat();
 
-	animationSystem->AddSpriteAnim(pos, anim, (Tileset)"16x16_tileset", 5, lengths);
+	animationSystem->AddSpriteAnim(pos, anim, MAIN_TILESET, 5, lengths);
 
 	int damage = std::max( attackerStats.strength - targetStats.defense , 0);
 	std::cout << "Entity " << attacker << " dealt " << damage << " damage to Entity " << target << "\n";
@@ -40,11 +40,11 @@ bool DamageSystem::WithinAttackRange(Entity attacker, Entity target) {
 
 void DamageSystem::KillEntity(Entity entity) {
 	//[place dropped items and corpse graphic here]
-	Sprite anim[] = { 0,1,2,3,4 };
-	int lengths[] = { 4, 4, 4, 4, 4 };
+	Sprite anim[] = { 0,1,2,3,4, 5 };
+	int lengths[] = { 2, 2, 3, 3, 4, 4 };
 	FloatPosition pos = ecs->GetComponent<Position>(entity).ToFloat();
 
-	animationSystem->AddSpriteAnim(pos, anim, (Tileset)"33x33_boom", 5, lengths);
+	animationSystem->AddSpriteAnim(pos, anim, (Tileset)"32x32_boom", 6, lengths);
 
 
 	if (ecs->HasComponent<Active>(entity)) {

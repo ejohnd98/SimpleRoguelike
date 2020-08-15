@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <SDL.h>
 
 #include "AnimationSystem.h"
 #include "RendererSystem.h"
@@ -15,6 +16,7 @@ void AnimationSystem::AddIdleAnim(Entity entity, Sprite spriteArr[], int l, int 
 		anim.frameLengths[i] = frameLengths[i];
 	}
 	ecs->AddComponent<AnimIdle>(entity, anim);
+	ecs->GetComponent<Renderable>(entity).sprite = spriteArr[0];
 }
 
 void AnimationSystem::AddSpriteAnim(FloatPosition pos, Sprite spriteArr[], Tileset tileset, int l, int frameLengths[]) {
@@ -97,6 +99,3 @@ void AnimationSystem::ActivateSpriteAnims() {
 		}
 	}
 }
-
-//keep track of current queued animations and set renderer "animate" bool to true when types of added animations clash
-//in other words, animate all pending attack animations before any new move animations (temporatily store that one animation somewhere?)

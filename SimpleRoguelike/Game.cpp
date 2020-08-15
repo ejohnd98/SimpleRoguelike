@@ -37,7 +37,7 @@ bool Game::InitGame() {
 	ecs->AddComponent(player, PlayerControlled{});
 	ecs->AddComponent(player, Position{});
 	ecs->AddComponent(player, Active{});
-	ecs->AddComponent(player, Renderable{0, "16x16_tileset"});
+	ecs->AddComponent(player, Renderable{});
 	ecs->AddComponent(player, Stats{20,6,1,10,10});
 	Sprite anim[] = { 32, 33 };
 	int lengths[] = { 30, 30 };

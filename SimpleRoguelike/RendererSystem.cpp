@@ -17,17 +17,15 @@ extern std::shared_ptr<PlayerSystem> playerSystem;
 const char* WINDOW_TITLE = "Roguelike Rework";
 
 //Render resolution:
-const int SCREEN_WIDTH = 1600;
-const int SCREEN_HEIGHT = 1600;
-const int PIXEL_MULT = 8; 
+const int RENDER_WIDTH = 1600;
+const int RENDER_HEIGHT = 1600;
+const int PIXEL_MULT = 4; 
+const int NATIVE_WIDTH = RENDER_WIDTH / PIXEL_MULT;
+const int NATIVE_HEIGHT = RENDER_HEIGHT / PIXEL_MULT;
 
 //Output resolution
-const int EXTERNAL_SCREEN_WIDTH = 800;
-const int EXTERNAL_SCREEN_HEIGHT = 800;
-
-const Tileset MAIN_TILESET = "16x16_tileset";
-const int TILESET_WIDTH = 16;
-const int TILESET_HEIGHT = 16;
+const int OUTPUT_WIDTH = 800;
+const int OUTPUT_HEIGHT = 800;
 
 RendererSystem::~RendererSystem() {
 	Close();
@@ -41,7 +39,7 @@ void RendererSystem::Init() {
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 
 	//Create window
-	SDLWindow = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, EXTERNAL_SCREEN_WIDTH, EXTERNAL_SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+	SDLWindow = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, OUTPUT_WIDTH, OUTPUT_HEIGHT, SDL_WINDOW_SHOWN);
 	assert(SDLWindow);
 
 	//Create renderer for window
@@ -49,9 +47,9 @@ void RendererSystem::Init() {
 	assert(SDLRenderer != nullptr);
 
 	//Create texture to render to
-	screenRenderTexture = SDL_CreateTexture(SDLRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
-	float scale1 = (float)EXTERNAL_SCREEN_WIDTH / (float)SCREEN_WIDTH;
-	float scale2 = (float)EXTERNAL_SCREEN_HEIGHT / (float)SCREEN_HEIGHT;
+	screenRenderTexture = SDL_CreateTexture(SDLRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RENDER_WIDTH, RENDER_HEIGHT);
+	float scale1 = (float)OUTPUT_WIDTH / (float)RENDER_WIDTH;
+	float scale2 = (float)OUTPUT_HEIGHT / (float)RENDER_HEIGHT;
 	renderTextureScale = scale1 < scale2 ? scale1 : scale2;
 
 	//Set renderer color
@@ -85,17 +83,31 @@ void RendererSystem::Close()
 
 void RendererSystem::Render() {
 	SDL_SetRenderTarget(SDLRenderer, screenRenderTexture);
-	SDL_SetRenderDrawColor(SDLRenderer, 31, 14, 28, 0x00);
+	//SDL_SetRenderDrawColor(SDLRenderer, 31, 14, 28, 0x00);
+	SDL_SetRenderDrawColor(SDLRenderer, 0, 0, 0, 0x00);
 	SDL_RenderClear(SDLRenderer);
-
+	
+	//render game at native res
 	RenderMap(mapSystem->map);
+	//render UI
+	DrawUIRect({ 5, NATIVE_HEIGHT - NATIVE_HEIGHT/4 }, { NATIVE_WIDTH - 10, NATIVE_HEIGHT/4 - 5 }, (Tileset)"8x7_ui", PIXEL_MULT);
+	RenderString({ 10, NATIVE_HEIGHT - NATIVE_HEIGHT / 4 + 5 }, { NATIVE_WIDTH - 20, NATIVE_HEIGHT / 4 - 15 }, { 0, 2 },
+		"Business secrets of the Pharaohs",
+		(Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
+	RenderString({ 11, NATIVE_HEIGHT - NATIVE_HEIGHT / 4 + 5 }, { NATIVE_WIDTH - 20, NATIVE_HEIGHT / 4 - 15 }, { 0, 2 },
+		"Business secrets of the Pharaohs",
+		(Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
+	RenderString({ 10, NATIVE_HEIGHT - NATIVE_HEIGHT/4 + 5+9 }, { NATIVE_WIDTH - 20, NATIVE_HEIGHT/4 - 15 -9 }, {0, 2},
+		"The first thing to note when discussing the business secrets of the Pharaohs is an acknowledgement that their era was so completely different from our own that almost all cultural, political and particularly business parallels we draw between the two eras are, by their very nature, bound to be wrong.",
+		(Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
 
+	//put rendertexture on screen
 	SDL_SetRenderTarget(SDLRenderer, NULL);
 
-	int renderWidth = (int)(SCREEN_WIDTH * renderTextureScale);
-	int renderHeight = (int)(SCREEN_HEIGHT * renderTextureScale);
+	int renderWidth = (int)(RENDER_WIDTH * renderTextureScale);
+	int renderHeight = (int)(RENDER_HEIGHT * renderTextureScale);
 
-	SDL_Rect renderQuad = { (EXTERNAL_SCREEN_WIDTH - renderWidth) * 0.5f, (EXTERNAL_SCREEN_HEIGHT - renderHeight) * 0.5f, renderWidth, renderHeight };
+	SDL_Rect renderQuad = { (OUTPUT_WIDTH - renderWidth) * 0.5f, (OUTPUT_HEIGHT - renderHeight) * 0.5f, renderWidth, renderHeight };
 	SDL_RenderCopy(SDLRenderer, screenRenderTexture, NULL, &renderQuad);
 
 	SDL_RenderPresent(SDLRenderer);
@@ -107,8 +119,8 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 	tileScreenSize = tilesets.at(MAIN_TILESET).GetTileWidth()* PIXEL_MULT;
 
 	//number of tiles to render
-	int horzTiles = ceil(SCREEN_WIDTH / tileScreenSize) + 2;
-	int vertTiles = ceil(SCREEN_HEIGHT / tileScreenSize) + 2;
+	int horzTiles = ceil(RENDER_WIDTH / tileScreenSize) + 2;
+	int vertTiles = ceil(RENDER_HEIGHT / tileScreenSize) + 2;
 
 	Entity player = playerSystem->GetPlayerEntity();
 	if (ecs->HasComponent<Active>(player)) {
@@ -225,7 +237,7 @@ Position RendererSystem::TilePosToScreenPos(FloatPosition tilePos) { //converts 
 	tileScreenSize = tileScreenSize * PIXEL_MULT; //adjust for scale factor
 	FloatPosition centerTileScreenPos = cameraPos * tileScreenSize; //center if rendered without offset
 	
-	FloatPosition desiredScreenPos = {SCREEN_WIDTH * 0.5, SCREEN_HEIGHT * 0.5 }; //set to center of screen
+	FloatPosition desiredScreenPos = { RENDER_WIDTH * 0.5, RENDER_HEIGHT * 0.5 }; //set to center of screen
 	desiredScreenPos = desiredScreenPos - tileScreenSize * 0.5; //offset by half tile size to correctly center tile
 
 	FloatPosition offset = desiredScreenPos - centerTileScreenPos; //difference in where tile would be rendered and where we want to render it
@@ -233,11 +245,83 @@ Position RendererSystem::TilePosToScreenPos(FloatPosition tilePos) { //converts 
 	return Position{ screenPos }; // dealing with pixels now so round to int position
 }
 
-bool RendererSystem::LoadMedia() {
-	//Loading success flag
-	bool success = true;
+void RendererSystem::DrawUIRect(Position pos, Position size, Tileset tileset, int scale) {
+	int w = tilesets.at(tileset).GetTileWidth() * scale;
+	int h = tilesets.at(tileset).GetTileHeight() * scale;
+	Position screenPos = pos * scale;
+	Position screenSize = size * scale;
 
-	for (const auto& entry : std::filesystem::directory_iterator("tilesets/")) {
+	SDL_Rect renderQuad = { screenPos.x, screenPos.y, w, h };
+	for (int i = 0; i < 9; i++) {
+		if (i % 3 == 0) {
+			renderQuad.x = screenPos.x;
+			renderQuad.w = w;
+		}
+		if (i % 3 == 1) {
+			renderQuad.x += w;
+			renderQuad.w = screenSize.x - (w * 2);
+		}
+		if (i % 3 == 2) {
+			renderQuad.x += screenSize.x - (w * 2);;
+			renderQuad.w = w;
+		}
+		if (i == 3) {
+			renderQuad.y += h;
+			renderQuad.h = screenSize.y - (h * 2);
+		}
+		if (i == 6) {
+			renderQuad.y += screenSize.y - (h * 2);
+			renderQuad.h = h;
+		}
+		SDL_RenderCopy(SDLRenderer, tilesets.at(tileset).GetTexture(), tilesets.at(tileset).GetTileRect(i), &renderQuad);
+	}
+
+}
+void RendererSystem::RenderString(Position pos, Position area, Position spacing, std::string str, Tileset font, int scale, FloatPosition fontScale) {
+	int fontW = tilesets.at(font).GetTileWidth() * PIXEL_MULT * fontScale.x;
+	int fontH = tilesets.at(font).GetTileHeight() * PIXEL_MULT * fontScale.y;
+	Position screenPos = pos * scale;
+	Position screenArea = area * scale;
+	Position screenSpacing = spacing * scale;
+
+	Position curr = screenPos;
+	bool firstChar = true;
+	for (std::string::size_type i = 0; i < str.size(); ++i) {
+		int ascii = str[i];
+		if (firstChar && (ascii == 0 || ascii == 32 || ascii == 255)) {
+			continue;
+		}
+		if (str[i] == 10) { //newline char
+			curr.x = screenPos.x;
+			curr.y += fontH + screenSpacing.y;
+			firstChar = true;
+			continue;
+		}
+		if (str[i] == 10 || curr.x + fontW > screenPos.x + screenArea.x) { //line is full
+			curr.x = screenPos.x;
+			curr.y += fontH + screenSpacing.y;
+			firstChar = true;
+			if (ascii == 0 || ascii == 32 || ascii == 255) {
+				continue;
+			}
+		}
+		SDL_Rect texQuad = *tilesets.at(font).GetTileRect(ascii);
+		SDL_Rect renderQuad = { curr.x, curr.y, fontW, fontH };
+		SDL_RenderCopy(SDLRenderer, tilesets.at(font).GetTexture(), &texQuad, &renderQuad);
+		curr.x += fontW + screenSpacing.x;
+		firstChar = false;
+	}
+}
+
+bool RendererSystem::LoadMedia() {
+	LoadTilesetsFromPath("tilesets");
+	LoadTilesetsFromPath("fonts");
+	return !tilesets.empty();
+}
+
+void RendererSystem::LoadTilesetsFromPath(std::string pathName) {
+	for (const auto& entry : std::filesystem::directory_iterator(pathName)) {
+		bool success = false;
 		ETexture tex{};
 		std::string path = entry.path().u8string();
 		std::string fileName = entry.path().stem().u8string();
@@ -246,20 +330,11 @@ bool RendererSystem::LoadMedia() {
 		tilesets.at(fileName).LoadFromFile(path, SDLRenderer);
 		Position tileSize = GetTilesetSizeFromName(fileName);
 		tilesets.at(fileName).SetTileSetInfo(tileSize);
-		
+
 		bool load = (tileSize.x != 0 && tileSize.y != 0);
 		success |= load;
-
-		std::cout << "Loaded \"" << fileName << "\" with size of: " << tileSize.x << ", " << tileSize.y << "\n";
-
+		std::cout << (success ? "Loaded \"" : "Failed loading ") << fileName << "\" with size of: (" << tileSize.x << ", " << tileSize.y << ")\n";
 	}
-
-	if (fontTex.LoadFromFile("fonts/font.png", SDLRenderer)) {
-		fontTex.SetTileSetInfo({ 8, 12 });
-	}else {
-		success = false;
-	}
-	return success;
 }
 
 Position RendererSystem::GetTilesetSizeFromName(std::string name) {

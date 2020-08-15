@@ -23,14 +23,16 @@ private:
 	void RenderMap(std::shared_ptr<Map> map);
 	void RenderTile(FloatPosition pos, Sprite spr, Tileset tileset, int scale, bool center, Position offset);
 	Position TilePosToScreenPos(FloatPosition tilePos);
+	void DrawUIRect(Position pos, Position size, Tileset tileset, int scale);
+	void RenderString(Position pos, Position area, Position spacing, std::string str, Tileset font, int scale, FloatPosition fontScale);
 	bool LoadMedia();
+	void LoadTilesetsFromPath(std::string pathName);
 	Position GetTilesetSizeFromName(std::string name);
 
 	SDL_Window* SDLWindow = nullptr; //The window that will be rendered to
 	SDL_Renderer* SDLRenderer = nullptr; //The window renderer
 
 	std::unordered_map<Tileset, ETexture> tilesets;
-	ETexture fontTex;
 	SDL_Texture* screenRenderTexture;
 	float renderTextureScale;
 

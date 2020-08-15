@@ -184,7 +184,7 @@ struct Actor {
 
 struct Renderable {
 	Sprite sprite = 0;
-	Tileset tileset = "16x16_tileset";
+	Tileset tileset = MAIN_TILESET;
 	FloatPosition position = {0,0};
 };
 
