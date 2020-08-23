@@ -23,6 +23,7 @@ private:
 	void RenderMap(std::shared_ptr<Map> map);
 	void RenderTile(FloatPosition pos, Sprite spr, Tileset tileset, int scale, bool center, Position offset);
 	Position TilePosToScreenPos(FloatPosition tilePos);
+	void RenderUI();
 	void DrawUIRect(Position pos, Position size, Tileset tileset, int scale);
 	void RenderString(Position pos, Position area, Position spacing, std::string str, Tileset font, int scale, FloatPosition fontScale);
 	bool LoadMedia();

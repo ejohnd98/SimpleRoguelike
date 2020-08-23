@@ -17,15 +17,15 @@ extern std::shared_ptr<PlayerSystem> playerSystem;
 const char* WINDOW_TITLE = "Roguelike Rework";
 
 //Render resolution:
-const int RENDER_WIDTH = 1600;
-const int RENDER_HEIGHT = 1600;
-const int PIXEL_MULT = 4; 
+const int RENDER_WIDTH = 1366;
+const int RENDER_HEIGHT = 768;
+const int PIXEL_MULT = 2; 
 const int NATIVE_WIDTH = RENDER_WIDTH / PIXEL_MULT;
 const int NATIVE_HEIGHT = RENDER_HEIGHT / PIXEL_MULT;
 
 //Output resolution
-const int OUTPUT_WIDTH = 800;
-const int OUTPUT_HEIGHT = 800;
+const int OUTPUT_WIDTH = 1366;
+const int OUTPUT_HEIGHT = 768;
 
 RendererSystem::~RendererSystem() {
 	Close();
@@ -62,6 +62,7 @@ void RendererSystem::Init() {
 	assert(LoadMedia());
 	assert(tilesets.find(MAIN_TILESET) != tilesets.end());
 	assert(tilesets.at(MAIN_TILESET).GetTileWidth() != 0 && tilesets.at(MAIN_TILESET).GetTileHeight() != 0);
+	std::cout << "Native res: " << NATIVE_WIDTH << "x" << NATIVE_HEIGHT << ", scaling x"<< renderTextureScale << "\n";
 }
 
 void RendererSystem::Close()
@@ -90,16 +91,7 @@ void RendererSystem::Render() {
 	//render game at native res
 	RenderMap(mapSystem->map);
 	//render UI
-	DrawUIRect({ 5, NATIVE_HEIGHT - NATIVE_HEIGHT/4 }, { NATIVE_WIDTH - 10, NATIVE_HEIGHT/4 - 5 }, (Tileset)"8x7_ui", PIXEL_MULT);
-	RenderString({ 10, NATIVE_HEIGHT - NATIVE_HEIGHT / 4 + 5 }, { NATIVE_WIDTH - 20, NATIVE_HEIGHT / 4 - 15 }, { 0, 2 },
-		"Business secrets of the Pharaohs",
-		(Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
-	RenderString({ 11, NATIVE_HEIGHT - NATIVE_HEIGHT / 4 + 5 }, { NATIVE_WIDTH - 20, NATIVE_HEIGHT / 4 - 15 }, { 0, 2 },
-		"Business secrets of the Pharaohs",
-		(Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
-	RenderString({ 10, NATIVE_HEIGHT - NATIVE_HEIGHT/4 + 5+9 }, { NATIVE_WIDTH - 20, NATIVE_HEIGHT/4 - 15 -9 }, {0, 2},
-		"The first thing to note when discussing the business secrets of the Pharaohs is an acknowledgement that their era was so completely different from our own that almost all cultural, political and particularly business parallels we draw between the two eras are, by their very nature, bound to be wrong.",
-		(Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
+	RenderUI();
 
 	//put rendertexture on screen
 	SDL_SetRenderTarget(SDLRenderer, NULL);
@@ -127,6 +119,8 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 		lastPlayerPos = ecs->GetComponent<Renderable>(player).position;
 	}
 	TileToCenter = lastPlayerPos;
+	TileToCenter.y += 3;
+	TileToCenter.x += 6;
 
 	cameraPos = Animation::QuadEaseOut(cameraPos, TileToCenter, 0.05f);
 
@@ -243,6 +237,25 @@ Position RendererSystem::TilePosToScreenPos(FloatPosition tilePos) { //converts 
 	FloatPosition offset = desiredScreenPos - centerTileScreenPos; //difference in where tile would be rendered and where we want to render it
 	FloatPosition screenPos = (tilePos * tileScreenSize) + offset; //resultant position in pixels
 	return Position{ screenPos }; // dealing with pixels now so round to int position
+}
+
+void RendererSystem::RenderUI() {
+	DrawUIRect({ 0, 282 }, { 503, 102 }, (Tileset)"8x7_ui", PIXEL_MULT);
+	DrawUIRect({ 502, 203 }, { 181, 151 }, (Tileset)"8x7_ui", PIXEL_MULT);
+	DrawUIRect({ 502, 94 }, { 181, 110 }, (Tileset)"8x7_ui", PIXEL_MULT);
+	DrawUIRect({ 502, 0 }, { 87, 95 }, (Tileset)"8x7_ui", PIXEL_MULT);
+	DrawUIRect({ 588, 0 }, { 95, 95 }, (Tileset)"8x7_ui", PIXEL_MULT);
+	
+	DrawUIRect({ 502, 353 }, { 31, 31 }, (Tileset)"8x7_ui", PIXEL_MULT);
+	DrawUIRect({ 532, 353 }, { 31, 31 }, (Tileset)"8x7_ui", PIXEL_MULT);
+	DrawUIRect({ 562, 353 }, { 31, 31 }, (Tileset)"8x7_ui", PIXEL_MULT);
+	DrawUIRect({ 592, 353 }, { 31, 31 }, (Tileset)"8x7_ui", PIXEL_MULT);
+	DrawUIRect({ 622, 353 }, { 31, 31 }, (Tileset)"8x7_ui", PIXEL_MULT);
+	DrawUIRect({ 652, 353 }, { 31, 31 }, (Tileset)"8x7_ui", PIXEL_MULT);
+
+	RenderString({ 4, 282 + 4 }, { 503 - 8, 102 - 8 }, { 0, 2 },
+		"The first thing to note when discussing the business secrets of the Pharaohs is an acknowledgement that their era was so completely different from our own that almost all cultural, political and particularly business parallels we draw between the two eras are, by their very nature, bound to be wrong.",
+		(Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
 }
 
 void RendererSystem::DrawUIRect(Position pos, Position size, Tileset tileset, int scale) {
