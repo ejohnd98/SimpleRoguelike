@@ -9,6 +9,11 @@
 #include "Constants.h"
 #include "Animation.h"
 
+enum class EventType {
+	NULL_EVENT,
+	ATTACK
+};
+
 enum class EaseType {
 	LINEAR,
 	SIN,
@@ -358,4 +363,17 @@ struct Map { //hardcoded default map
 	bool GetCell(int x, int y) {
 		return cells[y][x];
 	}
+};
+
+struct TextLog {
+	std::string text;
+};
+
+struct EventInfo {
+	EventType type = EventType::NULL_EVENT;
+	Entity source = NULL_ENTITY;
+	Entity target = NULL_ENTITY;
+
+	int damageDealt = -1;
+	bool killed = false;
 };

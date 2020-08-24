@@ -27,3 +27,5 @@ Ideas:
 	Resolve damage after each action
 	Go through each entity with a damage component
 	call an AddDamage function to add damage to entity and provide the attacker
+
+	Have callback functions in animations so that logs can be synced with animations

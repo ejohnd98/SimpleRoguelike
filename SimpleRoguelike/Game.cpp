@@ -17,6 +17,7 @@ extern std::shared_ptr<PlayerSystem> playerSystem;
 extern std::shared_ptr<AISystem> aiSystem;
 extern std::shared_ptr<RendererSystem> rendererSystem;
 extern std::shared_ptr<AnimationSystem> animationSystem;
+extern std::shared_ptr<LogSystem> logSystem;
 extern std::shared_ptr<FieldOfView> fov;
 
 Game::Game(){
@@ -34,6 +35,7 @@ bool Game::InitGame() {
 
 	Entity player = ecs->CreateEntity();
 	ecs->AddComponent(player, Actor{0});
+	ecs->AddComponent(player, Info{ "You" });
 	ecs->AddComponent(player, PlayerControlled{});
 	ecs->AddComponent(player, Position{});
 	ecs->AddComponent(player, Active{});
@@ -45,6 +47,7 @@ bool Game::InitGame() {
 
 	Entity enemy = ecs->CreateEntity();
 	ecs->AddComponent(enemy, Actor{0});
+	ecs->AddComponent(enemy, Info{ "Skeleton" });
 	ecs->AddComponent(enemy, AIControlled{});
 	ecs->AddComponent(enemy, Position{});
 	ecs->AddComponent(enemy, Active{});
@@ -56,6 +59,7 @@ bool Game::InitGame() {
 
 	Entity enemy2 = ecs->CreateEntity();
 	ecs->AddComponent(enemy2, Actor{ 0 });
+	ecs->AddComponent(enemy2, Info{ "Skeleton" });
 	ecs->AddComponent(enemy2, AIControlled{});
 	ecs->AddComponent(enemy2, Position{});
 	ecs->AddComponent(enemy2, Active{});
@@ -66,6 +70,7 @@ bool Game::InitGame() {
 	Sprite anim3[] = { 34, 35 };
 	Entity enemy3 = ecs->CreateEntity();
 	ecs->AddComponent(enemy3, Actor{ 0 });
+	ecs->AddComponent(enemy3, Info{ "Wraith" });
 	ecs->AddComponent(enemy3, AIControlled{});
 	ecs->AddComponent(enemy3, Position{});
 	ecs->AddComponent(enemy3, Active{});
@@ -102,6 +107,7 @@ void Game::Advance() {
 			}
 			else {
 				fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
+				logSystem->PushLogs();
 				state = GameState::RUNNING;
 			}
 		case GameState::RUNNING:
@@ -140,7 +146,6 @@ void Game::Advance() {
 			if (nextCommand!=Command::NONE) {
 				Entity entity = turnSystem->PeekNextActor();
 				if (playerSystem->DetermineAction(nextCommand)) { //only remove player from queue if they performed an action
-					//std::cout << "---Player acting---\n";
 					turnSystem->PopNextActor();
 					state = GameState::RUNNING;
 				}

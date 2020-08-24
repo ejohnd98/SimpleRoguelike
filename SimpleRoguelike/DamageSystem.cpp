@@ -7,6 +7,7 @@
 extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr <AnimationSystem> animationSystem;
 extern std::shared_ptr <MapSystem> mapSystem;
+extern std::shared_ptr<LogSystem> logSystem;
 
 void DamageSystem::Attack(Entity attacker, Entity target) {
 	Stats& attackerStats = ecs->GetComponent<Stats>(attacker);
@@ -19,18 +20,25 @@ void DamageSystem::Attack(Entity attacker, Entity target) {
 	animationSystem->AddSpriteAnim(pos, anim, MAIN_TILESET, 5, lengths);
 
 	int damage = std::max( attackerStats.strength - targetStats.defense , 0);
-	std::cout << "Entity " << attacker << " dealt " << damage << " damage to Entity " << target << "\n";
-	DealDamage(target, damage);
+	EventInfo attackEvent;
+
+	attackEvent.source = attacker;
+	attackEvent.target = target;
+	attackEvent.damageDealt = damage;
+	attackEvent.type = EventType::ATTACK;
+	attackEvent.killed = DealDamage(target, damage);
+	logSystem->AddLog(attackEvent);
 }
 
-void DamageSystem::DealDamage(Entity target, int damage) {
+bool DamageSystem::DealDamage(Entity target, int damage) {
 	Stats& targetStats = ecs->GetComponent<Stats>(target);
 	targetStats.health -= damage;
 
 	if (targetStats.health <= 0) {
-		std::cout << "Entity " << target << " has been killed\n";
 		KillEntity(target);
+		return true;
 	}
+	return false;
 }
 
 bool DamageSystem::WithinAttackRange(Entity attacker, Entity target) {

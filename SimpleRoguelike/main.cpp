@@ -26,6 +26,7 @@ std::shared_ptr<PlayerSystem> playerSystem;
 std::shared_ptr<AISystem> aiSystem;
 std::shared_ptr<AnimationSystem> animationSystem;
 std::shared_ptr<DamageSystem> damageSystem;
+std::shared_ptr<LogSystem> logSystem;
 
 std::shared_ptr<Game> game;
 std::shared_ptr<Pathfinding> pathfinding;
@@ -94,6 +95,11 @@ bool Initialize()
 	damageSystem = ecs->RegisterSystem<DamageSystem>();
 	signature.reset();
 	ecs->SetSystemSignature<DamageSystem>(signature);
+
+	//Register Attack System (Performs damage calculations and damage dealing)
+	logSystem = ecs->RegisterSystem<LogSystem>();
+	signature.reset();
+	ecs->SetSystemSignature<LogSystem>(signature);
 
 	//Create Pathfinding
 	pathfinding = std::make_shared<Pathfinding>();

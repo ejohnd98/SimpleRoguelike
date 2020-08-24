@@ -13,6 +13,7 @@
 extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr<MapSystem> mapSystem;
 extern std::shared_ptr<PlayerSystem> playerSystem;
+extern std::shared_ptr<LogSystem> logSystem;
 
 const char* WINDOW_TITLE = "Roguelike Rework";
 
@@ -84,7 +85,6 @@ void RendererSystem::Close()
 
 void RendererSystem::Render() {
 	SDL_SetRenderTarget(SDLRenderer, screenRenderTexture);
-	//SDL_SetRenderDrawColor(SDLRenderer, 31, 14, 28, 0x00);
 	SDL_SetRenderDrawColor(SDLRenderer, 0, 0, 0, 0x00);
 	SDL_RenderClear(SDLRenderer);
 	
@@ -252,10 +252,17 @@ void RendererSystem::RenderUI() {
 	DrawUIRect({ 592, 353 }, { 31, 31 }, (Tileset)"8x7_ui", PIXEL_MULT);
 	DrawUIRect({ 622, 353 }, { 31, 31 }, (Tileset)"8x7_ui", PIXEL_MULT);
 	DrawUIRect({ 652, 353 }, { 31, 31 }, (Tileset)"8x7_ui", PIXEL_MULT);
-
-	RenderString({ 4, 282 + 4 }, { 503 - 8, 102 - 8 }, { 0, 2 },
-		"The first thing to note when discussing the business secrets of the Pharaohs is an acknowledgement that their era was so completely different from our own that almost all cultural, political and particularly business parallels we draw between the two eras are, by their very nature, bound to be wrong.",
-		(Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
+	
+	auto&& logs = logSystem->GetLogs(10);
+	int height = 369;
+	for (auto&& log : logs) {
+		if (height < 285) {
+			break;
+		}
+		RenderString({ 4, height }, { 503 - 8, 10 }, { 0, 2 },
+			log.text, (Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
+		height -= 10;
+	}
 }
 
 void RendererSystem::DrawUIRect(Position pos, Position size, Tileset tileset, int scale) {
@@ -299,9 +306,34 @@ void RendererSystem::RenderString(Position pos, Position area, Position spacing,
 
 	Position curr = screenPos;
 	bool firstChar = true;
+	int formatLength = 0;
+	bool readingFormat = false;
+	SDL_Color color = COLOR_MAP.at("white");
 	for (std::string::size_type i = 0; i < str.size(); ++i) {
 		int ascii = str[i];
 		if (firstChar && (ascii == 0 || ascii == 32 || ascii == 255)) {
+			continue;
+		}
+		if (ascii == '<' && !readingFormat) {
+			readingFormat = true; //no, <red>yes
+			formatLength = 0;
+			continue;
+		}
+		if (readingFormat) {
+			if (ascii == '>') {
+				auto mapIt = COLOR_MAP.find(str.substr(i - formatLength, formatLength));
+				if (mapIt != COLOR_MAP.end()) {
+					color = (*mapIt).second;
+				}
+				else {
+					color = COLOR_MAP.at("white");
+				}
+
+				SDL_SetTextureColorMod(tilesets.at(font).GetTexture(), color.r, color.g, color.b);
+				readingFormat = false;
+				continue;
+			}
+			formatLength++;
 			continue;
 		}
 		if (str[i] == 10) { //newline char
@@ -321,9 +353,11 @@ void RendererSystem::RenderString(Position pos, Position area, Position spacing,
 		SDL_Rect texQuad = *tilesets.at(font).GetTileRect(ascii);
 		SDL_Rect renderQuad = { curr.x, curr.y, fontW, fontH };
 		SDL_RenderCopy(SDLRenderer, tilesets.at(font).GetTexture(), &texQuad, &renderQuad);
+
 		curr.x += fontW + screenSpacing.x;
 		firstChar = false;
 	}
+	SDL_SetTextureColorMod(tilesets.at(font).GetTexture(), 255, 255, 255);
 }
 
 bool RendererSystem::LoadMedia() {
