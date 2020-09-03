@@ -51,17 +51,12 @@ void MapSystem::MoveEntity(Entity entity, Position newPos) {
 	}
 
 	map->positionEntityMap[newPos] = entity; //update map with new position
-	animationSystem->AddMoveAnim(entity, pos.ToFloat(), newPos.ToFloat(), 0.15f);
 	pos = newPos; //update entity's position
 
 }
 
 bool MapSystem::ValidPosition(Position pos) {
 	return (pos.x >= 0 && pos.x < map->width && pos.y >= 0 && pos.y < map->height);
-}
-
-bool MapSystem::CanMoveTo(Position pos) { //returns true if position isn't a wall and contains no entity
-	return (!map->GetCell(pos.x,pos.y)) && (GetEntityAt(pos) == NULL_ENTITY);
 }
 
 Entity MapSystem::GetEntityAt(Position pos) {
@@ -71,8 +66,35 @@ Entity MapSystem::GetEntityAt(Position pos) {
 	return NULL_ENTITY;
 }
 
-bool MapSystem::IsWall(Position pos) {
-	return (map->GetCell(pos.x, pos.y) || !ValidPosition(pos));
+bool MapSystem::BlocksSight(Position pos) {
+	if (!ValidPosition(pos) || map->GetCell(pos.x, pos.y)) {
+		return true;
+	}
+	
+	if (map->positionEntityMap.find(pos) != map->positionEntityMap.end()) {
+		Entity entity = map->positionEntityMap.at(pos);
+		if (ecs->HasComponent<Openable>(entity) && !ecs->GetComponent<Openable>(entity).isOpen) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool MapSystem::BlocksMovement(Position pos, bool ignoreActors) {
+	if (!ValidPosition(pos) || map->GetCell(pos.x, pos.y)) {
+		return true;
+	}
+
+	if (map->positionEntityMap.find(pos) != map->positionEntityMap.end()) {
+		Entity entity = map->positionEntityMap.at(pos);
+		if (ecs->HasComponent<Openable>(entity) && !ecs->GetComponent<Openable>(entity).isOpen) {
+			return true;
+		}
+		if (!ignoreActors && ecs->HasComponent<Actor>(entity)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void MapSystem::ClearVisible(bool includeVisited) {

@@ -28,11 +28,12 @@ enum class AIState {
 	FLEEING
 };
 
-enum class ActionType {
+enum class InteractType {
+	WAIT,
 	MOVE,
 	ATTACK,
-	WAIT,
-	NONE
+	OPEN,
+	CLOSE
 };
 
 struct FloatPosition {
@@ -153,13 +154,13 @@ struct Position {
 	}
 
 	float Magnitude() {
-		return sqrt((x * x) + (y * y));
+		return (float)sqrt((x * x) + (y * y));
 	}
 
 	float Dist(const Position& other) {
 		int ox = other.x - x;
 		int oy = other.y - y;
-		return sqrt((ox * ox) + (oy * oy));
+		return (float)sqrt((ox * ox) + (oy * oy));
 	}
 
 	FloatPosition ToFloat() {
@@ -313,6 +314,13 @@ struct ActiveAIEntity {
 
 struct Active {
 
+};
+
+struct Openable {
+	Sprite closedSprite = 0;
+	Sprite openedSprite = 0;
+	bool isOpen = false;
+	bool locked = false;
 };
 
 struct Map { //hardcoded default map

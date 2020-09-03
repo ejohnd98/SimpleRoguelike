@@ -78,7 +78,16 @@ bool Game::InitGame() {
 	ecs->AddComponent(enemy3, Stats{ 5,4,3,5,10 });
 	animationSystem->AddIdleAnim(enemy3, anim3, 2, lengths2);
 
+	Entity door = ecs->CreateEntity();
+	ecs->AddComponent(door, Info{ "Door" });
+	ecs->AddComponent(door, Position{});
+	ecs->AddComponent(door, Openable{18, 20});
+	ecs->AddComponent(door, Active{});
+	ecs->AddComponent(door, Renderable{18});
+	ecs->AddComponent(door, Stats{ 5,4,3,5,10 });
+
 	mapSystem->PlaceEntity(player, { 12,24 });
+	mapSystem->PlaceEntity(door, { 5,24 });
 	mapSystem->PlaceEntity(enemy, { 4,16 });
 	mapSystem->PlaceEntity(enemy2, { 32,19 });
 	mapSystem->PlaceEntity(enemy3, { 16, 18 });
@@ -106,8 +115,6 @@ void Game::Advance() {
 				break;
 			}
 			else {
-				fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
-				logSystem->PushLogs();
 				state = GameState::RUNNING;
 			}
 		case GameState::RUNNING:
@@ -120,6 +127,8 @@ void Game::Advance() {
 			}
 
 			if (turnSystem->PlayerActsNext()) {
+				fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
+				logSystem->PushLogs();
 				animationSystem->PlayPendingAnimations(); //play pending animations before giving control back to player
 				state = GameState::WAITING_INPUT;
 			}

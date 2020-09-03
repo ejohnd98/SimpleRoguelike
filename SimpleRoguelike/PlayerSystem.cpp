@@ -9,34 +9,31 @@ extern std::shared_ptr<MapSystem> mapSystem;
 extern std::shared_ptr<AnimationSystem> animationSystem; //shouldn't need later (temp)
 extern std::shared_ptr<TurnSystem> turnSystem;
 extern std::shared_ptr<DamageSystem> damageSystem;
+extern std::shared_ptr<InteractionSystem> interactionSystem;
 
 void PlayerSystem::Init() {
 }
 
 bool PlayerSystem::DetermineAction(Command command) {
-	ActionType chosenAction = ActionType::NONE;
+	bool performedAction = false;
 	switch (command) {
 	case Command::MOVE_UP:
-		chosenAction = InteractWithCell(Position{ 0, -1 });
+		performedAction = InteractWithCell(Position{ 0, -1 });
 		break;
 	case Command::MOVE_DOWN:
-		chosenAction = InteractWithCell(Position{ 0, 1 });
+		performedAction = InteractWithCell(Position{ 0, 1 });
 		break;
 	case Command::MOVE_RIGHT:
-		chosenAction = InteractWithCell(Position{ 1, 0 });
+		performedAction = InteractWithCell(Position{ 1, 0 });
 		break;
 	case Command::MOVE_LEFT:
-		chosenAction = InteractWithCell(Position{ -1, 0 });
+		performedAction = InteractWithCell(Position{ -1, 0 });
 		break;
 	case Command::WAIT:
-		chosenAction = ActionType::WAIT;
+		performedAction = interactionSystem->PerformAction(GetPlayerEntity(), {}, InteractType::WAIT);
 		break;
 	}
-	//Create function in turn system to calculate debt
-	if (chosenAction != ActionType::NONE) {
-		turnSystem->AddDebt(GetPlayerEntity(), chosenAction);
-	}
-	return (chosenAction != ActionType::NONE);
+	return performedAction;
 }
 
 Entity PlayerSystem::GetPlayerEntity() {
@@ -46,24 +43,20 @@ Entity PlayerSystem::GetPlayerEntity() {
 	return NULL_ENTITY;
 }
 
-ActionType PlayerSystem::InteractWithCell(Position offset) {
+bool PlayerSystem::InteractWithCell(Position offset) {
 	Position pos = ecs->GetComponent<Position>(GetPlayerEntity());
 	if (mapSystem->ValidPosition(pos + offset)) {
 		//attempt in order:
-		
-		Entity other = mapSystem->GetEntityAt(pos + offset);
-		if (other != NULL_ENTITY) {
-			damageSystem->Attack(GetPlayerEntity(), other);
-			return ActionType::ATTACK;
+		if (interactionSystem->PerformAction(GetPlayerEntity(), pos + offset, InteractType::MOVE)) {
+			return true;
 		}
-
-		//move to position
-		if (mapSystem->CanMoveTo(pos + offset)) {
-			mapSystem->MoveEntityRelative(GetPlayerEntity(), offset);
-			return ActionType::MOVE;
+		if (interactionSystem->PerformAction(GetPlayerEntity(), pos + offset, InteractType::OPEN)) {
+			return true;
 		}
-		//act upon prop in position
+		if (interactionSystem->PerformAction(GetPlayerEntity(), pos + offset, InteractType::ATTACK)) {
+			return true;
+		}
 	}
-	return ActionType::NONE;
+	return false;
 }
 

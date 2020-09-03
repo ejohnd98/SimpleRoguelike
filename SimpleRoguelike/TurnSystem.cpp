@@ -1,10 +1,19 @@
 #include <stdio.h>
 #include <iostream>
+#include <unordered_map>
 
 #include "TurnSystem.h"
 #include "ECS.h"
 
 extern std::shared_ptr <ECS> ecs;
+
+std::unordered_map<InteractType, int> interactionDebtMap{
+	{InteractType::WAIT, 100},
+	{InteractType::MOVE, 100},
+	{InteractType::ATTACK, 50},
+	{InteractType::OPEN, 25},
+	{InteractType::CLOSE, 25},
+};
 
 void TurnSystem::Init() {
 }
@@ -56,21 +65,11 @@ void TurnSystem::DecreaseDebt(int amount) {
 	}
 }
 
-void TurnSystem::AddDebt(Entity entity, ActionType action) {
+void TurnSystem::AddDebt(Entity entity, InteractType action) {
 	Actor& actor = ecs->GetComponent<Actor>(entity);
 	Stats& stats = ecs->GetComponent<Stats>(entity);
-	int debt = 0;
-	switch (action) {
-		case ActionType::MOVE:
-			debt = 100 * (10.0 / (float) stats.dexterity);
-			break;
-		case ActionType::ATTACK:
-			debt = 50 * (10.0 / (float) stats.dexterity);
-			break;
-		case ActionType::WAIT:
-			debt = 100 * (10.0 / (float) stats.dexterity);
-			break;
-	}
-	//std::cout << "Adding " << debt << " debt to: " << entity << "\n";
+	float debtMod = (10.0 / (float)stats.dexterity);
+	int debt = (int)(interactionDebtMap.at(action) * debtMod);
+
 	actor.actionDebt += debt;
 }

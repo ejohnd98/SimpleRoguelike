@@ -26,6 +26,7 @@ std::shared_ptr<PlayerSystem> playerSystem;
 std::shared_ptr<AISystem> aiSystem;
 std::shared_ptr<AnimationSystem> animationSystem;
 std::shared_ptr<DamageSystem> damageSystem;
+std::shared_ptr<InteractionSystem> interactionSystem;
 std::shared_ptr<LogSystem> logSystem;
 
 std::shared_ptr<Game> game;
@@ -45,6 +46,7 @@ bool Initialize()
 	ecs->RegisterComponent<PlayerControlled>();
 	ecs->RegisterComponent<ActiveAIEntity>();
 	ecs->RegisterComponent<AIControlled>();
+	ecs->RegisterComponent<Openable>();
 	ecs->RegisterComponent<Renderable>();
 	ecs->RegisterComponent<AnimIdle>();
 	ecs->RegisterComponent<AnimSprite>();
@@ -100,6 +102,11 @@ bool Initialize()
 	logSystem = ecs->RegisterSystem<LogSystem>();
 	signature.reset();
 	ecs->SetSystemSignature<LogSystem>(signature);
+
+	//Register Interaction System
+	interactionSystem = ecs->RegisterSystem<InteractionSystem>();
+	signature.reset();
+	ecs->SetSystemSignature<InteractionSystem>(signature);
 
 	//Create Pathfinding
 	pathfinding = std::make_shared<Pathfinding>();

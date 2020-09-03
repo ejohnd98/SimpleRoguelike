@@ -12,11 +12,11 @@ extern std::shared_ptr <Pathfinding> pathfinding;
 extern std::shared_ptr <PlayerSystem> playerSystem;
 extern std::shared_ptr<FieldOfView> fov;
 extern std::shared_ptr<DamageSystem> damageSystem;
+extern std::shared_ptr<InteractionSystem> interactionSystem;
 
 void AISystem::DetermineAction() {
 	currentEntity = *(entities.begin());
 	AIControlled& ai = ecs->GetComponent<AIControlled>(currentEntity);
-	ActionType chosenAction = ActionType::NONE;
 	Stats& stats = ecs->GetComponent<Stats>(currentEntity);
 
 	Position& pos = ecs->GetComponent<Position>(currentEntity);
@@ -26,8 +26,9 @@ void AISystem::DetermineAction() {
 		ai.targetEntity = NULL_ENTITY;
 		ai.currentState = AIState::IDLE;
 	}
+	bool performedAction = false;
 
-	while(chosenAction==ActionType::NONE){
+	while(!performedAction){
 		switch (ai.currentState) {
 		case AIState::IDLE:
 			ai.targetEntity = GetTarget();
@@ -35,7 +36,7 @@ void AISystem::DetermineAction() {
 				ai.currentState = AIState::ATTACKING;
 			}
 			else {
-				chosenAction = ActionType::WAIT;
+				performedAction = interactionSystem->PerformAction(currentEntity, {}, InteractType::WAIT);
 			}		
 			break;
 
@@ -50,17 +51,15 @@ void AISystem::DetermineAction() {
 			}
 			
 			if (damageSystem->WithinAttackRange(currentEntity, ai.targetEntity)) { //if target within range, attack
-				chosenAction = ActionType::ATTACK;
-				damageSystem->Attack(currentEntity, ai.targetEntity);
+				performedAction = interactionSystem->PerformAction(currentEntity, targetPos, InteractType::ATTACK);
 			}
 			else { //otherwise move towards last known target position
 				nextPos = pathfinding->GetPath(pos, ai.lastTargetPos, mapSystem->map);
-				if (mapSystem->CanMoveTo(nextPos)) { 
-					mapSystem->MoveEntity(currentEntity, nextPos);
-					chosenAction = ActionType::MOVE;
+				if (interactionSystem->PerformAction(currentEntity, nextPos, InteractType::MOVE)) {
+					performedAction = true;
 				}
 				else {
-					chosenAction = ActionType::WAIT;
+					performedAction = interactionSystem->PerformAction(currentEntity, {}, InteractType::WAIT);
 				}
 			}
 			break;
@@ -70,7 +69,6 @@ void AISystem::DetermineAction() {
 			break;
 		}
 	}
-	turnSystem->AddDebt(currentEntity, chosenAction);
 }
 
 Entity AISystem::GetTarget() {

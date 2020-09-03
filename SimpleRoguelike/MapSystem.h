@@ -11,8 +11,8 @@ public:
 	void MoveEntityRelative(Entity entity, Position offset);
 	void MoveEntity(Entity entity, Position pos);
 	bool ValidPosition(Position pos);
-	bool CanMoveTo(Position pos);
-	bool IsWall(Position pos);
+	bool BlocksSight(Position pos);
+	bool BlocksMovement(Position pos, bool ignoreActors = true);
 	Entity GetEntityAt(Position pos);
 	void ClearVisible(bool includeVisited = false);
 	void SetVisible(int x, int y);

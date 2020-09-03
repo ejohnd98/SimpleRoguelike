@@ -11,7 +11,7 @@ public:
 	Entity PeekNextActor();
 	bool PlayerActsNext();
 	void DecreaseDebt(int amount);
-	void AddDebt(Entity entity, ActionType action);
+	void AddDebt(Entity entity, InteractType action);
 
 private:
 	std::set<Entity> canAct;

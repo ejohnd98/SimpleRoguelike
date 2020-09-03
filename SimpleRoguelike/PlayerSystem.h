@@ -8,6 +8,6 @@ public:
 	void Init();
 	bool DetermineAction(Command command);
 	Entity GetPlayerEntity();
-	ActionType InteractWithCell(Position offset);
+	bool InteractWithCell(Position offset);
 };
 

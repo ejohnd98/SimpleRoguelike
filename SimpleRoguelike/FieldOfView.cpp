@@ -36,11 +36,11 @@ void FieldOfView::CastRay(float ex, float ey, float ox, float oy, float stepDist
 		if (!mapSystem->ValidPosition({ (int)x, (int)y })) { //return if reached an invalid position (outside map)
 			return;
 		}
-		if (mapSystem->IsWall({ (int)x, (int)y })) {
+		if (mapSystem->BlocksSight({ (int)x, (int)y })) {
 			isWall = true;
 		}
 		if (((int)x) == lastX + dirXMod && ((int)y) == lastY + dirYMod) { //if moved diagonally, check for diagonal walls
-			if (mapSystem->IsWall({ lastX + dirXMod, lastY }) && mapSystem->IsWall({ lastX, lastY + dirYMod })) {
+			if (mapSystem->BlocksSight({ lastX + dirXMod, lastY }) && mapSystem->BlocksSight({ lastX, lastY + dirYMod })) {
 				if (isWall) { //still want to see walls placed in corners (but not open cells)
 					mapSystem->SetVisible((int)x, (int)y);
 					mapSystem->SetKnown((int)x, (int)y);
@@ -82,10 +82,10 @@ bool FieldOfView::HasLineOfSight(Position a, Position b, int sight) {
 	}
 	float x, y, dx, dy, ox, oy, stepDist;
 	int lastX, lastY, dirXMod, dirYMod; //used for diagonal wall checking (an edge case)
-	dx = (b.x - a.x); //x dist between two cells
-	dy = (b.y - a.y); //x dist between two cells
-	dirXMod = dx / abs(dx); //sets to a value of 1 with sign depending on direction of ray (-1 or 1)
-	dirYMod = dy / abs(dy);
+	dx = (float)(b.x - a.x); //x dist between two cells
+	dy = (float)(b.y - a.y); //x dist between two cells
+	dirXMod = (int)(dx / abs(dx)); //sets to a value of 1 with sign depending on direction of ray (-1 or 1)
+	dirYMod = (int)(dy / abs(dy));
 
 	if (abs(dx) == abs(dy)) { //normalize direction (offsets will be consistent regardless of dx and dy)
 		ox = dx / abs(dx);
@@ -106,11 +106,11 @@ bool FieldOfView::HasLineOfSight(Position a, Position b, int sight) {
 	lastX = x;
 	lastY = y;
 	for (int i = 0; i * stepDist <= sight; i++) {
-		if (mapSystem->IsWall({ (int)x, (int)y })) { //return if reached wall or invalid position (outside map)
+		if (mapSystem->BlocksSight({ (int)x, (int)y })) { //return if reached wall or invalid position (outside map)
 			return false;
 		}
 		if (((int)x) == lastX + dirXMod && ((int)y) == lastY + dirYMod) { //if moved diagonally, check for diagonal walls
-			if (mapSystem->IsWall({ lastX + dirXMod, lastY }) && mapSystem->IsWall({ lastX, lastY + dirYMod })) {
+			if (mapSystem->BlocksSight({ lastX + dirXMod, lastY }) && mapSystem->BlocksSight({ lastX, lastY + dirYMod })) {
 				//return false; //incorrectly passed through diagonal wall, so return
 			}
 		}
@@ -123,4 +123,5 @@ bool FieldOfView::HasLineOfSight(Position a, Position b, int sight) {
 		x += ox;
 		y += oy;
 	}
+	return false;
 }

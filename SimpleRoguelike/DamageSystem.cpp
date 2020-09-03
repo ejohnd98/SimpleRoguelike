@@ -13,12 +13,6 @@ void DamageSystem::Attack(Entity attacker, Entity target) {
 	Stats& attackerStats = ecs->GetComponent<Stats>(attacker);
 	Stats& targetStats = ecs->GetComponent<Stats>(target);
 
-	Sprite anim[] = { 112,113,114,115,116 };
-	int lengths[] = { 3, 1, 1, 2, 2 };
-	FloatPosition pos = ecs->GetComponent<Position>(target).ToFloat();
-
-	animationSystem->AddSpriteAnim(pos, anim, MAIN_TILESET, 5, lengths);
-
 	int damage = std::max( attackerStats.strength - targetStats.defense , 0);
 	EventInfo attackEvent;
 
