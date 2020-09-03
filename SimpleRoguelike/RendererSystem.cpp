@@ -408,3 +408,7 @@ Position RendererSystem::GetTilesetSizeFromName(std::string name) {
 bool RendererSystem::AnimationPlaying() {
 	return animating;
 }
+
+void RendererSystem::SetAnimationFlag() {
+	animating = true;
+}

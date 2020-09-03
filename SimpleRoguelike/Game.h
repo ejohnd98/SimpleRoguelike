@@ -12,7 +12,8 @@ public:
 	bool InitGame();
 	void CloseGame();
 
-	void Advance();
+	bool NotWaiting();
+	void Advance(bool sameStep = false);
 	void GiveInput(Command command);
 	void ClearHeldInput();
 	bool AcceptingInput();

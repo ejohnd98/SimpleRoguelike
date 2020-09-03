@@ -26,12 +26,13 @@ std::shared_ptr<PlayerSystem> playerSystem;
 std::shared_ptr<AISystem> aiSystem;
 std::shared_ptr<AnimationSystem> animationSystem;
 std::shared_ptr<DamageSystem> damageSystem;
-std::shared_ptr<InteractionSystem> interactionSystem;
 std::shared_ptr<LogSystem> logSystem;
 
 std::shared_ptr<Game> game;
 std::shared_ptr<Pathfinding> pathfinding;
 std::shared_ptr<FieldOfView> fov;
+std::shared_ptr<InteractionHandler> interactionHandler;
+std::shared_ptr<EntityFactory> entityFactory;
 
 bool Initialize()
 {
@@ -104,9 +105,7 @@ bool Initialize()
 	ecs->SetSystemSignature<LogSystem>(signature);
 
 	//Register Interaction System
-	interactionSystem = ecs->RegisterSystem<InteractionSystem>();
-	signature.reset();
-	ecs->SetSystemSignature<InteractionSystem>(signature);
+	interactionHandler = std::make_shared<InteractionHandler>();
 
 	//Create Pathfinding
 	pathfinding = std::make_shared<Pathfinding>();
@@ -116,6 +115,9 @@ bool Initialize()
 
 	//Create Game (Contains main game loop)
 	game = std::make_shared<Game>();
+
+	//Create Entity Factory
+	entityFactory = std::make_shared<EntityFactory>();
 
 	if (!game) {
 		printf("ERROR: Failed to create game!\n");
@@ -186,6 +188,10 @@ int main(int argc, char* args[]){
 				int diff = ((int)nextGameUpdateTime) - ((int)currentTime);
 				//std::cout << "Advancing loop at: " << currentTime << " Next: " << nextGameUpdateTime << " Diff: " << diff << "\n";
 				game->Advance();
+				while (game->NotWaiting()) {
+					game->Advance(true);
+				}
+				
 			}
 			if (currentTime >= nextRenderTime) { //quite flawed, as there is no need to "catch up" on missed frames (unlike game updates), but will correct later.
 				nextRenderTime += MS_PER_FRAME;

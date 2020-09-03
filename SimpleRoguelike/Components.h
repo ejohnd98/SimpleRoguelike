@@ -195,9 +195,8 @@ struct Renderable {
 };
 
 struct AnimIdle {
-	Sprite sprites[32];
-	int frameLengths[32];
-	int length;
+	std::vector<Sprite> sprites;
+	std::vector<int> frameLengths;
 
 	int index = 0;
 	int frameCounter = 0;
@@ -206,7 +205,7 @@ struct AnimIdle {
 			frameCounter++;
 			if (frameCounter > frameLengths[index]) {
 				frameCounter = 0;
-				index = (index+1)%length;
+				index = (index+1)%sprites.size();
 			}
 	}
 	Sprite CurrentSprite() {
@@ -215,9 +214,8 @@ struct AnimIdle {
 };
 
 struct AnimSprite {
-	Sprite sprites[32];
-	int frameLengths[32];
-	int length;
+	std::vector<Sprite> sprites;
+	std::vector<int> frameLengths;
 	bool loop;
 
 	int index = 0;
@@ -230,7 +228,7 @@ struct AnimSprite {
 			if (frameCounter > frameLengths[index]) {
 				frameCounter = 0;
 				index++;
-				if (index >= length) {
+				if (index >= sprites.size()) {
 					if (loop) {
 						index = 0;
 					}
@@ -250,7 +248,7 @@ struct AnimSprite {
 struct AnimMove {
 	FloatPosition start, end;
 	float length;
-	EaseType easeType = EaseType::QUAD_OUT;
+	EaseType easeType = EaseType::LINEAR;
 
 	float time = 0;
 	bool finished = false;
@@ -291,10 +289,12 @@ struct Info {
 };
 
 struct Stats {
-	int health = 10;
-	int strength = 5;
-	int defense = 5;
-	int dexterity = 5;
+	int hp = 10;
+	int atk = 5;
+	int def = 5;
+	int mag = 5;
+	int res = 5;
+	int spd = 5;
 	int sight = 8;
 };
 

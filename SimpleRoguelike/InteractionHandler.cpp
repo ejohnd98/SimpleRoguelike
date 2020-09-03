@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 
-#include "InteractionSystem.h"
+#include "InteractionHandler.h"
 #include "ECS.h"
 
 extern std::shared_ptr <ECS> ecs;
@@ -10,7 +10,7 @@ extern std::shared_ptr<AnimationSystem> animationSystem; //shouldn't need later 
 extern std::shared_ptr<TurnSystem> turnSystem;
 extern std::shared_ptr<DamageSystem> damageSystem;
 
-bool InteractionSystem::PerformAction(Entity entity, Position target, InteractType interactType) {
+bool InteractionHandler::PerformAction(Entity entity, Position target, InteractType interactType) {
 	bool actionPerformed = false;
 	Entity other = mapSystem->GetEntityAt(target);
 
@@ -27,9 +27,9 @@ bool InteractionSystem::PerformAction(Entity entity, Position target, InteractTy
 			break;
 		case InteractType::ATTACK:
 			if (entity != NULL_ENTITY && other != NULL_ENTITY && ecs->HasComponent<Stats>(other)) {
-				Sprite anim[] = { 112,113,114,115,116 };
-				int lengths[] = { 3, 1, 1, 2, 2 };
-				animationSystem->AddSpriteAnim(target.ToFloat(), anim, MAIN_TILESET, 5, lengths);
+				std::vector<Sprite> sprites{ 112,113,114,115,116 };
+				std::vector<int> lengths{ 3, 1, 1, 2, 2 };
+				animationSystem->AddSpriteAnim(target.ToFloat(), sprites, MAIN_TILESET, lengths);
 
 				damageSystem->Attack(entity, other);
 				actionPerformed = true;

@@ -5,13 +5,14 @@
 class AnimationSystem : public System
 {
 public:
-	void AddIdleAnim(Entity entity, Sprite spriteArr[], int l, int frameLengths[]);
-	void AddSpriteAnim(FloatPosition pos, Sprite spriteArr[], Tileset tileset, int l, int frameLengths[]);
-	void AddSpriteAnim(Entity entity, Sprite spriteArr[], int l, int frameLengths[]);
+	void AddIdleAnim(Entity entity, std::vector<Sprite>& sprites, std::vector<int>& frameLengths);
+	void AddSpriteAnim(FloatPosition pos, std::vector<Sprite>& sprites, Tileset tileset, std::vector<int>& frameLengths);
+	void AddSpriteAnim(Entity entity, std::vector<Sprite>& sprites, std::vector<int>& frameLengths);
 	void AddMoveAnim(FloatPosition startPos, FloatPosition endPos, float length);
 	void AddMoveAnim(Entity entity, FloatPosition startPos, FloatPosition endPos, float length);
 
 	void PlayPendingAnimations();
+	bool PendingAnimations();
 
 private:
 	void ActivateMoveAnims();

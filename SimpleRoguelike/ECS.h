@@ -16,8 +16,9 @@
 #include "AnimationSystem.h"
 #include "DamageSystem.h"
 #include "LogSystem.h"
-#include "InteractionSystem.h"
 
+#include "InteractionHandler.h"
+#include "EntityFactory.h"
 #include "Pathfinding.h"
 #include "FieldOfView.h"
 

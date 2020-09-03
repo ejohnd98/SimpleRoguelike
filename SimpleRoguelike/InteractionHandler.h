@@ -2,7 +2,7 @@
 #include "System.h"
 #include "Commands.h"
 
-class InteractionSystem : public System
+class InteractionHandler : public System
 {
 public:
 	bool PerformAction(Entity entity, Position target, InteractType interactType);

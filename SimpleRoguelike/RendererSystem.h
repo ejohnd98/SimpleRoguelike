@@ -17,6 +17,7 @@ public:
 	void Render();
 
 	bool AnimationPlaying();
+	void SetAnimationFlag();
 
 private:
 	bool animating = false;

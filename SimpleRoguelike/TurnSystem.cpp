@@ -31,12 +31,18 @@ void TurnSystem::PopNextActor() {
 }
 
 Entity TurnSystem::PeekNextActor() {
-	if (EntityCanAct()) {
-		return actingOrder.front();
+	Entity next = actingOrder.front();
+
+	while (EntityCanAct()) {
+		next = actingOrder.front();
+		if (!ecs->HasComponent<Active>(next)) {
+			PopNextActor();
+		}
+		else {
+			return next;
+		}
 	}
-	else {
-		return NULL_ENTITY;
-	}
+	return NULL_ENTITY;
 }
 
 bool TurnSystem::PlayerActsNext() {
@@ -68,7 +74,7 @@ void TurnSystem::DecreaseDebt(int amount) {
 void TurnSystem::AddDebt(Entity entity, InteractType action) {
 	Actor& actor = ecs->GetComponent<Actor>(entity);
 	Stats& stats = ecs->GetComponent<Stats>(entity);
-	float debtMod = (10.0 / (float)stats.dexterity);
+	float debtMod = (10.0 / (float)stats.spd);
 	int debt = (int)(interactionDebtMap.at(action) * debtMod);
 
 	actor.actionDebt += debt;

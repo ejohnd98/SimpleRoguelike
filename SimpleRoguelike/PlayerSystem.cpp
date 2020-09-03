@@ -9,7 +9,7 @@ extern std::shared_ptr<MapSystem> mapSystem;
 extern std::shared_ptr<AnimationSystem> animationSystem; //shouldn't need later (temp)
 extern std::shared_ptr<TurnSystem> turnSystem;
 extern std::shared_ptr<DamageSystem> damageSystem;
-extern std::shared_ptr<InteractionSystem> interactionSystem;
+extern std::shared_ptr<InteractionHandler> interactionHandler;
 
 void PlayerSystem::Init() {
 }
@@ -30,7 +30,7 @@ bool PlayerSystem::DetermineAction(Command command) {
 		performedAction = InteractWithCell(Position{ -1, 0 });
 		break;
 	case Command::WAIT:
-		performedAction = interactionSystem->PerformAction(GetPlayerEntity(), {}, InteractType::WAIT);
+		performedAction = interactionHandler->PerformAction(GetPlayerEntity(), {}, InteractType::WAIT);
 		break;
 	}
 	return performedAction;
@@ -47,13 +47,13 @@ bool PlayerSystem::InteractWithCell(Position offset) {
 	Position pos = ecs->GetComponent<Position>(GetPlayerEntity());
 	if (mapSystem->ValidPosition(pos + offset)) {
 		//attempt in order:
-		if (interactionSystem->PerformAction(GetPlayerEntity(), pos + offset, InteractType::MOVE)) {
+		if (interactionHandler->PerformAction(GetPlayerEntity(), pos + offset, InteractType::MOVE)) {
 			return true;
 		}
-		if (interactionSystem->PerformAction(GetPlayerEntity(), pos + offset, InteractType::OPEN)) {
+		if (interactionHandler->PerformAction(GetPlayerEntity(), pos + offset, InteractType::OPEN)) {
 			return true;
 		}
-		if (interactionSystem->PerformAction(GetPlayerEntity(), pos + offset, InteractType::ATTACK)) {
+		if (interactionHandler->PerformAction(GetPlayerEntity(), pos + offset, InteractType::ATTACK)) {
 			return true;
 		}
 	}

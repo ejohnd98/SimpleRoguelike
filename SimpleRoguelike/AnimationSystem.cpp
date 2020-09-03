@@ -7,34 +7,30 @@
 #include "ECS.h"
 
 extern std::shared_ptr <ECS> ecs;
+extern std::shared_ptr<RendererSystem> rendererSystem;
 
-void AnimationSystem::AddIdleAnim(Entity entity, Sprite spriteArr[], int l, int frameLengths[]) {
+void AnimationSystem::AddIdleAnim(Entity entity, std::vector<Sprite>& sprites, std::vector<int>& frameLengths) {
 	AnimIdle anim = {};
-	anim.length = l;
-	for (int i = 0; i < l; i++) {
-		anim.sprites[i] = spriteArr[i];
-		anim.frameLengths[i] = frameLengths[i];
-	}
+	anim.sprites = sprites;
+	anim.frameLengths = frameLengths;
+
 	ecs->AddComponent<AnimIdle>(entity, anim);
-	ecs->GetComponent<Renderable>(entity).sprite = spriteArr[0];
+	ecs->GetComponent<Renderable>(entity).sprite = sprites[0];
 }
 
-void AnimationSystem::AddSpriteAnim(FloatPosition pos, Sprite spriteArr[], Tileset tileset, int l, int frameLengths[]) {
+void AnimationSystem::AddSpriteAnim(FloatPosition pos, std::vector<Sprite>& sprites, Tileset tileset, std::vector<int>& frameLengths) {
 	Entity animEntity = ecs->CreateEntity();
 	ecs->AddComponent<Renderable>(animEntity, {255, tileset, pos});
 	ecs->AddComponent<Active>(animEntity, {});
 	ecs->AddComponent<DeleteAfterAnim>(animEntity, {});
-	AddSpriteAnim(animEntity, spriteArr, l, frameLengths);
+	AddSpriteAnim(animEntity, sprites, frameLengths);
 }
 
-void AnimationSystem::AddSpriteAnim(Entity entity, Sprite spriteArr[], int l, int frameLengths[]) {
+void AnimationSystem::AddSpriteAnim(Entity entity, std::vector<Sprite>& sprites, std::vector<int>& frameLengths) {
 	AnimSprite anim = {};
-	anim.length = l;
 	anim.loop = false;
-	for (int i = 0; i < l; i++) {
-		anim.sprites[i] = spriteArr[i];
-		anim.frameLengths[i] = frameLengths[i];
-	}
+	anim.sprites = sprites;
+	anim.frameLengths = frameLengths;
 	pendingSpriteAnim.push(anim);
 	pendingSpriteAnimEntities.push(entity);
 
@@ -69,8 +65,13 @@ void AnimationSystem::PlayPendingAnimations() {
 	ActivateSpriteAnims();
 }
 
+bool AnimationSystem::PendingAnimations() {
+	return !pendingMoveAnim.empty() || !pendingSpriteAnim.empty();
+}
+
 void AnimationSystem::ActivateMoveAnims() {
 	while (!pendingMoveAnim.empty()) {
+		rendererSystem->SetAnimationFlag();
 		Entity entity = pendingMoveAnimEntities.front();
 		if (ecs->HasComponent<AnimMove>(entity)) {
 			break;
@@ -87,6 +88,7 @@ void AnimationSystem::ActivateMoveAnims() {
 
 void AnimationSystem::ActivateSpriteAnims() {
 	while (!pendingSpriteAnim.empty()) {
+		rendererSystem->SetAnimationFlag();
 		Entity entity = pendingSpriteAnimEntities.front();
 		if (ecs->HasComponent<AnimSprite>(entity)) {
 			break;

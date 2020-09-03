@@ -12,7 +12,7 @@ extern std::shared_ptr <Pathfinding> pathfinding;
 extern std::shared_ptr <PlayerSystem> playerSystem;
 extern std::shared_ptr<FieldOfView> fov;
 extern std::shared_ptr<DamageSystem> damageSystem;
-extern std::shared_ptr<InteractionSystem> interactionSystem;
+extern std::shared_ptr<InteractionHandler> interactionHandler;
 
 void AISystem::DetermineAction() {
 	currentEntity = *(entities.begin());
@@ -36,7 +36,7 @@ void AISystem::DetermineAction() {
 				ai.currentState = AIState::ATTACKING;
 			}
 			else {
-				performedAction = interactionSystem->PerformAction(currentEntity, {}, InteractType::WAIT);
+				performedAction = interactionHandler->PerformAction(currentEntity, {}, InteractType::WAIT);
 			}		
 			break;
 
@@ -51,15 +51,15 @@ void AISystem::DetermineAction() {
 			}
 			
 			if (damageSystem->WithinAttackRange(currentEntity, ai.targetEntity)) { //if target within range, attack
-				performedAction = interactionSystem->PerformAction(currentEntity, targetPos, InteractType::ATTACK);
+				performedAction = interactionHandler->PerformAction(currentEntity, targetPos, InteractType::ATTACK);
 			}
 			else { //otherwise move towards last known target position
 				nextPos = pathfinding->GetPath(pos, ai.lastTargetPos, mapSystem->map);
-				if (interactionSystem->PerformAction(currentEntity, nextPos, InteractType::MOVE)) {
+				if (interactionHandler->PerformAction(currentEntity, nextPos, InteractType::MOVE)) {
 					performedAction = true;
 				}
 				else {
-					performedAction = interactionSystem->PerformAction(currentEntity, {}, InteractType::WAIT);
+					performedAction = interactionHandler->PerformAction(currentEntity, {}, InteractType::WAIT);
 				}
 			}
 			break;

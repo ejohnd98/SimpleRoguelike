@@ -18,6 +18,7 @@ extern std::shared_ptr<AISystem> aiSystem;
 extern std::shared_ptr<RendererSystem> rendererSystem;
 extern std::shared_ptr<AnimationSystem> animationSystem;
 extern std::shared_ptr<LogSystem> logSystem;
+extern std::shared_ptr<EntityFactory> entityFactory;
 extern std::shared_ptr<FieldOfView> fov;
 
 Game::Game(){
@@ -28,69 +29,27 @@ Game::~Game(){
 }
 
 bool Game::InitGame() {
-	//hardcoded first map
+	//hardcoded first map 
 	Entity mapEntity = ecs->CreateEntity();
 	ecs->AddComponent(mapEntity, Map{});
 	mapSystem->SetMap(mapEntity);
 
-	Entity player = ecs->CreateEntity();
-	ecs->AddComponent(player, Actor{0});
-	ecs->AddComponent(player, Info{ "You" });
-	ecs->AddComponent(player, PlayerControlled{});
-	ecs->AddComponent(player, Position{});
-	ecs->AddComponent(player, Active{});
-	ecs->AddComponent(player, Renderable{});
-	ecs->AddComponent(player, Stats{20,6,1,10,10});
-	Sprite anim[] = { 32, 33 };
-	int lengths[] = { 30, 30 };
-	animationSystem->AddIdleAnim(player, anim, 2, lengths);
+	std::vector<ActorType> actorTypes{
+		{"Player", "you", {20, 10, 5, 1, 1, 10, 8}, 32, {32,33}, {30,30}},
+		{"Ghost", "boo", {5, 6, 2, 1, 1, 20, 6}, 34, {34,35}, {40,40}},
+		{"Skeleton", "bones", {10, 6, 3, 1, 1, 5, 6}, 37, {37,38}, {15,15}}
+	};
 
-	Entity enemy = ecs->CreateEntity();
-	ecs->AddComponent(enemy, Actor{0});
-	ecs->AddComponent(enemy, Info{ "Skeleton" });
-	ecs->AddComponent(enemy, AIControlled{});
-	ecs->AddComponent(enemy, Position{});
-	ecs->AddComponent(enemy, Active{});
-	ecs->AddComponent(enemy, Renderable{});
-	ecs->AddComponent(enemy, Stats{5,4,3,5,10});
-	Sprite anim2[] = { 37,38 };
-	int lengths2[] = { 30, 30};
-	animationSystem->AddIdleAnim(enemy, anim2, 2, lengths2);
+	std::vector<PropType> propTypes{
+		{"Door", "a door", 18, 20}
+	};
 
-	Entity enemy2 = ecs->CreateEntity();
-	ecs->AddComponent(enemy2, Actor{ 0 });
-	ecs->AddComponent(enemy2, Info{ "Skeleton" });
-	ecs->AddComponent(enemy2, AIControlled{});
-	ecs->AddComponent(enemy2, Position{});
-	ecs->AddComponent(enemy2, Active{});
-	ecs->AddComponent(enemy2, Renderable{});
-	ecs->AddComponent(enemy2, Stats{ 5,4,3,5,10 });
-	animationSystem->AddIdleAnim(enemy2, anim2, 2, lengths2);
-
-	Sprite anim3[] = { 34, 35 };
-	Entity enemy3 = ecs->CreateEntity();
-	ecs->AddComponent(enemy3, Actor{ 0 });
-	ecs->AddComponent(enemy3, Info{ "Wraith" });
-	ecs->AddComponent(enemy3, AIControlled{});
-	ecs->AddComponent(enemy3, Position{});
-	ecs->AddComponent(enemy3, Active{});
-	ecs->AddComponent(enemy3, Renderable{});
-	ecs->AddComponent(enemy3, Stats{ 5,4,3,5,10 });
-	animationSystem->AddIdleAnim(enemy3, anim3, 2, lengths2);
-
-	Entity door = ecs->CreateEntity();
-	ecs->AddComponent(door, Info{ "Door" });
-	ecs->AddComponent(door, Position{});
-	ecs->AddComponent(door, Openable{18, 20});
-	ecs->AddComponent(door, Active{});
-	ecs->AddComponent(door, Renderable{18});
-	ecs->AddComponent(door, Stats{ 5,4,3,5,10 });
-
-	mapSystem->PlaceEntity(player, { 12,24 });
-	mapSystem->PlaceEntity(door, { 5,24 });
-	mapSystem->PlaceEntity(enemy, { 4,16 });
-	mapSystem->PlaceEntity(enemy2, { 32,19 });
-	mapSystem->PlaceEntity(enemy3, { 16, 18 });
+	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[0], true), { 12,24 });
+	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 5,24 });
+	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 4,16 });
+	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 5,16 });
+	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 6,16 });
+	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 7,16 });
 
 	fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
 
@@ -103,7 +62,11 @@ void Game::CloseGame() {
 
 }
 
-void Game::Advance() {
+bool Game::NotWaiting() {
+	return !rendererSystem->AnimationPlaying() && state != GameState::WAITING_INPUT;
+}
+
+void Game::Advance(bool sameStep) {
 	if (rendererSystem->AnimationPlaying()) {
 		state = GameState::ANIMATING;
 	}
@@ -115,6 +78,8 @@ void Game::Advance() {
 				break;
 			}
 			else {
+				fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
+				logSystem->PushLogs();
 				state = GameState::RUNNING;
 			}
 		case GameState::RUNNING:
@@ -127,12 +92,12 @@ void Game::Advance() {
 			}
 
 			if (turnSystem->PlayerActsNext()) {
-				fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
-				logSystem->PushLogs();
-				animationSystem->PlayPendingAnimations(); //play pending animations before giving control back to player
+				fov->CalculateVisibleCells(playerSystem->GetPlayerEntity()); //refresh fov before player input
+				animationSystem->PlayPendingAnimations(); //play any pending animations before giving player control
 				state = GameState::WAITING_INPUT;
+				break;
 			}
-			else if (turnSystem->EntityCanAct()) {
+			else if (turnSystem->PeekNextActor() != NULL_ENTITY) {
 				//Get entity
 				Entity entity = turnSystem->PeekNextActor();
 				turnSystem->PopNextActor();
@@ -141,30 +106,31 @@ void Game::Advance() {
 				//Let entity act
 				ecs->AddComponent<ActiveAIEntity>(entity, {});
 				aiSystem->DetermineAction();
-				ecs->RemoveComponent<ActiveAIEntity>(entity);
+				ecs->RemoveComponent<ActiveAIEntity>(entity); 
 				break;
 			}
-			else {
+			else { 
 				break;
 			}
-
+			 
 		case GameState::WAITING_INPUT:
-			if (timeSinceLastInput > 7 || timeSinceLastCommand < 5) { //Will probably need to change these numbers later to match with framerate
-				nextCommand = Command::NONE;
-			}
-			if (nextCommand!=Command::NONE) {
+			if (nextCommand != Command::NONE && timeSinceLastInput <= 2 && timeSinceLastCommand >= 0) {
 				Entity entity = turnSystem->PeekNextActor();
 				if (playerSystem->DetermineAction(nextCommand)) { //only remove player from queue if they performed an action
 					turnSystem->PopNextActor();
 					state = GameState::RUNNING;
+					animationSystem->PlayPendingAnimations(); //play animation from player
+					state = GameState::ANIMATING;
 				}
 				nextCommand = Command::NONE;
 				timeSinceLastCommand = 0;
 			}
 			break;
 	}
-	timeSinceLastInput++;
-	timeSinceLastCommand++;
+	if (!sameStep) {
+		timeSinceLastInput++;
+		timeSinceLastCommand++;
+	}
 }
 
 void Game::GiveInput(Command command) {
