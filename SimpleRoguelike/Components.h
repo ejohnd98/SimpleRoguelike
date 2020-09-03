@@ -248,7 +248,7 @@ struct AnimSprite {
 struct AnimMove {
 	FloatPosition start, end;
 	float length;
-	EaseType easeType = EaseType::LINEAR;
+	EaseType easeType = EaseType::QUAD_OUT;
 
 	float time = 0;
 	bool finished = false;

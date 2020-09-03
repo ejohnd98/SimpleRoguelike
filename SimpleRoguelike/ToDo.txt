@@ -1,17 +1,17 @@
 NEXT:
 	Event System
 		When an actor takes an action an additional event is created that contains information about the animation, as well as a corresponding log.
-	Log System (next)
-		Several functions for adding types of events to log (attack, death, moving floors, etc...)
-		Keep local list of logs that is made public upon end of animations (don't wan't to show attack logs while things are still moving)
-		Could sync up with animations somehow but that seems hacky
+	Log System Improvements
+		Possibly fixed by above, but logs should update as they happen, or possibly just immediately. Should be divided by player turn? Or just have old logs faded
 
 Later:
 	AI System
 			Create wandering system
 		Cleanup
 			Every so often check if anything references an entity and destroy it if not (look through AI components for instance) (mark for cleanup upon death?)
-	
+		Smarter pathfinding
+			If calculated path's next step is blocked, do an alternate path that avoids other entities
+
 	Tie input thresholds to framerate (move outside game.cpp?)
 
 Ideas:

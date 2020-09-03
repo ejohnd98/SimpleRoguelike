@@ -79,7 +79,6 @@ void Game::Advance(bool sameStep) {
 			}
 			else {
 				fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
-				logSystem->PushLogs();
 				state = GameState::RUNNING;
 			}
 		case GameState::RUNNING:
@@ -94,6 +93,7 @@ void Game::Advance(bool sameStep) {
 			if (turnSystem->PlayerActsNext()) {
 				fov->CalculateVisibleCells(playerSystem->GetPlayerEntity()); //refresh fov before player input
 				animationSystem->PlayPendingAnimations(); //play any pending animations before giving player control
+				logSystem->PushLogs();
 				state = GameState::WAITING_INPUT;
 				break;
 			}
