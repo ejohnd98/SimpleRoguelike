@@ -1,16 +1,10 @@
-NEXT: 
-	custom Text (next)
-		contains string of text with syntax for colors: <red>you died...</>
-		have unordered map of color strings and SDL colors
+NEXT:
+	Event System
+		When an actor takes an action an additional event is created that contains information about the animation, as well as a corresponding log.
 	Log System (next)
 		Several functions for adding types of events to log (attack, death, moving floors, etc...)
 		Keep local list of logs that is made public upon end of animations (don't wan't to show attack logs while things are still moving)
 		Could sync up with animations somehow but that seems hacky
-	Actor Factory
-		give it some basic stats
-		creates entity and attaches all the correct components
-	Doors (and other interactable entities)
-		Just don't have active component?
 
 Later:
 	AI System
@@ -18,14 +12,10 @@ Later:
 		Cleanup
 			Every so often check if anything references an entity and destroy it if not (look through AI components for instance) (mark for cleanup upon death?)
 	
-	Make input code neater/more robust
-	Do once over of input thresholds in Game (time since last command, etc...)
-	Tie above numbers to the framerate, along with animations;
+	Tie input thresholds to framerate (move outside game.cpp?)
 
 Ideas:
 	Have damage system and damage component
 	Resolve damage after each action
 	Go through each entity with a damage component
 	call an AddDamage function to add damage to entity and provide the attacker
-
-	Have callback functions in animations so that logs can be synced with animations
