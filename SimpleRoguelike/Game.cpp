@@ -35,9 +35,9 @@ bool Game::InitGame() {
 	mapSystem->SetMap(mapEntity);
 
 	std::vector<ActorType> actorTypes{
-		{"Player", "you", {20, 10, 5, 1, 1, 10, 8}, 32, {32,33}, {30,30}},
-		{"Ghost", "boo", {5, 6, 2, 1, 1, 20, 6}, 34, {34,35}, {40,40}},
-		{"Skeleton", "bones", {10, 6, 3, 1, 1, 5, 6}, 37, {37,38}, {15,15}}
+		{"Player", "you", {20, 10, 5, 1, 1, 10, 8}, 32, {32,33}, {40,40}},
+		{"Ghost", "boo", {5, 6, 2, 1, 1, 20, 6}, 34, {34,35}, {25,25}},
+		{"Skeleton", "bones", {10, 6, 3, 1, 1, 5, 6}, 37, {37,38}, {60,60}}
 	};
 
 	std::vector<PropType> propTypes{
@@ -62,8 +62,8 @@ void Game::CloseGame() {
 
 }
 
-bool Game::NotWaiting() {
-	return !rendererSystem->AnimationPlaying() && state != GameState::WAITING_INPUT;
+bool Game::StillProcessing() {
+	return state == GameState::RUNNING && playerSystem->GetPlayerEntity() != NULL_ENTITY;
 }
 
 void Game::Advance(bool sameStep) {
@@ -87,6 +87,8 @@ void Game::Advance(bool sameStep) {
 				tickCounter++;
 				if (tickCounter % 10 == 0) {
 					AdvanceTurn();
+					animationSystem->PlayPendingAnimations();
+					logSystem->PushLogs();
 				}
 			}
 
@@ -114,7 +116,7 @@ void Game::Advance(bool sameStep) {
 			}
 			 
 		case GameState::WAITING_INPUT:
-			if (nextCommand != Command::NONE && timeSinceLastInput <= 2 && timeSinceLastCommand >= 0) {
+			if (nextCommand != Command::NONE && timeSinceLastInput <= 2 && timeSinceLastCommand >= 6) {
 				Entity entity = turnSystem->PeekNextActor();
 				if (playerSystem->DetermineAction(nextCommand)) { //only remove player from queue if they performed an action
 					turnSystem->PopNextActor();

@@ -155,8 +155,7 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 		}
 	}
 
-	animating = false;
-
+	int numberOfAnimations = 0;
 	for (auto const& entity : entities) { //iterate through renderable entities
 		
 		Renderable& r = ecs->GetComponent<Renderable>(entity);
@@ -164,23 +163,25 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 		pos = r.position;	
 		Sprite spr = r.sprite;
 		bool remove = false;
+		bool visible = mapSystem->IsVisible(pos.x, pos.y);
 		
 		if (ecs->HasComponent<AnimSprite>(entity)) {
 			AnimSprite& anim = ecs->GetComponent<AnimSprite>(entity);
-			animating = true;
-			if (anim.finished) {
+			numberOfAnimations++;
+			if (anim.finished || !visible) {
 				//animating = false;
 				ecs->RemoveComponent<AnimSprite>(entity);
 				if (ecs->HasComponent<DeleteAfterAnim>(entity)) {
 					remove = true;
 				}
+				numberOfAnimations--;
 			}
 			else {
 				anim.AnimStep();
 				spr = anim.CurrentSprite();
 			}
 		}
-		else if (ecs->HasComponent<AnimIdle>(entity)) {
+		else if (visible && ecs->HasComponent<AnimIdle>(entity)) {
 			AnimIdle& anim = ecs->GetComponent<AnimIdle>(entity);
 			anim.AnimStep();
 			spr = anim.CurrentSprite();
@@ -188,24 +189,27 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 		
 		if (ecs->HasComponent<AnimMove>(entity)) {
 			AnimMove& anim = ecs->GetComponent<AnimMove>(entity);
-			animating = true;
+			numberOfAnimations++;
 			anim.AnimStep();
 			pos = anim.CurrentPos();
 			r.position = anim.CurrentPos();
-			if (anim.finished) {
+			if (anim.finished || (!mapSystem->IsVisible(anim.start.x, anim.start.y) && !mapSystem->IsVisible(anim.end.x, anim.end.y))) {
+				r.position = anim.end;
 				ecs->RemoveComponent<AnimMove>(entity);
 				if (ecs->HasComponent<DeleteAfterAnim>(entity)) {
 					remove = true;
 				}
+				numberOfAnimations--;
 			}
 		}
-		if (mapSystem->IsVisible(pos.x, pos.y)) {
+		if (mapSystem->IsVisible(pos.x + 0.5f, pos.y + 0.5f)) {
 			RenderTile(pos, spr, r.tileset, PIXEL_MULT, true, {});
 		}
 		if (remove) {
 			ecs->DestroyEntity(entity);
 		}
 	}
+	animating = numberOfAnimations > 0;
 
 }
 

@@ -81,6 +81,7 @@ bool Initialize()
 	playerSystem = ecs->RegisterSystem<PlayerSystem>();
 	signature.reset();
 	signature.set(ecs->GetComponentType<PlayerControlled>());
+	signature.set(ecs->GetComponentType<Active>());
 	ecs->SetSystemSignature<PlayerSystem>(signature);
 
 	//Register AI System (Takes in active AI entity and decides their actions)
@@ -188,7 +189,7 @@ int main(int argc, char* args[]){
 				int diff = ((int)nextGameUpdateTime) - ((int)currentTime);
 				//std::cout << "Advancing loop at: " << currentTime << " Next: " << nextGameUpdateTime << " Diff: " << diff << "\n";
 				game->Advance();
-				while (game->NotWaiting()) {
+				while (game->StillProcessing()) {
 					game->Advance(true);
 				}
 				

@@ -1,6 +1,7 @@
 NEXT:
 	Event System
 		When an actor takes an action an additional event is created that contains information about the animation, as well as a corresponding log.
+	
 	Log System Improvements
 		Possibly fixed by above, but logs should update as they happen, or possibly just immediately. Should be divided by player turn? Or just have old logs faded
 
@@ -13,6 +14,10 @@ Later:
 			If calculated path's next step is blocked, do an alternate path that avoids other entities
 
 	Tie input thresholds to framerate (move outside game.cpp?)
+
+	Layer system
+		either have priority queue (seems costly) or vector of vectors. push render job (create something for) to the correct layer
+		fixes doors being above, and also allows z depth for bug textures (appear in front of some walls and behind others)
 
 Ideas:
 	Have damage system and damage component

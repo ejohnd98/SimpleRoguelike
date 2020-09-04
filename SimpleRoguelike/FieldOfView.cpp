@@ -10,6 +10,9 @@ extern std::shared_ptr <MapSystem> mapSystem;
 #define PI 3.14159265
 
 void FieldOfView::CalculateVisibleCells(Entity e) {
+	if (e == NULL_ENTITY) {
+		return;
+	}
 	Stats& stats = ecs->GetComponent<Stats>(e);
 	FloatPosition pos = ecs->GetComponent<Renderable>(e).position;
 	mapSystem->ClearVisible();

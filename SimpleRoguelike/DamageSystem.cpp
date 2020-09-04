@@ -48,7 +48,6 @@ void DamageSystem::KillEntity(Entity entity) {
 
 	animationSystem->AddSpriteAnim(pos, sprites, (Tileset)"32x32_boom", lengths);
 
-
 	if (ecs->HasComponent<Active>(entity)) {
 		mapSystem->RemoveEntity(entity);
 		ecs->RemoveComponent<Active>(entity);
