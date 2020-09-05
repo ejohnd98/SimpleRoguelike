@@ -20,7 +20,6 @@ void AISystem::DetermineAction() {
 	Stats& stats = ecs->GetComponent<Stats>(currentEntity);
 
 	Position& pos = ecs->GetComponent<Position>(currentEntity);
-	Position nextPos;
 	Position targetPos;
 	if (ai.targetEntity != NULL_ENTITY && !ecs->HasComponent<Active>(ai.targetEntity)) {
 		ai.targetEntity = NULL_ENTITY;
@@ -54,12 +53,20 @@ void AISystem::DetermineAction() {
 				performedAction = interactionHandler->PerformAction(currentEntity, targetPos, InteractType::ATTACK);
 			}
 			else { //otherwise move towards last known target position
-				nextPos = pathfinding->GetPath(pos, ai.lastTargetPos, mapSystem->map);
-				if (interactionHandler->PerformAction(currentEntity, nextPos, InteractType::MOVE)) {
+				auto path = pathfinding->GetPath(pos, ai.lastTargetPos);
+				if (!path.actorsBlocking && interactionHandler->PerformAction(currentEntity, path.nextPos, InteractType::MOVE)) {
 					performedAction = true;
 				}
 				else {
-					performedAction = interactionHandler->PerformAction(currentEntity, {}, InteractType::WAIT);
+					auto altPath = pathfinding->GetPath(pos, ai.lastTargetPos, false);
+					if (altPath.length <= path.length + 4 && interactionHandler->PerformAction(currentEntity, altPath.nextPos, InteractType::MOVE)) {
+						performedAction = true;
+					}
+					else if (interactionHandler->PerformAction(currentEntity, path.nextPos, InteractType::MOVE)) {
+						performedAction = true;
+					}else{
+						performedAction = interactionHandler->PerformAction(currentEntity, {}, InteractType::WAIT);
+					}
 				}
 			}
 			break;

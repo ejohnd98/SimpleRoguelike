@@ -8,11 +8,13 @@
 using namespace std;
 typedef pair<float, Position> p;
 
-Position Pathfinding::GetPath(Position a, Position b, std::shared_ptr<Map> map) { //change to take in a bool array, or have a separate function for that
-	return AStar(a, b, map->cells, map->width, map->height);
+extern std::shared_ptr <MapSystem> mapSystem;
+
+PathInfo Pathfinding::GetPath(Position a, Position b, bool ignoreActors) { //change to take in a bool array, or have a separate function for that
+	return AStar(a, b, mapSystem->map->cells, mapSystem->map->width, mapSystem->map->height, ignoreActors);
 }
 
-Position Pathfinding::AStar(Position a, Position b, bool map[MAX_MAP_SIZE][MAX_MAP_SIZE], int w, int h){ //map arrays are accessed [y][x]
+PathInfo Pathfinding::AStar(Position a, Position b, bool map[MAX_MAP_SIZE][MAX_MAP_SIZE], int w, int h, bool ignoreActors){ //map arrays are accessed [y][x]
 
 	//init
 	for (int x = 0; x < w; x++) {
@@ -31,6 +33,7 @@ Position Pathfinding::AStar(Position a, Position b, bool map[MAX_MAP_SIZE][MAX_M
 
 	Position curr;
 	bool pathFound = false;
+	bool actorsBlock = false;
 	while (!pq.empty()) {
 		curr = pq.top().second; //get position on top of queue
 		pq.pop();
@@ -52,31 +55,34 @@ Position Pathfinding::AStar(Position a, Position b, bool map[MAX_MAP_SIZE][MAX_M
 			case 3:
 				adj.y--; break;
 			}
-			if (ValidPos(adj, w, h) && !map[adj.y][adj.x]) { //if space is free (true = wall)
+			if (ValidPos(adj, w, h) && (!mapSystem->BlocksMovement(adj, ignoreActors) || adj == b)) { //if space is free (true = wall)
 				if (NewOrShorterPath(adj)) { 
 					cameFrom[adj.y][adj.x] = curr; //set path followed to get here
 					dist[adj.y][adj.x] = dist[curr.y][curr.x] + 1; //dist is one more than parent (as we are working with grids)
 					float priority = dist[adj.y][adj.x] + GetHeuristic(adj, b); //set priority to dist + heuristic
 					pq.push(make_pair(priority, adj)); //add to queue
 					visited[adj.y][adj.x] = true; //set as visited
+					actorsBlock |= mapSystem->BlocksMovement(adj, false);
 				}
 			}
 		}
 
 	}
 	if (pathFound) { //reconstruct path
+		int length = 0;
 		curr = b;
 		while (!(cameFrom[curr.y][curr.x] == a)) {
+			length++;
 			curr = cameFrom[curr.y][curr.x];
 			if (curr == Position{ -1, -1 }) {
 				std::cout << "ERROR in pathfinding reconstruction\n";
 			}
 		}
-		return curr;
+		return { curr, length, actorsBlock };
 	}
 	else {
 		std::cout << "Path not found from: " << a.x << ", " << a.y << " to " << b.x << ", " << b.y << "\n";
-		return a;
+		return {a, 999999, true};
 	}
 
 

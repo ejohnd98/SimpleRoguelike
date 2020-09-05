@@ -7,8 +7,8 @@
 class Pathfinding
 {
 public:
-	Position GetPath(Position a, Position b, std::shared_ptr<Map> map);
-	Position AStar(Position a, Position b, bool map[][MAX_MAP_SIZE], int w, int h);
+	PathInfo GetPath(Position a, Position b, bool ignoreActors = true);
+	PathInfo AStar(Position a, Position b, bool map[][MAX_MAP_SIZE], int w, int h, bool ignoreActors = true);
 
 private:
 	float GetHeuristic(Position a, Position b);

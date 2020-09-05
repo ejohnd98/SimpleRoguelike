@@ -363,9 +363,6 @@ struct Map { //hardcoded default map
 	Sprite wallSprite = 3;
 	Sprite floorSprite = 1;
 
-	//std::shared_ptr<bool[MAX_MAP_SIZE][MAX_MAP_SIZE]> visited;
-	//std::shared_ptr<bool[MAX_MAP_SIZE][MAX_MAP_SIZE]> visible;
-
 	std::unordered_map<Position, Entity> positionEntityMap;
 
 	bool GetCell(int x, int y) {
@@ -384,4 +381,10 @@ struct EventInfo {
 
 	int damageDealt = -1;
 	bool killed = false;
+};
+
+struct PathInfo {
+	Position nextPos;
+	int length = 99999;
+	bool actorsBlocking = false;
 };
