@@ -167,6 +167,14 @@ struct Position {
 		return FloatPosition{ (float)x, (float)y };
 	}
 
+	std::string ToString() {
+		std::string pos = "( ";
+		pos += std::to_string(x);
+		pos += ", ";
+		pos += std::to_string(y);
+		pos += " )";
+		return pos;
+	}
 };
 
 namespace std {

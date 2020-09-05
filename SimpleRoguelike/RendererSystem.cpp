@@ -267,6 +267,13 @@ void RendererSystem::RenderUI() {
 			log.text, (Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
 		height -= 10;
 	}
+
+	//debug info
+	Entity player = playerSystem->GetPlayerEntity();
+	if (player != NULL_ENTITY) {
+		Position playerPos = ecs->GetComponent<Position>(player);
+		RenderString({ 4, 4 }, { 503 - 8, 10 }, { 0, 2 }, playerPos.ToString(), (Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
+	}
 }
 
 void RendererSystem::DrawUIRect(Position pos, Position size, Tileset tileset, int scale) {

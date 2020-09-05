@@ -45,11 +45,23 @@ bool Game::InitGame() {
 	};
 
 	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[0], true), { 12,24 });
-	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 5,24 });
+	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 7,15 });
 	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 4,16 });
-	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 5,16 });
-	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 6,16 });
-	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 7,16 });
+
+	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 13,16 });
+	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 16,18 });
+	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 19,27 });
+
+	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 22,23 });
+	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 23,23 });
+	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 24,23 });
+
+	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 5,24 });
+	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 10,21 });
+	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 6,18 });
+	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 14,18 });
+	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 11,8 });
+	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 10,27 });
 
 	fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
 
