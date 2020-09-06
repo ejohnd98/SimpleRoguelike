@@ -7,6 +7,7 @@
 
 #include "System.h"
 #include "ETexture.h"
+#include "RoomConverter.h"
 
 class RendererSystem : public System
 {

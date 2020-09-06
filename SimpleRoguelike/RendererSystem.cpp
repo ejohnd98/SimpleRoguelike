@@ -374,6 +374,10 @@ void RendererSystem::RenderString(Position pos, Position area, Position spacing,
 bool RendererSystem::LoadMedia() {
 	LoadTilesetsFromPath("tilesets");
 	LoadTilesetsFromPath("fonts");
+
+	RoomConverter roomConverter = RoomConverter();
+	roomConverter.ConvertRooms("rooms", SDLRenderer, SDLWindow);
+
 	return !tilesets.empty();
 }
 

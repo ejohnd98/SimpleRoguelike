@@ -36,6 +36,15 @@ enum class InteractType {
 	CLOSE
 };
 
+enum class PrefabTileInfo {
+	EMPTY,
+	WALL,
+	FLOOR,
+	DOOR,
+	POSSIBLE_DOOR,
+	POSSIBLE_WALL
+};
+
 struct FloatPosition {
 	float x = 0;
 	float y = 0;
@@ -395,4 +404,11 @@ struct PathInfo {
 	Position nextPos;
 	int length = 99999;
 	bool actorsBlocking = false;
+};
+
+struct RoomPrefab {
+	PrefabTileInfo cells[MAX_PREFAB_SIZE][MAX_PREFAB_SIZE];
+	int width = 0;
+	int height = 0;
+	std::vector<Position> doorPositions;
 };

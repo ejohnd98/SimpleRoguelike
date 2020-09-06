@@ -4,6 +4,7 @@
 
 #include "Game.h"
 #include "ECS.h"
+#include "JSONHandler.h"
 
 //variables
 int timeSinceLastCommand = 0;
@@ -29,13 +30,16 @@ Game::~Game(){
 }
 
 bool Game::InitGame() {
+	//read in files
+	JSONHandler::ReadRoomJSONs("room_jsons");
+
 	//hardcoded first map 
 	Entity mapEntity = ecs->CreateEntity();
 	ecs->AddComponent(mapEntity, Map{});
 	mapSystem->SetMap(mapEntity);
 
 	std::vector<ActorType> actorTypes{
-		{"Player", "you", {20, 10, 5, 1, 1, 10, 8}, 32, {32,33}, {40,40}},
+		{"Player", "you", {29, 6, 5, 1, 1, 10, 8}, 32, {32,33}, {40,40}},
 		{"Ghost", "boo", {5, 6, 2, 1, 1, 20, 6}, 34, {34,35}, {25,25}},
 		{"Skeleton", "bones", {10, 6, 3, 1, 1, 5, 6}, 37, {37,38}, {60,60}}
 	};
