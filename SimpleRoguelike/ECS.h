@@ -21,6 +21,7 @@
 #include "EntityFactory.h"
 #include "Pathfinding.h"
 #include "FieldOfView.h"
+#include "RandomUtil.h"
 
 //Heavily based on https://austinmorlan.com/posts/entity_component_system/
 

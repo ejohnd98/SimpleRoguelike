@@ -13,8 +13,8 @@
 
 using namespace rapidjson;
 
-void JSONHandler::ReadRoomJSONs(const std::string directory) { //reads JSON at path into a rapidJSON document
-
+std::vector<RoomPrefab> JSONHandler::ReadRoomJSONs(const std::string directory) { //reads JSON at path into a rapidJSON document
+	std::vector<RoomPrefab> prefabs;
 	for (const auto& entry : std::filesystem::directory_iterator(directory)) {
 		std::string path = entry.path().u8string();
 		std::string fileName = entry.path().stem().u8string();
@@ -27,8 +27,10 @@ void JSONHandler::ReadRoomJSONs(const std::string directory) { //reads JSON at p
 		doc.Parse(buffer.str().c_str());
 		
 		RoomPrefab room = ReadRoomPrefab(doc);
+		prefabs.push_back(room);
 		std::cout << "read " << fileName << " of size: "<< room.width << ", "<< room.height<< " with " << room.doorPositions.size() <<" doors\n";
 	}
+	return prefabs;
 }
 
 RoomPrefab JSONHandler::ReadRoomPrefab(Document& doc) { //reads in actors from the provided doc. Currently does nothing with the data
@@ -44,29 +46,29 @@ RoomPrefab JSONHandler::ReadRoomPrefab(Document& doc) { //reads in actors from t
 
 	for (SizeType y = 0; y < room.height; y++) {
 		for (SizeType x = 0; x < room.width; x++) {
-			room.cells[y][x] = PrefabTileInfo::EMPTY;
+			room.cells[y][x] = LayoutInfo::EMPTY;
 		}
 	}
 
 	for (SizeType i = 0; i < walls.Size(); i++) {
 		Position pos = ValueToPosition(walls[i]);
-		room.cells[pos.y][pos.x] = PrefabTileInfo::WALL;
+		room.cells[pos.y][pos.x] = LayoutInfo::WALL;
 	}
 
 	for (SizeType i = 0; i < floors.Size(); i++) {
 		Position pos = ValueToPosition(floors[i]);
-		room.cells[pos.y][pos.x] = PrefabTileInfo::FLOOR;
+		room.cells[pos.y][pos.x] = LayoutInfo::FLOOR;
 	}
 
 	for (SizeType i = 0; i < doors.Size(); i++) {
 		Position pos = ValueToPosition(doors[i]);
-		room.cells[pos.y][pos.x] = PrefabTileInfo::POSSIBLE_DOOR;
+		room.cells[pos.y][pos.x] = LayoutInfo::POSSIBLE_DOOR;
 		room.doorPositions.push_back(pos);
 	}
 
 	for (SizeType i = 0; i < openWalls.Size(); i++) {
 		Position pos = ValueToPosition(openWalls[i]);
-		room.cells[pos.y][pos.x] = PrefabTileInfo::POSSIBLE_WALL;
+		room.cells[pos.y][pos.x] = LayoutInfo::POSSIBLE_WALL;
 	}
 
 	return room;

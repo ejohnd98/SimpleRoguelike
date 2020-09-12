@@ -8,9 +8,11 @@
 
 #include "RendererSystem.h"
 #include "ETexture.h"
+#include "Game.h"
 #include "ECS.h"
 
-extern std::shared_ptr <ECS> ecs;
+extern std::shared_ptr<ECS> ecs;
+extern std::shared_ptr<Game> game;
 extern std::shared_ptr<MapSystem> mapSystem;
 extern std::shared_ptr<PlayerSystem> playerSystem;
 extern std::shared_ptr<LogSystem> logSystem;
@@ -88,10 +90,14 @@ void RendererSystem::Render() {
 	SDL_SetRenderDrawColor(SDLRenderer, 0, 0, 0, 0x00);
 	SDL_RenderClear(SDLRenderer);
 	
-	//render game at native res
-	RenderMap(mapSystem->map);
-	//render UI
-	RenderUI();
+	if (game->GeneratingMap()) {
+		RenderMapGen(game->mapGen);
+	}else{
+		//render game at native res
+		RenderMap(mapSystem->map);
+		//render UI
+		RenderUI();
+	}
 
 	//put rendertexture on screen
 	SDL_SetRenderTarget(SDLRenderer, NULL);
@@ -418,6 +424,16 @@ Position RendererSystem::GetTilesetSizeFromName(std::string name) {
 	assert(width != 0 && height != 0);
 
 	return Position{ width, height };
+}
+
+void RendererSystem::RenderMapGen(std::shared_ptr<MapGenerator> mapGen) {
+	int tileRenderSize = 16;
+
+	SDL_Rect texQuad = *tilesets.at(MAIN_TILESET).GetTileRect(48);
+	Position renderPos = { NATIVE_WIDTH / 2, NATIVE_HEIGHT / 2 };
+
+	SDL_Rect renderQuad = { renderPos.x, renderPos.y, tileRenderSize, tileRenderSize };
+	SDL_RenderCopy(SDLRenderer, tilesets.at(MAIN_TILESET).GetTexture(), &texQuad, &renderQuad);
 }
 
 bool RendererSystem::AnimationPlaying() {

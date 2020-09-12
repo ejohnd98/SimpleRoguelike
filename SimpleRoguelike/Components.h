@@ -36,7 +36,7 @@ enum class InteractType {
 	CLOSE
 };
 
-enum class PrefabTileInfo {
+enum class LayoutInfo {
 	EMPTY,
 	WALL,
 	FLOOR,
@@ -407,7 +407,7 @@ struct PathInfo {
 };
 
 struct RoomPrefab {
-	PrefabTileInfo cells[MAX_PREFAB_SIZE][MAX_PREFAB_SIZE];
+	LayoutInfo cells[MAX_PREFAB_SIZE][MAX_PREFAB_SIZE];
 	int width = 0;
 	int height = 0;
 	std::vector<Position> doorPositions;

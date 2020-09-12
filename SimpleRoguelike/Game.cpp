@@ -5,6 +5,7 @@
 #include "Game.h"
 #include "ECS.h"
 #include "JSONHandler.h"
+#include "MapGenerator.h"
 
 //variables
 int timeSinceLastCommand = 0;
@@ -30,22 +31,27 @@ Game::~Game(){
 }
 
 bool Game::InitGame() {
-	//read in files
-	JSONHandler::ReadRoomJSONs("room_jsons");
+	//generate map
+	std::shared_ptr<Map> map = std::make_shared<Map>();
+	mapSystem->SetMap(map);
 
-	//hardcoded first map 
-	Entity mapEntity = ecs->CreateEntity();
-	ecs->AddComponent(mapEntity, Map{});
-	mapSystem->SetMap(mapEntity);
+	mapGen = std::make_shared<MapGenerator>(999);
+	mapGen->Begin(map, 50, 50);
 
+	//Game setup
+	tickCounter = 0;
+	state = GameState::MAP_GEN;
+	return true;
+}
+void Game::CloseGame() {
+
+}
+
+void Game::InitMapTest() {
 	std::vector<ActorType> actorTypes{
 		{"Player", "you", {29, 6, 5, 1, 1, 10, 8}, 32, {32,33}, {40,40}},
 		{"Ghost", "boo", {5, 6, 2, 1, 1, 20, 6}, 34, {34,35}, {25,25}},
 		{"Skeleton", "bones", {10, 6, 3, 1, 1, 5, 6}, 37, {37,38}, {60,60}}
-	};
-
-	std::vector<PropType> propTypes{
-		{"Door", "a door", 18, 20}
 	};
 
 	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[0], true), { 12,24 });
@@ -60,26 +66,15 @@ bool Game::InitGame() {
 	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 23,23 });
 	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 24,23 });
 
-	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 5,24 });
-	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 10,21 });
-	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 6,18 });
-	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 14,18 });
-	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 11,8 });
-	mapSystem->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { 10,27 });
-
 	fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
-
-	//Game setup
-	tickCounter = 0;
-	state = GameState::RUNNING;
-	return true;
-}
-void Game::CloseGame() {
-
 }
 
 bool Game::StillProcessing() {
 	return state == GameState::RUNNING && playerSystem->GetPlayerEntity() != NULL_ENTITY;
+}
+
+bool Game::GeneratingMap() {
+	return state == GameState::MAP_GEN;
 }
 
 void Game::Advance(bool sameStep) {
@@ -144,6 +139,16 @@ void Game::Advance(bool sameStep) {
 				timeSinceLastCommand = 0;
 			}
 			break;
+		case GameState::MAP_GEN:
+			if (mapGen->IsFinished()) {
+				InitMapTest();
+				state = GameState::RUNNING;
+			}
+			else {
+				mapGen->GenerationStep();
+			}
+			break;
+
 	}
 	if (!sameStep) {
 		timeSinceLastInput++;

@@ -8,6 +8,7 @@
 #include "System.h"
 #include "ETexture.h"
 #include "RoomConverter.h"
+#include "MapGenerator.h"
 
 class RendererSystem : public System
 {
@@ -31,6 +32,9 @@ private:
 	bool LoadMedia();
 	void LoadTilesetsFromPath(std::string pathName);
 	Position GetTilesetSizeFromName(std::string name);
+
+	//debug
+	void RenderMapGen(std::shared_ptr<MapGenerator> mapGen);
 
 	SDL_Window* SDLWindow = nullptr; //The window that will be rendered to
 	SDL_Renderer* SDLRenderer = nullptr; //The window renderer

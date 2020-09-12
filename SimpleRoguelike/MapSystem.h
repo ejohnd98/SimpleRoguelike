@@ -5,7 +5,7 @@ class MapSystem : public System
 {
 public:
 	void Init();
-	void SetMap(Entity mapEntity);
+	void SetMap(std::shared_ptr<Map> mapData);
 	void PlaceEntity(Entity entity, Position pos);
 	void RemoveEntity(Entity entity);
 	void MoveEntityRelative(Entity entity, Position offset);
@@ -20,7 +20,6 @@ public:
 	bool IsVisible(int x, int y);
 	bool IsKnown(int x, int y);
 
-	Entity mapEntity;
 	std::shared_ptr<Map> map;
 private:
 	bool visible[MAX_MAP_SIZE][MAX_MAP_SIZE];

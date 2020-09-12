@@ -11,8 +11,10 @@ public:
 	~Game();
 	bool InitGame();
 	void CloseGame();
+	void InitMapTest();
 
 	bool StillProcessing();
+	bool GeneratingMap();
 	void Advance(bool sameStep = false);
 	void GiveInput(Command command);
 	void ClearHeldInput();
@@ -22,11 +24,15 @@ public:
 	enum class GameState {
 		ANIMATING,
 		WAITING_INPUT,
-		RUNNING
+		RUNNING,
+		MAP_GEN
 	};
+
+	std::shared_ptr<class MapGenerator> mapGen;
 
 private:
 	GameState state;
 	Command nextCommand = Command::NONE;
+	
 };
 

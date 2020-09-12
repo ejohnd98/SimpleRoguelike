@@ -10,11 +10,8 @@ extern std::shared_ptr<AnimationSystem> animationSystem;
 void MapSystem::Init() {
 }
 
-void MapSystem::SetMap(Entity mapEntity) {
-	assert(ecs->HasComponent<Map>(mapEntity));
-
-	this->mapEntity = mapEntity;
-	map = std::make_shared<Map>(ecs->GetComponent<Map>(mapEntity));
+void MapSystem::SetMap(std::shared_ptr<Map> mapData) {
+	map = mapData;
 }
 
 void MapSystem::PlaceEntity(Entity entity, Position newPos) {
