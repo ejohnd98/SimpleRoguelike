@@ -20,7 +20,7 @@ bool InteractionHandler::PerformAction(Entity entity, Position target, InteractT
 			break;
 		case InteractType::MOVE:
 			if (entity != NULL_ENTITY && !mapSystem->BlocksMovement(target, false)) {
-				animationSystem->AddMoveAnim(entity, ecs->GetComponent<Position>(entity).ToFloat(), target.ToFloat(), 0.20f);
+				animationSystem->AddMoveAnim(entity, ecs->GetComponent<Position>(entity).ToFloat(), target.ToFloat(), 0.05f);
 				mapSystem->MoveEntity(entity, target);
 				actionPerformed = true;
 			}

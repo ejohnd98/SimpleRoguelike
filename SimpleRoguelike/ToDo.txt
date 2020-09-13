@@ -1,4 +1,13 @@
 NEXT:
+	Map Generation
+		Create jsons for map rotations when converting images
+		Have doors overlap (room can fit if it doesn't change any existing non empty tiles?)
+			or, have doors slightly out in images (more work)
+		Don't just place prefabs, but randomly connect some rooms
+		Once prefabs are placed, check for possible doors that are close and connect them.
+		Do a BFS to find farthest spots and try connecting them to something to make dungeon less linear
+		Have it so rooms of the same type can't be placed next to eachother (have int grid with prefab index that's filled when placing)
+
 	Event System
 		When an actor takes an action an additional event is created that contains information about the animation, as well as a corresponding log.
 	
@@ -10,8 +19,6 @@ Later:
 			Create wandering system
 		Cleanup
 			Every so often check if anything references an entity and destroy it if not (look through AI components for instance) (mark for cleanup upon death?)
-		Smarter pathfinding
-			If calculated path's next step is blocked, do an alternate path that avoids other entities
 
 	Tie input thresholds to framerate (move outside game.cpp?)
 

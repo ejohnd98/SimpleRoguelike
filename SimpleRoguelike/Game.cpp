@@ -35,8 +35,8 @@ bool Game::InitGame() {
 	std::shared_ptr<Map> map = std::make_shared<Map>();
 	mapSystem->SetMap(map);
 
-	mapGen = std::make_shared<MapGenerator>(999);
-	mapGen->Begin(map, 50, 50);
+	mapGen = std::make_shared<MapGenerator>(23633);
+	mapGen->Begin(map, 60, 40);
 
 	//Game setup
 	tickCounter = 0;
@@ -53,18 +53,34 @@ void Game::InitMapTest() {
 		{"Ghost", "boo", {5, 6, 2, 1, 1, 20, 6}, 34, {34,35}, {25,25}},
 		{"Skeleton", "bones", {10, 6, 3, 1, 1, 5, 6}, 37, {37,38}, {60,60}}
 	};
+	std::vector<PropType> propTypes{
+		{"Door", "a door", 18, 20}
+	};
 
-	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[0], true), { 12,24 });
-	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 7,15 });
-	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 4,16 });
+	Position playerPos = { 0,0 };
+	for (int y = 0; y < mapSystem->map->height; y++) {
+		if (!(playerPos == Position{ 0, 0 })) {
+			break;
+		}
+		for (int x = 0; x < mapSystem->map->width; x++) {
+			if (!mapSystem->BlocksMovement({ x,y }) && mapSystem->GetEntityAt({ x,y }) == NULL_ENTITY) {
+				playerPos = { x,y };
+				break;
+			}
+		}
+	}
 
-	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 13,16 });
-	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 16,18 });
-	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 19,27 });
+	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[0], true), playerPos);
+	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 7,15 });
+	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 4,16 });
 
-	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 22,23 });
-	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 23,23 });
-	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 24,23 });
+	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 13,16 });
+	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 16,18 });
+	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 19,27 });
+
+	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 22,23 });
+	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 23,23 });
+	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 24,23 });
 
 	fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
 }
@@ -141,6 +157,7 @@ void Game::Advance(bool sameStep) {
 			break;
 		case GameState::MAP_GEN:
 			if (mapGen->IsFinished()) {
+				printf("number of entities: %d", mapSystem->map->positionEntityMap.size());
 				InitMapTest();
 				state = GameState::RUNNING;
 			}
