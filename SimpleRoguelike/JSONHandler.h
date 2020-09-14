@@ -12,4 +12,5 @@ public:
 	static std::vector<struct RoomPrefab> ReadRoomJSONs(const std::string path);
 	static RoomPrefab ReadRoomPrefab(rapidjson::Document& doc);
 	static Position ValueToPosition(rapidjson::Value& val);
+	static RoomPrefab Rotate90(RoomPrefab& room);
 };

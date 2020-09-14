@@ -16,7 +16,7 @@ const ComponentType MAX_COMPONENTS = 32;
 using Signature = std::bitset<MAX_COMPONENTS>;
 
 const int MAX_MAP_SIZE = 100;
-const int MAX_PREFAB_SIZE = 25;
+const int MAX_PREFAB_SIZE = 40;
 
 const Tileset MAIN_TILESET = "16x16_tileset";
 const int TILESET_WIDTH = 16;

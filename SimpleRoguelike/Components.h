@@ -410,5 +410,6 @@ struct RoomPrefab {
 	LayoutInfo cells[MAX_PREFAB_SIZE][MAX_PREFAB_SIZE];
 	int width = 0;
 	int height = 0;
+	std::vector<Position> possibleDoorPositions;
 	std::vector<Position> doorPositions;
 };

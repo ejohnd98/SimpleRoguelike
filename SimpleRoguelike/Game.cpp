@@ -6,6 +6,7 @@
 #include "ECS.h"
 #include "JSONHandler.h"
 #include "MapGenerator.h"
+#include "RandomUtil.h"
 
 //variables
 int timeSinceLastCommand = 0;
@@ -35,12 +36,13 @@ bool Game::InitGame() {
 	std::shared_ptr<Map> map = std::make_shared<Map>();
 	mapSystem->SetMap(map);
 
-	mapGen = std::make_shared<MapGenerator>(23633);
+	mapGen = std::make_shared<MapGenerator>(21992);
 	mapGen->Begin(map, 60, 40);
 
 	//Game setup
 	tickCounter = 0;
 	state = GameState::MAP_GEN;
+
 	return true;
 }
 void Game::CloseGame() {

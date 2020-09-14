@@ -15,13 +15,13 @@ public:
 	std::shared_ptr<Map> map;
 	LayoutInfo mapLayout[MAX_MAP_SIZE][MAX_MAP_SIZE];
 	std::vector<Position> possibleDoorPositions;
-	std::vector<Position> doorPositions;
 
 private:
 	bool RoomFits(RoomPrefab room, Position pos);
 	void PlaceRoom(RoomPrefab room, Position pos);
 	void PlaceDoor(Position pos);
 	void MarkPossibleDoor(Position pos);
+	void HandlePossibleDoors();
 
 	bool isStarted = false;
 	bool isFinished = false;

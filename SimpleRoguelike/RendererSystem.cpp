@@ -428,28 +428,26 @@ Position RendererSystem::GetTilesetSizeFromName(std::string name) {
 }
 
 void RendererSystem::RenderMapGen(std::shared_ptr<MapGenerator> mapGen) {
-	if (mapGen->IsStarted()) {
-		std::shared_ptr<Map> map = mapGen->map;
-		int tileSize = std::min(RENDER_WIDTH / map->width, RENDER_HEIGHT / map->height);
+	std::shared_ptr<Map> map = mapGen->map;
+	int tileSize = std::min(RENDER_WIDTH / map->width, RENDER_HEIGHT / map->height);
 
-		std::unordered_map<LayoutInfo, Sprite> spriteMap{
-			{LayoutInfo::EMPTY, 0 },
-			{LayoutInfo::FLOOR, 1},
-			{LayoutInfo::WALL, 3 },
-			{LayoutInfo::POSSIBLE_WALL, 2 },
-			{LayoutInfo::DOOR, 18 },
-			{LayoutInfo::POSSIBLE_DOOR, 19 }
-		};
+	std::unordered_map<LayoutInfo, Sprite> spriteMap{
+		{LayoutInfo::EMPTY, 15 },
+		{LayoutInfo::FLOOR, 13},
+		{LayoutInfo::WALL, 14 },
+		{LayoutInfo::POSSIBLE_WALL, 10 },
+		{LayoutInfo::DOOR, 12 },
+		{LayoutInfo::POSSIBLE_DOOR, 11 }
+	};
 
-		for (int y = 0; y < map->height; y++) {
-			for (int x = 0; x < map->width; x++) {
-				auto tile = mapGen->mapLayout[y][x];
-				SDL_Rect texQuad = *tilesets.at(MAIN_TILESET).GetTileRect(spriteMap.at(tile));
-				Position renderPos = { x * tileSize, y * tileSize };
+	for (int y = 0; y < map->height; y++) {
+		for (int x = 0; x < map->width; x++) {
+			auto tile = mapGen->mapLayout[y][x];
+			SDL_Rect texQuad = *tilesets.at(MAIN_TILESET).GetTileRect(spriteMap.at(tile));
+			Position renderPos = { x * tileSize, y * tileSize };
 
-				SDL_Rect renderQuad = { renderPos.x, renderPos.y, tileSize, tileSize };
-				SDL_RenderCopy(SDLRenderer, tilesets.at(MAIN_TILESET).GetTexture(), &texQuad, &renderQuad);
-			}
+			SDL_Rect renderQuad = { renderPos.x, renderPos.y, tileSize, tileSize };
+			SDL_RenderCopy(SDLRenderer, tilesets.at(MAIN_TILESET).GetTexture(), &texQuad, &renderQuad);
 		}
 	}
 }

@@ -19,6 +19,22 @@ int RandomUtil::GetRandomInt(int a, int b) { //inclusive
 	return rand;
 }
 
+//Knuth-Fisher-Yates shuffle algorithm
+std::vector<int> RandomUtil::GetRandomSequence(int count) {
+	std::vector<int> sequence;
+	for (int i = 0; i < count; i++) {
+		sequence.push_back(i);
+	}
+	for (int i = count - 1; i > 0; i--) {
+		std::uniform_real_distribution<> dis(0, i + 1);
+		int temp = sequence[i];
+		int swapIndex = (int)dis(gen);
+		sequence[i] = sequence[swapIndex];
+		sequence[swapIndex] = temp;
+	}
+	return sequence;
+}
+
 bool RandomUtil::GetRandomBool(float trueChance = 0.5f) { //inclusive
 	std::uniform_real_distribution<> dis(0.0, 1.0);
 	float rand = dis(gen);
