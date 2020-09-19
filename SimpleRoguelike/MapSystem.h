@@ -5,6 +5,8 @@ class MapSystem : public System
 {
 public:
 	void Init();
+	void Clear();
+
 	void SetMap(std::shared_ptr<Map> mapData);
 	void PlaceEntity(Entity entity, Position pos);
 	void RemoveEntity(Entity entity);

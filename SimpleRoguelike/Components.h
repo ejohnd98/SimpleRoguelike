@@ -162,8 +162,20 @@ struct Position {
 		return pos;
 	}
 
+	void Normalize() {
+		if (x != 0){ x = x / std::abs(x); }
+		if (y != 0) { y = y / std::abs(y); }
+	}
+
 	float Magnitude() {
 		return (float)sqrt((x * x) + (y * y));
+	}
+
+	Position Absolute() {
+		Position abs;
+		if (x != 0) { abs.x = x / std::abs(x); }
+		if (y != 0) { abs.y = y / std::abs(y); }
+		return abs;
 	}
 
 	float Dist(const Position& other) {

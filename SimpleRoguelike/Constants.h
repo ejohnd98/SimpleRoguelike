@@ -24,6 +24,8 @@ const int TILESET_HEIGHT = 16;
 
 const int MAX_STORED_LOGS = 50;
 
+const bool DEBUG_MAP_GEN = false;
+
 const std::unordered_map<std::string, SDL_Color> COLOR_MAP{
 		{"red", SDL_Color{255,75,15,255}},
 		{"orange", SDL_Color{255,120,100,255}},

@@ -10,6 +10,17 @@ extern std::shared_ptr<AnimationSystem> animationSystem;
 void MapSystem::Init() {
 }
 
+void MapSystem::Clear() {
+	for (std::pair<Position, Entity> element : map->positionEntityMap) {
+		ecs->DestroyEntity(element.second);
+		map->positionEntityMap.erase(element.first);
+	}
+	map->width = 0;
+	map->height = 0;
+	map = nullptr;
+	
+}
+
 void MapSystem::SetMap(std::shared_ptr<Map> mapData) {
 	map = mapData;
 }

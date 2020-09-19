@@ -1,11 +1,13 @@
 #include <SDL.h>
 #include <stdio.h>
 #include <iostream>
+#include <ctime>
 
 #include "ECS.h"
 #include "Game.h"
 #include "Commands.h"
 #include "Constants.h"
+#include "RandomUtil.h"
 
 //Screen constants
 const int SCREEN_FPS = 60;
@@ -33,6 +35,7 @@ std::shared_ptr<Pathfinding> pathfinding;
 std::shared_ptr<FieldOfView> fov;
 std::shared_ptr<InteractionHandler> interactionHandler;
 std::shared_ptr<EntityFactory> entityFactory;
+std::shared_ptr<RandomUtil> randomUtil;
 
 bool Initialize()
 {
@@ -56,6 +59,11 @@ bool Initialize()
 	ecs->RegisterComponent<Info>();
 	ecs->RegisterComponent<Stats>();
 	ecs->RegisterComponent<Active>();
+
+	//Create random Utils;
+	//randomUtil = std::make_shared<RandomUtil>((unsigned int)std::time(0));
+	randomUtil = std::make_shared<RandomUtil>(21992202);
+	printf("game seed is %d\n", (unsigned int)std::time(0));
 
 	//Register Renderer System (Interfaces with SDL to render game)
 	rendererSystem = ecs->RegisterSystem<RendererSystem>();
@@ -119,6 +127,8 @@ bool Initialize()
 
 	//Create Entity Factory
 	entityFactory = std::make_shared<EntityFactory>();
+
+	
 
 	if (!game) {
 		printf("ERROR: Failed to create game!\n");

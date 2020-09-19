@@ -23,6 +23,7 @@ extern std::shared_ptr<AnimationSystem> animationSystem;
 extern std::shared_ptr<LogSystem> logSystem;
 extern std::shared_ptr<EntityFactory> entityFactory;
 extern std::shared_ptr<FieldOfView> fov;
+extern std::shared_ptr<RandomUtil> randomUtil;
 
 Game::Game(){
 	InitGame();
@@ -36,8 +37,8 @@ bool Game::InitGame() {
 	std::shared_ptr<Map> map = std::make_shared<Map>();
 	mapSystem->SetMap(map);
 
-	mapGen = std::make_shared<MapGenerator>(21992);
-	mapGen->Begin(map, 60, 40);
+	mapGen = std::make_shared<MapGenerator>(randomUtil->GetRandomInt(0,9000000));
+	mapGen->Begin(map, 100, 80);
 
 	//Game setup
 	tickCounter = 0;
@@ -46,7 +47,8 @@ bool Game::InitGame() {
 	return true;
 }
 void Game::CloseGame() {
-
+	mapSystem->Clear();
+	mapGen = nullptr;
 }
 
 void Game::InitMapTest() {
@@ -159,12 +161,32 @@ void Game::Advance(bool sameStep) {
 			break;
 		case GameState::MAP_GEN:
 			if (mapGen->IsFinished()) {
-				printf("number of entities: %d", mapSystem->map->positionEntityMap.size());
-				InitMapTest();
-				state = GameState::RUNNING;
+				printf("number of entities: %d\n", mapSystem->map->positionEntityMap.size());
+				if (DEBUG_MAP_GEN) {
+					/*CloseGame();
+					InitGame();*/
+					mapGen->Reset();
+					mapSystem->Clear();
+					std::shared_ptr<Map> nextMap = std::make_shared<Map>();
+					mapSystem->SetMap(nextMap);
+					mapGen->Begin(nextMap, 100, 80);
+					break;
+				}
+				else {
+					InitMapTest();
+					state = GameState::RUNNING;
+				}
 			}
 			else {
-				mapGen->GenerationStep();
+				int i = 0;
+				while (i++ < 100) {
+					bool progress = false;
+					int max = 0;
+					while (!progress && max < 50) {
+						progress = mapGen->GenerationStep(max == 0);
+						max++;
+					}
+				}
 			}
 			break;
 

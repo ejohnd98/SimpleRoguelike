@@ -1,11 +1,17 @@
 NEXT:
 	Map Generation
-		Don't just place prefabs, but randomly connect some rooms
-		Once prefabs are placed, check for possible doors that are close and connect them.
-		Do a BFS to find farthest spots and try connecting them to something to make dungeon less linear
-		Have it so rooms of the same type can't be placed next to eachother (have int grid with prefab index that's filled when placing)
 		Get possibleWalls working
 		Create another category of prefabs that don't connect, but are placed anywhere there is enough floor (ie, could be props down the line)
+
+		Keep looking into tunneler algorithms
+
+		Determine where to place stairs, mobs, and loot
+
+		Idea:
+			Have a tunneler that randomly creates possible door locations. Once tunneler is done, start trying to place prefabs
+			can start at entrance and tunnel outwards.
+
+		Thought: keep track of how many times a prefab is placed (reduce repetitions, and weight it so larger ones are more rare)
 
 	Event System
 		When an actor takes an action an additional event is created that contains information about the animation, as well as a corresponding log.
