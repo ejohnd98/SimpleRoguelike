@@ -12,13 +12,22 @@ struct Tunneler {
 	}
 };
 
+enum class MapGenState {
+	INIT,
+	INITIAL_ROOMS,
+	TUNNELING,
+	CLEANING,
+	DISPLAYING,
+	FINISHED
+};
+
 class MapGenerator
 {
 public:
 	MapGenerator(int seed);
 	void Reset();
 	void Begin(std::shared_ptr<Map> mapData, int w, int h);
-	bool GenerationStep(bool incrementCounter = true);
+	void GenerationStep();
 	void FinishMap();
 	bool IsStarted();
 	bool IsFinished();
@@ -29,7 +38,7 @@ public:
 	std::vector<Position> possibleDoorPositions;
 
 private:
-	bool PlaceRandomRoom(bool connectToExisting = true);
+	bool PlaceRandomRoom(Position tl, Position br, RoomType type = RoomType::REGULAR, bool connectToExisting = true);
 	void ProcessFinishedMap();
 	bool RoomFits(RoomPrefab room, Position pos);
 	void PlaceRoom(RoomPrefab room, Position pos);
@@ -40,7 +49,10 @@ private:
 	void UpdateTunneler(Tunneler& tunneler);
 	void FillBFS(int maxValue);
 	bool BFSPass(int maxValue);
+	bool RemoveDeadEnds();
+	int AdjacentWalls(Position pos);
 
+	MapGenState mapGenState = MapGenState::INIT;
 	std::vector<Tunneler> tunnelers;
 	std::shared_ptr<RandomUtil> rand;
 	int mapSeed = 0;
@@ -49,7 +61,8 @@ private:
 	int roomsPlaced = 0;
 	int counter = 0;
 	std::vector<struct RoomPrefab> roomPrefabs;
-
+	std::vector<struct RoomPrefab> entrancePrefabs;
+	std::vector<struct RoomPrefab> exitPrefabs;
 	
 };
 

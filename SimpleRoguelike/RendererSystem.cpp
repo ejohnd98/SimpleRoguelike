@@ -437,7 +437,9 @@ void RendererSystem::RenderMapGen(std::shared_ptr<MapGenerator> mapGen) {
 		{LayoutInfo::WALL, 14 },
 		{LayoutInfo::POSSIBLE_WALL, 10 },
 		{LayoutInfo::DOOR, 12 },
-		{LayoutInfo::POSSIBLE_DOOR, 11 }
+		{LayoutInfo::POSSIBLE_DOOR, 11 },
+		{LayoutInfo::ENTRANCE, 9 },
+		{LayoutInfo::EXIT, 8 }
 	};
 
 	for (int y = 0; y < map->height; y++) {

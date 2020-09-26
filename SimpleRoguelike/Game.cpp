@@ -43,7 +43,6 @@ bool Game::InitGame() {
 	//Game setup
 	tickCounter = 0;
 	state = GameState::MAP_GEN;
-
 	return true;
 }
 void Game::CloseGame() {
@@ -178,15 +177,7 @@ void Game::Advance(bool sameStep) {
 				}
 			}
 			else {
-				int i = 0;
-				while (i++ < 100) {
-					bool progress = false;
-					int max = 0;
-					while (!progress && max < 50) {
-						progress = mapGen->GenerationStep(max == 0);
-						max++;
-					}
-				}
+				mapGen->GenerationStep();
 			}
 			break;
 

@@ -38,6 +38,8 @@ void RoomConverter::ConvertRooms(std::string pathName, SDL_Renderer* renderer, S
 		rapidjson::Value doors(rapidjson::Type::kArrayType);
 		rapidjson::Value possibleDoors(rapidjson::Type::kArrayType);
 		rapidjson::Value openWalls(rapidjson::Type::kArrayType);
+		rapidjson::Value entrances(rapidjson::Type::kArrayType);
+		rapidjson::Value exits(rapidjson::Type::kArrayType);
 
 		if (!roomTexture.LoadFromFileForModifying(path, renderer, window)) {
 			printf("Failed to load room texture: %s\n", path.c_str());
@@ -66,6 +68,8 @@ void RoomConverter::ConvertRooms(std::string pathName, SDL_Renderer* renderer, S
 				Uint32 openWallsColor = SDL_MapRGB(mappingFormat, 255, 0, 0);
 				Uint32 doorColor = SDL_MapRGB(mappingFormat, 0, 125, 0);
 				Uint32 possibleDoorColor = SDL_MapRGB(mappingFormat, 0, 255, 0);
+				Uint32 exitColor = SDL_MapRGB(mappingFormat, 255, 0, 255);
+				Uint32 entranceColor = SDL_MapRGB(mappingFormat, 0, 255, 255);
 				
 				//check key pixels
 				for (int i = 0; i < pixelCount; ++i) {
@@ -88,6 +92,12 @@ void RoomConverter::ConvertRooms(std::string pathName, SDL_Renderer* renderer, S
 					if (pixels[i] == possibleDoorColor) {
 						possibleDoors.PushBack(pos, allocator);
 					}
+					if (pixels[i] == exitColor) {
+						exits.PushBack(pos, allocator);
+					}
+					if (pixels[i] == entranceColor) {
+						entrances.PushBack(pos, allocator);
+					}
 				}
 
 				//create JSON
@@ -98,6 +108,8 @@ void RoomConverter::ConvertRooms(std::string pathName, SDL_Renderer* renderer, S
 				doc.AddMember("doors", doors, allocator);
 				doc.AddMember("possibleDoors", possibleDoors, allocator);
 				doc.AddMember("openWalls", openWalls, allocator);
+				doc.AddMember("entrances", entrances, allocator);
+				doc.AddMember("exits", exits, allocator);
 
 				std::ofstream output(outputPath + fileName + ".json");
 				rapidjson::OStreamWrapper osw(output);

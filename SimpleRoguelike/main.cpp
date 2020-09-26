@@ -11,7 +11,7 @@
 
 //Screen constants
 const int SCREEN_FPS = 60;
-const int UPDATES_PER_SECOND = 60;
+const int UPDATES_PER_SECOND = 180;
 const int MS_PER_FRAME = 1000 / SCREEN_FPS;
 const int MS_PER_UPDATE = 1000 / UPDATES_PER_SECOND;
 
@@ -37,6 +37,9 @@ std::shared_ptr<InteractionHandler> interactionHandler;
 std::shared_ptr<EntityFactory> entityFactory;
 std::shared_ptr<RandomUtil> randomUtil;
 
+int ticksStart = -1;
+bool shownMapGenTime = false;
+
 bool Initialize()
 {
 	bool success = true;
@@ -61,8 +64,8 @@ bool Initialize()
 	ecs->RegisterComponent<Active>();
 
 	//Create random Utils;
-	//randomUtil = std::make_shared<RandomUtil>((unsigned int)std::time(0));
-	randomUtil = std::make_shared<RandomUtil>(21992202);
+	randomUtil = std::make_shared<RandomUtil>((unsigned int)std::time(0));
+	//randomUtil = std::make_shared<RandomUtil>(9865);
 	printf("game seed is %d\n", (unsigned int)std::time(0));
 
 	//Register Renderer System (Interfaces with SDL to render game)
@@ -198,9 +201,22 @@ int main(int argc, char* args[]){
 				nextGameUpdateTime += MS_PER_UPDATE;
 				int diff = ((int)nextGameUpdateTime) - ((int)currentTime);
 				//std::cout << "Advancing loop at: " << currentTime << " Next: " << nextGameUpdateTime << " Diff: " << diff << "\n";
+				if (ticksStart == -1) {
+					ticksStart = currentTime;
+				}
+
 				game->Advance();
 				while (game->StillProcessing()) {
 					game->Advance(true);
+				}
+
+				if (game->mapGen->IsFinished() && !shownMapGenTime) {
+					float timeTaken = (currentTime - ticksStart) *0.001f;
+					printf("mapGen time: %f\n", timeTaken);
+					if (DEBUG_MAP_GEN) {
+						ticksStart = currentTime;
+						shownMapGenTime = false;
+					}
 				}
 				
 			}

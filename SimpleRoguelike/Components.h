@@ -42,7 +42,9 @@ enum class LayoutInfo {
 	FLOOR,
 	DOOR,
 	POSSIBLE_DOOR,
-	POSSIBLE_WALL
+	POSSIBLE_WALL,
+	ENTRANCE,
+	EXIT
 };
 
 struct FloatPosition {
@@ -176,6 +178,15 @@ struct Position {
 		if (x != 0) { abs.x = x / std::abs(x); }
 		if (y != 0) { abs.y = y / std::abs(y); }
 		return abs;
+	}
+
+	std::vector<Position> Adjacents() {
+		std::vector<Position> vec;
+		vec.push_back({ x+1,y });
+		vec.push_back({ x-1,y });
+		vec.push_back({ x,y+1 });
+		vec.push_back({ x,y-1 });
+		return vec;
 	}
 
 	float Dist(const Position& other) {
@@ -418,10 +429,19 @@ struct PathInfo {
 	bool actorsBlocking = false;
 };
 
+enum class RoomType {
+	REGULAR,
+	ENTRANCE,
+	EXIT
+};
+
 struct RoomPrefab {
+	RoomType type = RoomType::REGULAR;
 	LayoutInfo cells[MAX_PREFAB_SIZE][MAX_PREFAB_SIZE];
 	int width = 0;
 	int height = 0;
 	std::vector<Position> possibleDoorPositions;
 	std::vector<Position> doorPositions;
+	std::vector<Position> entrances;
+	std::vector<Position> exits;
 };

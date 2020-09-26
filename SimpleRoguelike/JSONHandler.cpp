@@ -27,13 +27,14 @@ std::vector<RoomPrefab> JSONHandler::ReadRoomJSONs(const std::string directory) 
 		doc.Parse(buffer.str().c_str());
 		
 		RoomPrefab room = ReadRoomPrefab(doc);
-		RoomPrefab room90 = Rotate90(room);
-		RoomPrefab room180 = Rotate90(room90);
-		RoomPrefab room270 = Rotate90(room180);
 		prefabs.push_back(room);
-		prefabs.push_back(room90);
-		prefabs.push_back(room180);
-		prefabs.push_back(room270);
+		room = Rotate90(room);
+		prefabs.push_back(room);
+		room = Rotate90(room);
+		prefabs.push_back(room);
+		room = Rotate90(room);
+		prefabs.push_back(room);
+
 		std::cout << "read " << fileName << " of size: "<< room.width << ", "<< room.height<< " with " << room.doorPositions.size() <<" doors\n";
 	}
 	return prefabs;
@@ -45,6 +46,8 @@ RoomPrefab JSONHandler::ReadRoomPrefab(Document& doc) { //reads in actors from t
 	Value& doors = doc["doors"];
 	Value& possibleDoors = doc["possibleDoors"];
 	Value& openWalls = doc["openWalls"];
+	Value& entrances = doc["entrances"];
+	Value& exits = doc["exits"];
 
 	RoomPrefab room;
 
@@ -84,6 +87,19 @@ RoomPrefab JSONHandler::ReadRoomPrefab(Document& doc) { //reads in actors from t
 		room.cells[pos.y][pos.x] = LayoutInfo::POSSIBLE_WALL;
 	}
 
+	for (SizeType i = 0; i < entrances.Size(); i++) {
+		Position pos = ValueToPosition(entrances[i]);
+		room.cells[pos.y][pos.x] = LayoutInfo::ENTRANCE;
+		room.entrances.push_back(pos);
+		room.type = RoomType::ENTRANCE;
+	}
+
+	for (SizeType i = 0; i < exits.Size(); i++) {
+		Position pos = ValueToPosition(exits[i]);
+		room.cells[pos.y][pos.x] = LayoutInfo::EXIT;
+		room.type = RoomType::EXIT;
+	}
+
 	return room;
 }
 
@@ -95,6 +111,7 @@ RoomPrefab JSONHandler::Rotate90(RoomPrefab& room) {
 	RoomPrefab newRoom;
 	newRoom.width = room.height;
 	newRoom.height = room.width;
+	newRoom.type = room.type;
 
 	for (int y = 0; y < room.height; y++) {
 		for (int x = 0; x < room.width; x++) {
@@ -106,6 +123,12 @@ RoomPrefab JSONHandler::Rotate90(RoomPrefab& room) {
 	}
 	for (Position pos : room.possibleDoorPositions) {
 		newRoom.possibleDoorPositions.push_back({ newRoom.width - pos.y - 1, pos.x });
+	}
+	for (Position pos : room.entrances) {
+		newRoom.entrances.push_back({ newRoom.width - pos.y - 1, pos.x });
+	}
+	for (Position pos : room.exits) {
+		newRoom.exits.push_back({ newRoom.width - pos.y - 1, pos.x });
 	}
 	return newRoom;
 }
