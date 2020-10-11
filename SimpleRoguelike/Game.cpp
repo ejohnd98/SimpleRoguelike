@@ -6,6 +6,7 @@
 #include "ECS.h"
 #include "JSONHandler.h"
 #include "MapGenerator.h"
+#include "EntityFactory.h"
 #include "RandomUtil.h"
 
 //variables
@@ -38,7 +39,7 @@ bool Game::InitGame() {
 	mapSystem->SetMap(map);
 
 	mapGen = std::make_shared<MapGenerator>(randomUtil->GetRandomInt(0,9000000));
-	mapGen->Begin(map, 100, 80);
+	mapGen->Begin(map, 50, 30);
 
 	//Game setup
 	tickCounter = 0;
@@ -51,27 +52,7 @@ void Game::CloseGame() {
 }
 
 void Game::InitMapTest() {
-	std::vector<ActorType> actorTypes{
-		{"Player", "you", {29, 6, 5, 1, 1, 10, 8}, 32, {32,33}, {40,40}},
-		{"Ghost", "boo", {5, 6, 2, 1, 1, 20, 6}, 34, {34,35}, {25,25}},
-		{"Skeleton", "bones", {10, 6, 3, 1, 1, 5, 6}, 37, {37,38}, {60,60}}
-	};
-	std::vector<PropType> propTypes{
-		{"Door", "a door", 18, 20}
-	};
-
-	Position playerPos = { 0,0 };
-	for (int y = 0; y < mapSystem->map->height; y++) {
-		if (!(playerPos == Position{ 0, 0 })) {
-			break;
-		}
-		for (int x = 0; x < mapSystem->map->width; x++) {
-			if (!mapSystem->BlocksMovement({ x,y }) && mapSystem->GetEntityAt({ x,y }) == NULL_ENTITY) {
-				playerPos = { x,y };
-				break;
-			}
-		}
-	}
+	Position playerPos = mapSystem->map->entrance + Position{1, 0};
 
 	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[0], true), playerPos);
 	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 7,15 });
@@ -168,7 +149,7 @@ void Game::Advance(bool sameStep) {
 					mapSystem->Clear();
 					std::shared_ptr<Map> nextMap = std::make_shared<Map>();
 					mapSystem->SetMap(nextMap);
-					mapGen->Begin(nextMap, 100, 80);
+					mapGen->Begin(nextMap, 50, 30);
 					break;
 				}
 				else {

@@ -35,14 +35,35 @@ bool InteractionHandler::PerformAction(Entity entity, Position target, InteractT
 				actionPerformed = true;
 			}
 			break;
-		case InteractType::OPEN:
-			if (other!=NULL_ENTITY && ecs->HasComponent<Openable>(other)) {
-				auto& openable = ecs->GetComponent<Openable>(other);
-				auto& renderable = ecs->GetComponent<Renderable>(other);
-				openable.isOpen = true;
-				renderable.sprite = openable.openedSprite;
-				actionPerformed = true;
+		case InteractType::PROP:
+			if (other != NULL_ENTITY && ecs->HasComponent<PropInfo>(other)) {
+				auto& propInfo = ecs->GetComponent<PropInfo>(other);
+				switch (propInfo.function) {
+					case PropFunction::DOOR: {
+						if (ecs->HasComponent<Openable>(other)) {
+							auto& openable = ecs->GetComponent<Openable>(other);
+							auto& renderable = ecs->GetComponent<Renderable>(other);
+							openable.isOpen = true;
+							renderable.sprite = openable.openedSprite;
+							actionPerformed = true;
+						}
+						break;
+					}
+					case PropFunction::STAIRS_DOWN: {
+						printf("STAIRS DOWN\n");
+						actionPerformed = true;
+						break;
+					}
+					case PropFunction::STAIRS_UP: {
+						printf("STAIRS UP\n");
+						actionPerformed = true;
+						break;
+					}
+					default:
+					break;
+				};
 			}
+			
 			break;
 		case InteractType::CLOSE:
 			if (other != NULL_ENTITY && ecs->HasComponent<Openable>(other)) {

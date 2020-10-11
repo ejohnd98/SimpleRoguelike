@@ -11,7 +11,7 @@ std::unordered_map<InteractType, int> interactionDebtMap{
 	{InteractType::WAIT, 100},
 	{InteractType::MOVE, 100},
 	{InteractType::ATTACK, 50},
-	{InteractType::OPEN, 25},
+	{InteractType::PROP, 25},
 	{InteractType::CLOSE, 25},
 };
 

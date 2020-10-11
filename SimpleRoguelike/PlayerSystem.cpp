@@ -50,7 +50,7 @@ bool PlayerSystem::InteractWithCell(Position offset) {
 		if (interactionHandler->PerformAction(GetPlayerEntity(), pos + offset, InteractType::MOVE)) {
 			return true;
 		}
-		if (interactionHandler->PerformAction(GetPlayerEntity(), pos + offset, InteractType::OPEN)) {
+		if (interactionHandler->PerformAction(GetPlayerEntity(), pos + offset, InteractType::PROP)) {
 			return true;
 		}
 		if (interactionHandler->PerformAction(GetPlayerEntity(), pos + offset, InteractType::ATTACK)) {

@@ -32,7 +32,7 @@ enum class InteractType {
 	WAIT,
 	MOVE,
 	ATTACK,
-	OPEN,
+	PROP,
 	CLOSE
 };
 
@@ -45,6 +45,13 @@ enum class LayoutInfo {
 	POSSIBLE_WALL,
 	ENTRANCE,
 	EXIT
+};
+
+enum class PropFunction {
+	NONE,
+	DOOR,
+	STAIRS_DOWN,
+	STAIRS_UP
 };
 
 struct FloatPosition {
@@ -405,6 +412,8 @@ struct Map { //hardcoded default map
 
 	std::unordered_map<Position, Entity> positionEntityMap;
 
+	Position entrance, exit;
+
 	bool GetCell(int x, int y) {
 		return cells[y][x];
 	}
@@ -421,6 +430,10 @@ struct EventInfo {
 
 	int damageDealt = -1;
 	bool killed = false;
+};
+
+struct PropInfo {
+	PropFunction function = PropFunction::NONE;
 };
 
 struct PathInfo {

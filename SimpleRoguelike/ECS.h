@@ -18,7 +18,6 @@
 #include "LogSystem.h"
 
 #include "InteractionHandler.h"
-#include "EntityFactory.h"
 #include "Pathfinding.h"
 #include "FieldOfView.h"
 #include "RandomUtil.h"

@@ -1,6 +1,7 @@
 #include "MapGenerator.h"
 #include "ECS.h"
 #include "JSONHandler.h"
+#include "EntityFactory.h"
 
 extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr<EntityFactory> entityFactory;
@@ -8,16 +9,16 @@ std::shared_ptr<MapSystem> mapHandler;
 
 const int stepLengthMod = 1; //time to show a step
 const int generationTimeMod = 2; //how many steps more to do
-
-const int roomGenLength = 100 * generationTimeMod * stepLengthMod;
-const int tunnelGenLength = 400 * generationTimeMod * stepLengthMod;
 const int displayResultLength = 200 * stepLengthMod;
+const int roomGenBaseLength = 100 * generationTimeMod * stepLengthMod;
+const int tunnelGenBaseLength = 400 * generationTimeMod * stepLengthMod;
+
+int roomGenLength = roomGenBaseLength;
+int tunnelGenLength = tunnelGenBaseLength;
+float roomDensity = 1.0f;
+float tunnelAmount = 1.0f;
 
 const int speedUp = 1;
-
-std::vector<PropType> propTypes {
-	{"Door", "a door", 18, 20}
-};
 
 MapGenerator::MapGenerator(int seed) {
 	mapSeed = seed;
@@ -56,11 +57,18 @@ void MapGenerator::Reset() {
 	mapGenState = MapGenState::INIT;
 }
 
-void MapGenerator::Begin(std::shared_ptr<Map> mapData, int w, int h) {
+void MapGenerator::Begin(std::shared_ptr<Map> mapData, int w, int h, float tunnel, float density) {
+	tunnelAmount = tunnel;
+	roomDensity = density;
 	map = mapData;
 	map->width = w;
 	map->height = h;
 	mapHandler->SetMap(mapData);
+
+	double lengthMod = 0.15f + 0.85f*((double)0.000125 * (double)w * (double)h);
+	roomGenLength = (int)(roomGenBaseLength * lengthMod * roomDensity);
+	tunnelGenLength = (int)(tunnelGenBaseLength * lengthMod * tunnelAmount);
+
 	//clear space for new map
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
@@ -253,8 +261,18 @@ void MapGenerator::ProcessFinishedMap() {
 			else {
 				map->cells[y][x] = false;
 			}
-			if (tile == LayoutInfo::DOOR && !DEBUG_MAP_GEN) {
-				mapHandler->PlaceEntity(entityFactory->CreateDoor(propTypes[0]), { x,y });
+			if (!DEBUG_MAP_GEN) {
+				if (tile == LayoutInfo::DOOR) {
+					mapHandler->PlaceEntity(entityFactory->CreateProp(propTypes[0]), { x,y });
+				}
+				if (tile == LayoutInfo::ENTRANCE) {
+					mapHandler->PlaceEntity(entityFactory->CreateProp(propTypes[2]), { x,y });
+					map->entrance = {x,y};
+				}
+				if (tile == LayoutInfo::EXIT) {
+					mapHandler->PlaceEntity(entityFactory->CreateProp(propTypes[1]), { x,y });
+					map->exit = { x,y };
+				}
 			}
 		}
 	}

@@ -7,11 +7,12 @@
 #include "Game.h"
 #include "Commands.h"
 #include "Constants.h"
+#include "EntityFactory.h"
 #include "RandomUtil.h"
 
 //Screen constants
 const int SCREEN_FPS = 60;
-const int UPDATES_PER_SECOND = 180;
+const int UPDATES_PER_SECOND = 60;
 const int MS_PER_FRAME = 1000 / SCREEN_FPS;
 const int MS_PER_UPDATE = 1000 / UPDATES_PER_SECOND;
 
@@ -60,12 +61,13 @@ bool Initialize()
 	ecs->RegisterComponent<AnimMove>();
 	ecs->RegisterComponent<DeleteAfterAnim>();
 	ecs->RegisterComponent<Info>();
+	ecs->RegisterComponent<PropInfo>();
 	ecs->RegisterComponent<Stats>();
 	ecs->RegisterComponent<Active>();
 
 	//Create random Utils;
 	randomUtil = std::make_shared<RandomUtil>((unsigned int)std::time(0));
-	//randomUtil = std::make_shared<RandomUtil>(9865);
+	//randomUtil = std::make_shared<RandomUtil>(1222);
 	printf("game seed is %d\n", (unsigned int)std::time(0));
 
 	//Register Renderer System (Interfaces with SDL to render game)
@@ -210,12 +212,15 @@ int main(int argc, char* args[]){
 					game->Advance(true);
 				}
 
-				if (game->mapGen->IsFinished() && !shownMapGenTime) {
+				if (!shownMapGenTime && game->mapGen->IsFinished()) {
 					float timeTaken = (currentTime - ticksStart) *0.001f;
 					printf("mapGen time: %f\n", timeTaken);
 					if (DEBUG_MAP_GEN) {
 						ticksStart = currentTime;
 						shownMapGenTime = false;
+					}
+					else {
+						shownMapGenTime = true;
 					}
 				}
 				

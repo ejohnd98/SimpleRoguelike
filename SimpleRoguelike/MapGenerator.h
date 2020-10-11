@@ -26,7 +26,7 @@ class MapGenerator
 public:
 	MapGenerator(int seed);
 	void Reset();
-	void Begin(std::shared_ptr<Map> mapData, int w, int h);
+	void Begin(std::shared_ptr<Map> mapData, int w, int h, float tunnel = 0.5f, float density = 3.0f);
 	void GenerationStep();
 	void FinishMap();
 	bool IsStarted();

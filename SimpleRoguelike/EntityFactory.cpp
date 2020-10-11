@@ -21,11 +21,26 @@ Entity EntityFactory::CreateActor(ActorType type, bool playerControlled) {
 	return actor;
 }
 
-Entity EntityFactory::CreateDoor(PropType type) {
-	Entity door = CreateMapEntity(type.name, type.description, type.closedSprite);
-	ecs->AddComponent(door, Openable{ 18, 20 });
-	return door;
+Entity EntityFactory::CreateProp(PropType type) {
+	Entity prop = CreateMapEntity(type.name, type.description, type.closedSprite);
+	ecs->AddComponent(prop, PropInfo{ type.function });
+	switch (type.function) {
+	case PropFunction::DOOR: {
+		ecs->AddComponent(prop, Openable{ type.closedSprite, type.openedSprite });
+		break;
+	}
+	case PropFunction::STAIRS_DOWN:
+	case PropFunction::STAIRS_UP: {
+		printf("Creating stairs\n");
+		break;
+	}
+	default:
+		break;
+	};
+	
+	return prop;
 }
+
 
 Entity EntityFactory::CreateMapEntity(std::string name, std::string desc, Sprite sprite) {
 	Entity newEntity = ecs->CreateEntity();

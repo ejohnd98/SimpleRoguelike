@@ -95,8 +95,18 @@ bool MapSystem::BlocksMovement(Position pos, bool ignoreActors) {
 
 	if (map->positionEntityMap.find(pos) != map->positionEntityMap.end()) {
 		Entity entity = map->positionEntityMap.at(pos);
-		if (ecs->HasComponent<Openable>(entity) && !ecs->GetComponent<Openable>(entity).isOpen) {
-			return true;
+		if (ecs->HasComponent<PropInfo>(entity)) {
+			auto& info = ecs->GetComponent<PropInfo>(entity);
+			switch (info.function) {
+			case PropFunction::DOOR: {
+				if (ecs->HasComponent<Openable>(entity) && !ecs->GetComponent<Openable>(entity).isOpen) {
+					return true;
+				}
+				break;
+			}
+			default:
+				return true;
+			};
 		}
 		if (!ignoreActors && ecs->HasComponent<Actor>(entity)) {
 			return true;
