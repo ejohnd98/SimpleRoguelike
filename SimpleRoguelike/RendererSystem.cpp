@@ -18,7 +18,7 @@ extern std::shared_ptr<MapSystem> mapSystem;
 extern std::shared_ptr<PlayerSystem> playerSystem;
 extern std::shared_ptr<LogSystem> logSystem;
 
-const char* WINDOW_TITLE = "Roguelike Rework";
+const char* WINDOW_TITLE = "Roguelike";
 
 //Render resolution:
 const int RENDER_WIDTH = 1366;
@@ -99,6 +99,7 @@ void RendererSystem::Render() {
 		//render UI
 		RenderUI();
 	}
+	RenderString({ 4, 16 }, { 603 - 8, 10 }, { 0, 2 }, std::to_string(ecs->GetEntityCount()), (Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
 
 	//put rendertexture on screen
 	SDL_SetRenderTarget(SDLRenderer, NULL);
@@ -450,6 +451,15 @@ void RendererSystem::RenderMapGen(std::shared_ptr<MapGenerator> mapGen) {
 
 			SDL_Rect renderQuad = { renderPos.x, renderPos.y, tileSize, tileSize };
 			SDL_RenderCopy(SDLRenderer, tilesets.at(MAIN_TILESET).GetTexture(), &texQuad, &renderQuad);
+
+			int debugIndex = mapGen->debugGraphics[y][x];
+			if (debugIndex > 0) {
+				texQuad = *tilesets.at(MAIN_TILESET).GetTileRect(debugIndex);
+				SDL_RenderCopy(SDLRenderer, tilesets.at(MAIN_TILESET).GetTexture(), &texQuad, &renderQuad);
+			}
+
+			//RenderString(renderPos, { tileSize, tileSize}, { 0,0 },std::to_string(mapGen->bfs[y][x]), "6x8_font", 1, {0.5f,0.5f });
+
 		}
 	}
 }

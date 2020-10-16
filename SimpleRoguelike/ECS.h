@@ -39,6 +39,10 @@ public:
 		return e;
 	}
 
+	int GetEntityCount() {
+		return entityManager->GetEntityCount();
+	}
+
 	void DestroyEntity(Entity entity) {
 		entityManager->DestroyEntity(entity);
 		componentManager->EntityDestroyed(entity);

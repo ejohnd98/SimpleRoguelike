@@ -141,8 +141,7 @@ void Game::Advance(bool sameStep) {
 			break;
 		case GameState::MAP_GEN:
 			if (mapGen->IsFinished()) {
-				printf("number of entities: %d\n", mapSystem->map->positionEntityMap.size());
-				if (DEBUG_MAP_GEN) {
+				if (DEBUG_MAP_GEN || mapGen->NeedsRedo()) {
 					/*CloseGame();
 					InitGame();*/
 					mapGen->Reset();

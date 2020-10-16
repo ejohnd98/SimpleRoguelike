@@ -17,6 +17,7 @@ enum class MapGenState {
 	INITIAL_ROOMS,
 	TUNNELING,
 	CLEANING,
+	POPULATING,
 	DISPLAYING,
 	FINISHED
 };
@@ -31,9 +32,11 @@ public:
 	void FinishMap();
 	bool IsStarted();
 	bool IsFinished();
+	bool NeedsRedo();
 
 	std::shared_ptr<Map> map;
 	LayoutInfo mapLayout[MAX_MAP_SIZE][MAX_MAP_SIZE];
+	int debugGraphics[MAX_MAP_SIZE][MAX_MAP_SIZE];
 	int bfs[MAX_MAP_SIZE][MAX_MAP_SIZE];
 	std::vector<Position> possibleDoorPositions;
 
@@ -49,6 +52,7 @@ private:
 	void UpdateTunneler(Tunneler& tunneler);
 	void FillBFS(int maxValue);
 	bool BFSPass(int maxValue);
+	void FillBfsFromPoint(Position pos);
 	bool RemoveDeadEnds();
 	int AdjacentWalls(Position pos);
 
@@ -58,6 +62,7 @@ private:
 	int mapSeed = 0;
 	bool isStarted = false;
 	bool isFinished = false;
+	bool redoMap = false;
 	int roomsPlaced = 0;
 	int counter = 0;
 	std::vector<struct RoomPrefab> roomPrefabs;

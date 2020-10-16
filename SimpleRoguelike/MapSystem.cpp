@@ -17,6 +17,8 @@ void MapSystem::Clear() {
 	}
 	map->width = 0;
 	map->height = 0;
+	map->entrance = { -1,-1 };
+	map->exit = { -1,-1 };
 	map = nullptr;
 	
 }

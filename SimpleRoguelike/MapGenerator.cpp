@@ -5,11 +5,12 @@
 
 extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr<EntityFactory> entityFactory;
+extern std::shared_ptr<MapSystem> mapSystem;
 std::shared_ptr<MapSystem> mapHandler;
 
 const int stepLengthMod = 1; //time to show a step
 const int generationTimeMod = 2; //how many steps more to do
-const int displayResultLength = 200 * stepLengthMod;
+const int displayResultLength = 300 * stepLengthMod;
 const int roomGenBaseLength = 100 * generationTimeMod * stepLengthMod;
 const int tunnelGenBaseLength = 400 * generationTimeMod * stepLengthMod;
 
@@ -48,6 +49,7 @@ MapGenerator::MapGenerator(int seed) {
 void MapGenerator::Reset() {
 	isStarted = false;
 	isFinished = false;
+	redoMap = false;
 	//rand = std::make_shared<RandomUtil>(mapSeed);
 
 	roomsPlaced = 0;
@@ -73,6 +75,7 @@ void MapGenerator::Begin(std::shared_ptr<Map> mapData, int w, int h, float tunne
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
 			mapLayout[y][x] = LayoutInfo::EMPTY;
+			debugGraphics[y][x] = 0;
 		}
 	}
 	isStarted = true;
@@ -169,9 +172,38 @@ void MapGenerator::GenerationStep() {
 						counter = 0;
 						ProcessFinishedMap();
 						std::cout << "Rooms placed: " << roomsPlaced << "\n";
-						mapGenState = MapGenState::DISPLAYING;
+						mapGenState = MapGenState::POPULATING;
 					}
 				}
+				break;
+			}
+			case MapGenState::POPULATING: {
+				FillBfsFromPoint(map->entrance);
+
+				Position pos;
+				int max = 0;
+				for (int y = 0; y < map->height; y++) {
+					for (int x = 0; x < map->width; x++) {
+						int curr = bfs[y][x];
+						if (curr > max) {
+							max = curr;
+							pos = { x,y };
+						}
+					}
+				}
+
+				for (int y = 0; y < map->height; y++) {
+					for (int x = 0; x < map->width; x++) {
+						int curr = bfs[y][x];
+						bool placeEnemy = rand->GetRandomBool(0.02f + 0.05f * (float)curr/(float)max);
+						if (placeEnemy && !mapHandler->BlocksMovement({x,y})) {
+							mapHandler->PlaceEntity(entityFactory->CreateActor(actorTypes[rand->GetRandomBool(0.8f)? 2: 1]), {x,y});
+							debugGraphics[y][x] = 7;
+						}
+					}
+				}
+
+				mapGenState = MapGenState::DISPLAYING;
 				break;
 			}
 			case MapGenState::DISPLAYING: {
@@ -192,7 +224,11 @@ void MapGenerator::GenerationStep() {
 
 void MapGenerator::FinishMap() {
 	//ProcessFinishedMap();
-
+	Position exit = map->exit;
+	if (bfs[exit.y][exit.x] == -1) {
+		redoMap = true;
+	}
+	
 	mapHandler->map = nullptr;
 	isFinished = true;
 	isStarted = false;
@@ -204,6 +240,10 @@ bool MapGenerator::IsStarted() {
 
 bool MapGenerator::IsFinished() {
 	return isFinished;
+}
+
+bool MapGenerator::NeedsRedo() {
+	return redoMap;
 }
 
 bool MapGenerator::PlaceRandomRoom(Position tl, Position br, RoomType type, bool connectToExisting) {
@@ -475,6 +515,47 @@ bool MapGenerator::BFSPass(int maxValue) {
 		}
 	}
 	return madeChanges;
+}
+
+void MapGenerator::FillBfsFromPoint(Position pos) {
+	for (int y = 0; y < map->height; y++) {
+		for (int x = 0; x < map->width; x++) {
+			bfs[y][x] = 9999999;
+		}
+	}
+	bfs[pos.y][pos.x] = 0;
+
+	std::queue<Position> queue;
+	queue.push(pos);
+	Position curr = pos;
+	Position next;
+	int currCost = 0;
+	while (!queue.empty()) {
+		curr = queue.front();
+		currCost = bfs[curr.y][curr.x];
+		queue.pop();
+		for (int i = 0; i < 4; i++) {
+			int ox = 0, oy = 0;
+			if (i == 0) { ox = -1; }
+			if (i == 1) { ox = 1; }
+			if (i == 2) { oy = -1; }
+			if (i == 3) { oy = 1; }
+			next = curr + Position{ ox, oy };
+			if (next.x>= 0 && next.x < map->width && next.y >= 0 && next.y < map->height) {
+				if (bfs[next.y][next.x] > currCost + 1 && !map->cells[next.y][next.x]) {
+					queue.push(next);
+					bfs[next.y][next.x] = currCost + 1;
+				}
+			}
+		}
+	}
+	for (int y = 0; y < map->height; y++) {
+		for (int x = 0; x < map->width; x++) {
+			if (bfs[y][x] == 9999999) {
+				bfs[y][x] = -1;
+			}
+		}
+	}
 }
 
 bool MapGenerator::RemoveDeadEnds() {;
