@@ -32,7 +32,6 @@ public:
 	void FinishMap();
 	bool IsStarted();
 	bool IsFinished();
-	bool NeedsRedo();
 
 	std::shared_ptr<Map> map;
 	LayoutInfo mapLayout[MAX_MAP_SIZE][MAX_MAP_SIZE];
@@ -41,6 +40,12 @@ public:
 	std::vector<Position> possibleDoorPositions;
 
 private:
+	void ChangeState(MapGenState newState);
+	bool InitStep();
+	bool PlaceRoomsStep();
+	bool TunnelStep();
+	bool CleanStep();
+	bool PopulateStep();
 	bool PlaceRandomRoom(Position tl, Position br, RoomType type = RoomType::REGULAR, bool connectToExisting = true);
 	void ProcessFinishedMap();
 	bool RoomFits(RoomPrefab room, Position pos);
@@ -62,7 +67,8 @@ private:
 	int mapSeed = 0;
 	bool isStarted = false;
 	bool isFinished = false;
-	bool redoMap = false;
+	bool onStateEnter = true;
+	int genWidth = 0, genHeight = 0;
 	int roomsPlaced = 0;
 	int counter = 0;
 	std::vector<struct RoomPrefab> roomPrefabs;

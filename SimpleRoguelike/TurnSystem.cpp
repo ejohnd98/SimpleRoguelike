@@ -10,9 +10,9 @@ extern std::shared_ptr <ECS> ecs;
 std::unordered_map<InteractType, int> interactionDebtMap{
 	{InteractType::WAIT, 100},
 	{InteractType::MOVE, 100},
-	{InteractType::ATTACK, 50},
-	{InteractType::PROP, 25},
-	{InteractType::CLOSE, 25},
+	{InteractType::ATTACK, 100},
+	{InteractType::PROP, 100},
+	{InteractType::CLOSE, 100},
 };
 
 void TurnSystem::Init() {

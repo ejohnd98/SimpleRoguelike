@@ -10,7 +10,7 @@ std::shared_ptr<MapSystem> mapHandler;
 
 const int stepLengthMod = 1; //time to show a step
 const int generationTimeMod = 2; //how many steps more to do
-const int displayResultLength = 300 * stepLengthMod;
+const int displayResultLength = 150 * stepLengthMod;
 const int roomGenBaseLength = 100 * generationTimeMod * stepLengthMod;
 const int tunnelGenBaseLength = 400 * generationTimeMod * stepLengthMod;
 
@@ -49,14 +49,17 @@ MapGenerator::MapGenerator(int seed) {
 void MapGenerator::Reset() {
 	isStarted = false;
 	isFinished = false;
-	redoMap = false;
-	//rand = std::make_shared<RandomUtil>(mapSeed);
 
 	roomsPlaced = 0;
 	counter = 0;
 	possibleDoorPositions.clear();
 	tunnelers.clear();
-	mapGenState = MapGenState::INIT;
+	ChangeState(MapGenState::INIT);
+
+	mapSystem->Clear();
+	std::shared_ptr<Map> nextMap = std::make_shared<Map>();
+	mapSystem->SetMap(nextMap);
+	Begin(nextMap, genWidth, genHeight);
 }
 
 void MapGenerator::Begin(std::shared_ptr<Map> mapData, int w, int h, float tunnel, float density) {
@@ -65,6 +68,8 @@ void MapGenerator::Begin(std::shared_ptr<Map> mapData, int w, int h, float tunne
 	map = mapData;
 	map->width = w;
 	map->height = h;
+	genWidth = w;
+	genHeight = h;
 	mapHandler->SetMap(mapData);
 
 	double lengthMod = 0.15f + 0.85f*((double)0.000125 * (double)w * (double)h);
@@ -87,7 +92,6 @@ void MapGenerator::GenerationStep() {
 
 	while (speedUpCounter < speedUp && mapGenState != MapGenState::FINISHED) {
 		speedUpCounter++;
-
 		bool madeProgress = false;
 		int timeOut = 0;
 		counter++;
@@ -95,123 +99,29 @@ void MapGenerator::GenerationStep() {
 			timeOut++;
 			switch (mapGenState) {
 			case MapGenState::INIT: {
-				int i = rand->GetRandomInt(0, 3);
-				if (i == 0) { //start top left
-					PlaceRandomRoom({ 0,0 }, { (int)(map->width * 0.4f), (int)(map->height * 0.4f) }, RoomType::ENTRANCE, false);
-					PlaceRandomRoom({ (int)(map->width * 0.6f),(int)(map->height * 0.6f) }, { map->width, map->height }, RoomType::EXIT, false);
-				}
-				if (i == 1) { //start bottom right
-					PlaceRandomRoom({ (int)(map->width * 0.6f),(int)(map->height * 0.6f) }, { map->width, map->height }, RoomType::ENTRANCE, false);
-					PlaceRandomRoom({ 0,0 }, { (int)(map->width * 0.4f), (int)(map->height * 0.4f) }, RoomType::EXIT, false);
-				}
-				if (i == 2) { //start top right
-					PlaceRandomRoom({ (int)(map->width * 0.6f), 0 }, { map->width, (int)(map->height * 0.4f) }, RoomType::ENTRANCE, false);
-					PlaceRandomRoom({ 0,(int)(map->height * 0.6f) }, { (int)(map->width * 0.4f),map->height }, RoomType::EXIT, false);
-				}
-				if (i == 3) { //start bottom left
-					PlaceRandomRoom({0,(int)(map->height * 0.6f) }, { (int)(map->width * 0.4f),map->height }, RoomType::ENTRANCE, false);
-					PlaceRandomRoom({ (int)(map->width * 0.6f), 0 }, { map->width, (int)(map->height * 0.4f) }, RoomType::EXIT, false);
-				}
-
-				madeProgress = true;
-				mapGenState = MapGenState::INITIAL_ROOMS;
+				madeProgress = InitStep();
 				break;
 			}
 			case MapGenState::INITIAL_ROOMS: {
-				if (counter % (3 * stepLengthMod) == 0) {
-					madeProgress = PlaceRandomRoom({ 0,0 }, {map->width, map->height});
-				}
-				else {
-					madeProgress = true;
-				}
-
-				if (counter >= roomGenLength) {
-					counter = 0;
-					FillBFS(5);
-					HandlePossibleDoors();
-					tunnelers.emplace_back(Tunneler{ {0, 0},{map->width - 3, map->height - 3}, {0, 1} });
-					tunnelers.emplace_back(Tunneler{ {map->width - 3,  0},{0,map->height - 3}, {-1, 0} });
-					madeProgress = true;
-					mapGenState = MapGenState::TUNNELING;
-				}
+				madeProgress = PlaceRoomsStep();
 				break;
 			}
 			case MapGenState::TUNNELING: {
-				if (tunnelers.empty()) {
-					FillBFS(2);
-					HandlePossibleDoors();
-					Position start = possibleDoorPositions[rand->GetRandomInt(0, possibleDoorPositions.size() - 1)];
-					Position end = possibleDoorPositions[rand->GetRandomInt(0, possibleDoorPositions.size() - 1)];
-					int counter2 = 0;
-					while (start.Dist(end) < 20 && start.Dist(end) > 3 && counter2++ < 2000) {
-						start = possibleDoorPositions[rand->GetRandomInt(0, possibleDoorPositions.size() - 1)];
-						end = possibleDoorPositions[rand->GetRandomInt(0, possibleDoorPositions.size() - 1)];
-					}
-					tunnelers.emplace_back(Tunneler{ start, end, {0, 1} });
-
-				}
-				for (int i = 0; i < tunnelers.size(); i++) {
-					UpdateTunneler(tunnelers[i]);
-					if (tunnelers[i].currentPos == tunnelers[i].targetPos) {
-						tunnelers.erase(tunnelers.begin() + i);
-						i--;
-					}
-					madeProgress = true;
-				}
-
-				if (counter >= tunnelGenLength) {
-					counter = 0;
-					mapGenState = MapGenState::CLEANING;
-				}
+				madeProgress = TunnelStep();
 				break;
 			}
 			case MapGenState::CLEANING: {
-				madeProgress = true;
-				if (counter % 3 == 0) {
-					if (!RemoveDeadEnds()) {
-						counter = 0;
-						ProcessFinishedMap();
-						std::cout << "Rooms placed: " << roomsPlaced << "\n";
-						mapGenState = MapGenState::POPULATING;
-					}
-				}
+				madeProgress = CleanStep();
 				break;
 			}
 			case MapGenState::POPULATING: {
-				FillBfsFromPoint(map->entrance);
-
-				Position pos;
-				int max = 0;
-				for (int y = 0; y < map->height; y++) {
-					for (int x = 0; x < map->width; x++) {
-						int curr = bfs[y][x];
-						if (curr > max) {
-							max = curr;
-							pos = { x,y };
-						}
-					}
-				}
-
-				for (int y = 0; y < map->height; y++) {
-					for (int x = 0; x < map->width; x++) {
-						int curr = bfs[y][x];
-						bool placeEnemy = rand->GetRandomBool(0.02f + 0.05f * (float)curr/(float)max);
-						if (placeEnemy && !mapHandler->BlocksMovement({x,y})) {
-							mapHandler->PlaceEntity(entityFactory->CreateActor(actorTypes[rand->GetRandomBool(0.8f)? 2: 1]), {x,y});
-							debugGraphics[y][x] = 7;
-						}
-					}
-				}
-
-				mapGenState = MapGenState::DISPLAYING;
+				madeProgress = PopulateStep();
 				break;
 			}
 			case MapGenState::DISPLAYING: {
 				madeProgress = true;
 				if (counter >= displayResultLength) {
-					counter = 0;
 					FinishMap();
-					mapGenState = MapGenState::FINISHED;
 				}
 				break;
 			}
@@ -222,16 +132,151 @@ void MapGenerator::GenerationStep() {
 	}
 }
 
-void MapGenerator::FinishMap() {
-	//ProcessFinishedMap();
-	Position exit = map->exit;
-	if (bfs[exit.y][exit.x] == -1) {
-		redoMap = true;
+void MapGenerator::ChangeState(MapGenState newState) {
+	onStateEnter = true;
+	counter = 0;
+	mapGenState = newState;
+}
+
+bool MapGenerator::InitStep() {
+	bool madeProgress = false;
+
+	int i = rand->GetRandomInt(0, 3);
+	if (i == 0) { //start top left
+		PlaceRandomRoom({ 0,0 }, { (int)(map->width * 0.4f), (int)(map->height * 0.4f) }, RoomType::ENTRANCE, false);
+		PlaceRandomRoom({ (int)(map->width * 0.6f),(int)(map->height * 0.6f) }, { map->width, map->height }, RoomType::EXIT, false);
 	}
-	
+	if (i == 1) { //start bottom right
+		PlaceRandomRoom({ (int)(map->width * 0.6f),(int)(map->height * 0.6f) }, { map->width, map->height }, RoomType::ENTRANCE, false);
+		PlaceRandomRoom({ 0,0 }, { (int)(map->width * 0.4f), (int)(map->height * 0.4f) }, RoomType::EXIT, false);
+	}
+	if (i == 2) { //start top right
+		PlaceRandomRoom({ (int)(map->width * 0.6f), 0 }, { map->width, (int)(map->height * 0.4f) }, RoomType::ENTRANCE, false);
+		PlaceRandomRoom({ 0,(int)(map->height * 0.6f) }, { (int)(map->width * 0.4f),map->height }, RoomType::EXIT, false);
+	}
+	if (i == 3) { //start bottom left
+		PlaceRandomRoom({ 0,(int)(map->height * 0.6f) }, { (int)(map->width * 0.4f),map->height }, RoomType::ENTRANCE, false);
+		PlaceRandomRoom({ (int)(map->width * 0.6f), 0 }, { map->width, (int)(map->height * 0.4f) }, RoomType::EXIT, false);
+	}
+
+	madeProgress = true;
+	ChangeState(MapGenState::INITIAL_ROOMS);
+
+	return madeProgress;
+}
+
+bool MapGenerator::PlaceRoomsStep() {
+	bool madeProgress = false;
+
+	if (counter % (3 * stepLengthMod) == 0) {
+		madeProgress = PlaceRandomRoom({ 0,0 }, { map->width, map->height });
+	}
+	else {
+		madeProgress = true;
+	}
+
+	if (counter >= roomGenLength) {
+		ChangeState(MapGenState::TUNNELING);
+	}
+
+	return madeProgress;
+}
+bool MapGenerator::TunnelStep() {
+	bool madeProgress = false;
+
+	if (onStateEnter) {
+		onStateEnter = false;
+		FillBFS(5);
+		HandlePossibleDoors();
+		tunnelers.emplace_back(Tunneler{ {0, 0},{map->width - 3, map->height - 3}, {0, 1} });
+		tunnelers.emplace_back(Tunneler{ {map->width - 3,  0},{0,map->height - 3}, {-1, 0} });
+	}
+
+	if (tunnelers.empty()) {
+		FillBFS(2);
+		HandlePossibleDoors();
+		Position start = possibleDoorPositions[rand->GetRandomInt(0, possibleDoorPositions.size() - 1)];
+		Position end = possibleDoorPositions[rand->GetRandomInt(0, possibleDoorPositions.size() - 1)];
+		int counter2 = 0;
+		while (start.Dist(end) < 20 && start.Dist(end) > 3 && counter2++ < 2000) {
+			start = possibleDoorPositions[rand->GetRandomInt(0, possibleDoorPositions.size() - 1)];
+			end = possibleDoorPositions[rand->GetRandomInt(0, possibleDoorPositions.size() - 1)];
+		}
+		tunnelers.emplace_back(Tunneler{ start, end, {0, 1} });
+
+	}
+	for (int i = 0; i < tunnelers.size(); i++) {
+		UpdateTunneler(tunnelers[i]);
+		if (tunnelers[i].currentPos == tunnelers[i].targetPos) {
+			tunnelers.erase(tunnelers.begin() + i);
+			i--;
+		}
+		madeProgress = true;
+	}
+
+	if (counter >= tunnelGenLength) {
+		ChangeState(MapGenState::CLEANING);
+	}
+
+	return madeProgress;
+}
+bool MapGenerator::CleanStep() {
+	bool madeProgress = false;
+
+	madeProgress = true;
+	if (counter % 3 == 0) {
+		if (!RemoveDeadEnds()) {
+			counter = 0;
+			ProcessFinishedMap();
+			std::cout << "Rooms placed: " << roomsPlaced << "\n";
+			ChangeState(MapGenState::POPULATING);
+		}
+	}
+	return madeProgress;
+}
+bool MapGenerator::PopulateStep() {
+	bool madeProgress = true;
+
+	FillBfsFromPoint(map->entrance);
+
+	Position pos;
+	int max = 0;
+	for (int y = 0; y < map->height; y++) {
+		for (int x = 0; x < map->width; x++) {
+			int curr = bfs[y][x];
+			if (curr > max) {
+				max = curr;
+				pos = { x,y };
+			}
+		}
+	}
+
+	for (int y = 0; y < map->height; y++) {
+		for (int x = 0; x < map->width; x++) {
+			int curr = bfs[y][x];
+			bool placeEnemy = rand->GetRandomBool(0.02f + 0.05f * (float)curr / (float)max);
+			if (placeEnemy && !mapHandler->BlocksMovement({ x,y })) {
+				mapHandler->PlaceEntity(entityFactory->CreateActor(actorTypes[rand->GetRandomBool(0.8f) ? 2 : 1]), { x,y });
+				debugGraphics[y][x] = 7;
+			}
+		}
+	}
+
+	ChangeState(MapGenState::DISPLAYING);
+
+	return madeProgress;
+}
+
+void MapGenerator::FinishMap() {
 	mapHandler->map = nullptr;
 	isFinished = true;
 	isStarted = false;
+	ChangeState(MapGenState::FINISHED);
+
+	Position exit = map->exit;
+	if (bfs[exit.y][exit.x] == -1 || DEBUG_MAP_GEN) {
+		Reset();
+	}
 }
 
 bool MapGenerator::IsStarted() {
@@ -240,10 +285,6 @@ bool MapGenerator::IsStarted() {
 
 bool MapGenerator::IsFinished() {
 	return isFinished;
-}
-
-bool MapGenerator::NeedsRedo() {
-	return redoMap;
 }
 
 bool MapGenerator::PlaceRandomRoom(Position tl, Position br, RoomType type, bool connectToExisting) {

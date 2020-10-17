@@ -55,16 +55,6 @@ void Game::InitMapTest() {
 	Position playerPos = mapSystem->map->entrance + Position{1, 0};
 
 	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[0], true), playerPos);
-	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 7,15 });
-	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 4,16 });
-
-	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 13,16 });
-	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 16,18 });
-	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 19,27 });
-
-	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 22,23 });
-	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[1]), { 23,23 });
-	//mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[2]), { 24,23 });
 
 	fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
 }
@@ -93,12 +83,12 @@ void Game::Advance(bool sameStep) {
 				state = GameState::RUNNING;
 			}
 		case GameState::RUNNING:
-			while (!turnSystem->EntityCanAct() && tickLimit++ < 10) {
+			while (!turnSystem->EntityCanAct() && tickLimit++ < 100) {
 				turnSystem->DecreaseDebt(10);
 				tickCounter++;
 				if (tickCounter % 10 == 0) {
 					AdvanceTurn();
-					animationSystem->PlayPendingAnimations();
+					//animationSystem->PlayPendingAnimations();
 					logSystem->PushLogs();
 				}
 			}
@@ -132,7 +122,7 @@ void Game::Advance(bool sameStep) {
 				if (playerSystem->DetermineAction(nextCommand)) { //only remove player from queue if they performed an action
 					turnSystem->PopNextActor();
 					state = GameState::RUNNING;
-					animationSystem->PlayPendingAnimations(); //play animation from player
+					animationSystem->PlayPendingAnimations(); //play animation from player separately from enemies
 					state = GameState::ANIMATING;
 				}
 				nextCommand = Command::NONE;
@@ -141,20 +131,8 @@ void Game::Advance(bool sameStep) {
 			break;
 		case GameState::MAP_GEN:
 			if (mapGen->IsFinished()) {
-				if (DEBUG_MAP_GEN || mapGen->NeedsRedo()) {
-					/*CloseGame();
-					InitGame();*/
-					mapGen->Reset();
-					mapSystem->Clear();
-					std::shared_ptr<Map> nextMap = std::make_shared<Map>();
-					mapSystem->SetMap(nextMap);
-					mapGen->Begin(nextMap, 50, 30);
-					break;
-				}
-				else {
-					InitMapTest();
-					state = GameState::RUNNING;
-				}
+				InitMapTest();
+				state = GameState::RUNNING;
 			}
 			else {
 				mapGen->GenerationStep();
