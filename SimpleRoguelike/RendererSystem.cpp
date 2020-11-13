@@ -92,7 +92,7 @@ void RendererSystem::Render() {
 	SDL_RenderClear(SDLRenderer);
 	
 	if (game->GeneratingMap()) {
-		RenderMapGen(game->mapGen);
+		RenderMapGen(game->dunGen);
 	}else{
 		//render game at native res
 		RenderMap(mapSystem->map);
@@ -428,8 +428,8 @@ Position RendererSystem::GetTilesetSizeFromName(std::string name) {
 	return Position{ width, height };
 }
 
-void RendererSystem::RenderMapGen(std::shared_ptr<MapGenerator> mapGen) {
-	std::shared_ptr<Map> map = mapGen->map;
+void RendererSystem::RenderMapGen(std::shared_ptr<DungeonGenerator> dunGen) {
+	std::shared_ptr<Map> map = dunGen->mapGen->map;
 	int tileSize = std::min(RENDER_WIDTH / map->width, RENDER_HEIGHT / map->height);
 
 	std::unordered_map<LayoutInfo, Sprite> spriteMap{
@@ -445,14 +445,14 @@ void RendererSystem::RenderMapGen(std::shared_ptr<MapGenerator> mapGen) {
 
 	for (int y = 0; y < map->height; y++) {
 		for (int x = 0; x < map->width; x++) {
-			auto tile = mapGen->mapLayout[y][x];
+			auto tile = dunGen->mapGen->mapLayout[y][x];
 			SDL_Rect texQuad = *tilesets.at(MAIN_TILESET).GetTileRect(spriteMap.at(tile));
 			Position renderPos = { x * tileSize, y * tileSize };
 
 			SDL_Rect renderQuad = { renderPos.x, renderPos.y, tileSize, tileSize };
 			SDL_RenderCopy(SDLRenderer, tilesets.at(MAIN_TILESET).GetTexture(), &texQuad, &renderQuad);
 
-			int debugIndex = mapGen->debugGraphics[y][x];
+			int debugIndex = dunGen->mapGen->debugGraphics[y][x];
 			if (debugIndex > 0) {
 				texQuad = *tilesets.at(MAIN_TILESET).GetTileRect(debugIndex);
 				SDL_RenderCopy(SDLRenderer, tilesets.at(MAIN_TILESET).GetTexture(), &texQuad, &renderQuad);

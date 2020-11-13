@@ -29,6 +29,7 @@ public:
 	};
 
 	std::shared_ptr<class MapGenerator> mapGen;
+	std::shared_ptr<class DungeonGenerator> dunGen;
 
 private:
 	GameState state;

@@ -419,6 +419,12 @@ struct Map { //hardcoded default map
 	}
 };
 
+struct Dungeon {
+	int floorCount = 1;
+	int currentFloor = 0;
+	std::vector<std::shared_ptr<Map>> floors;
+};
+
 struct TextLog {
 	std::string text;
 };

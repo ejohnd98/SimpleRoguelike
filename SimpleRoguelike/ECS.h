@@ -11,6 +11,7 @@
 #include "RendererSystem.h"
 #include "TurnSystem.h"
 #include "MapSystem.h"
+#include "DungeonSystem.h"
 #include "PlayerSystem.h"
 #include "AISystem.h"
 #include "AnimationSystem.h"

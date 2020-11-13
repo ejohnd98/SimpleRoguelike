@@ -6,6 +6,7 @@
 #include "ECS.h"
 #include "JSONHandler.h"
 #include "MapGenerator.h"
+#include "DungeonGenerator.h"
 #include "EntityFactory.h"
 #include "RandomUtil.h"
 
@@ -17,6 +18,7 @@ int tickCounter;
 extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr<TurnSystem> turnSystem;
 extern std::shared_ptr<MapSystem> mapSystem;
+extern std::shared_ptr <DungeonSystem> dungeonSystem;
 extern std::shared_ptr<PlayerSystem> playerSystem;
 extern std::shared_ptr<AISystem> aiSystem;
 extern std::shared_ptr<RendererSystem> rendererSystem;
@@ -34,12 +36,17 @@ Game::~Game(){
 }
 
 bool Game::InitGame() {
-	//generate map
-	std::shared_ptr<Map> map = std::make_shared<Map>();
-	mapSystem->SetMap(map);
+	//CREATE DUNGEON INFO STRUCT TO STORE STUFF LIKE MAP SIZES, DEPTH, THEME, etc...
 
-	mapGen = std::make_shared<MapGenerator>(randomUtil->GetRandomInt(0,9000000));
-	mapGen->Begin(map, 50, 30);
+	//create dungeon object
+	std::shared_ptr<Dungeon> dungeon = std::make_shared<Dungeon>();
+	dungeonSystem->SetDungeon(dungeon);
+
+	dunGen = std::make_shared<DungeonGenerator>(randomUtil->GetRandomInt(0,9000000));
+	dunGen->Begin(dungeon, 1);
+
+	//PUT FOLLOWING INTO DUNGEON GENERATOR
+	//generate map
 
 	//Game setup
 	tickCounter = 0;
@@ -130,12 +137,12 @@ void Game::Advance(bool sameStep) {
 			}
 			break;
 		case GameState::MAP_GEN:
-			if (mapGen->IsFinished()) {
+			if (dunGen->IsFinished()) {
 				InitMapTest();
 				state = GameState::RUNNING;
 			}
 			else {
-				mapGen->GenerationStep();
+				dunGen->GenerationStep();
 			}
 			break;
 

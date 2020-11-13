@@ -9,6 +9,7 @@
 #include "ETexture.h"
 #include "RoomConverter.h"
 #include "MapGenerator.h"
+#include "DungeonGenerator.h"
 
 class RendererSystem : public System
 {
@@ -34,7 +35,7 @@ private:
 	Position GetTilesetSizeFromName(std::string name);
 
 	//debug
-	void RenderMapGen(std::shared_ptr<MapGenerator> mapGen);
+	void RenderMapGen(std::shared_ptr<DungeonGenerator> dunGen);
 
 	SDL_Window* SDLWindow = nullptr; //The window that will be rendered to
 	SDL_Renderer* SDLRenderer = nullptr; //The window renderer

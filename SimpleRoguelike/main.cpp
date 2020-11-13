@@ -9,6 +9,7 @@
 #include "Constants.h"
 #include "EntityFactory.h"
 #include "RandomUtil.h"
+#include "DungeonGenerator.h"
 
 //Screen constants
 const int SCREEN_FPS = 60;
@@ -25,6 +26,7 @@ std::shared_ptr <ECS> ecs;
 std::shared_ptr<RendererSystem> rendererSystem;
 std::shared_ptr<TurnSystem> turnSystem;
 std::shared_ptr<MapSystem> mapSystem;
+std::shared_ptr <DungeonSystem> dungeonSystem;
 std::shared_ptr<PlayerSystem> playerSystem;
 std::shared_ptr<AISystem> aiSystem;
 std::shared_ptr<AnimationSystem> animationSystem;
@@ -49,6 +51,7 @@ bool Initialize()
 	
 	//Register components
 	ecs->RegisterComponent<Map>();
+	ecs->RegisterComponent<Dungeon>();
 	ecs->RegisterComponent<Position>();
 	ecs->RegisterComponent<Actor>();
 	ecs->RegisterComponent<PlayerControlled>();
@@ -89,6 +92,10 @@ bool Initialize()
 	signature.reset();
 	signature.set(ecs->GetComponentType<Map>());
 	ecs->SetSystemSignature<MapSystem>(signature);
+
+	dungeonSystem = ecs->RegisterSystem<DungeonSystem>();
+	signature.reset();
+	ecs->SetSystemSignature<DungeonSystem>(signature);
 
 	//Register Player System (Interface between incoming commands and player controlled character)
 	playerSystem = ecs->RegisterSystem<PlayerSystem>();
@@ -211,8 +218,7 @@ int main(int argc, char* args[]){
 				while (game->StillProcessing()) {
 					game->Advance(true);
 				}
-
-				if (!shownMapGenTime && game->mapGen->IsFinished()) {
+				if (!shownMapGenTime && game->dunGen->IsFinished()) {
 					float timeTaken = (currentTime - ticksStart) *0.001f;
 					printf("mapGen time: %f\n", timeTaken);
 					if (DEBUG_MAP_GEN) {
