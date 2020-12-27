@@ -23,6 +23,8 @@ public:
 	bool IsKnown(int x, int y);
 
 	std::shared_ptr<Map> map;
+	int currentMapId = -1;
+	int totalMaps = 0;
 private:
 	bool visible[MAX_MAP_SIZE][MAX_MAP_SIZE];
 	bool known[MAX_MAP_SIZE][MAX_MAP_SIZE];

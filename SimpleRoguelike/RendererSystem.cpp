@@ -101,6 +101,10 @@ void RendererSystem::Render() {
 	}
 	RenderString({ 4, 16 }, { 603 - 8, 10 }, { 0, 2 }, std::to_string(ecs->GetEntityCount()), (Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
 
+	std::string mapStr = "map id: ";
+	mapStr += std::to_string(mapSystem->currentMapId);
+	RenderString({ 4, 28 }, { 503 - 8, 10 }, { 0, 2 }, mapStr, (Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
+
 	//put rendertexture on screen
 	SDL_SetRenderTarget(SDLRenderer, NULL);
 
@@ -167,6 +171,9 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 	for (auto const& entity : entities) { //iterate through renderable entities
 		
 		Renderable& r = ecs->GetComponent<Renderable>(entity);
+		if (r.mapId != mapSystem->currentMapId) {
+			continue;
+		}
 		FloatPosition pos;
 		pos = r.position;	
 		Sprite spr = r.sprite;

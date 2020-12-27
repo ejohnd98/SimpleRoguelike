@@ -8,6 +8,7 @@
 
 extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr<RendererSystem> rendererSystem;
+extern std::shared_ptr<MapSystem> mapSystem;
 
 void AnimationSystem::AddIdleAnim(Entity entity, std::vector<Sprite>& sprites, std::vector<int>& frameLengths) {
 	AnimIdle anim = {};
@@ -20,7 +21,7 @@ void AnimationSystem::AddIdleAnim(Entity entity, std::vector<Sprite>& sprites, s
 
 void AnimationSystem::AddSpriteAnim(FloatPosition pos, std::vector<Sprite>& sprites, Tileset tileset, std::vector<int>& frameLengths) {
 	Entity animEntity = ecs->CreateEntity();
-	ecs->AddComponent<Renderable>(animEntity, {255, tileset, pos});
+	ecs->AddComponent<Renderable>(animEntity, {255, tileset, pos, mapSystem->currentMapId});
 	ecs->AddComponent<Active>(animEntity, {});
 	ecs->AddComponent<DeleteAfterAnim>(animEntity, {});
 	AddSpriteAnim(animEntity, sprites, frameLengths);

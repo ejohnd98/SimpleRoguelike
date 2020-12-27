@@ -3,7 +3,7 @@
 #include "RandomUtil.h"
 
 enum class DunGenState {
-	INIT,
+	INIT_MAP_GEN,
 	MAP_GEN,
 	DISPLAYING,
 	FINISHED
@@ -28,7 +28,7 @@ private:
 	bool InitStep();
 	bool MapGenStep();
 
-	DunGenState dunGenState = DunGenState::INIT;
+	DunGenState dunGenState = DunGenState::INIT_MAP_GEN;
 	std::shared_ptr<RandomUtil> rand;
 	int dungeonSeed = 0;
 	bool isStarted = false;

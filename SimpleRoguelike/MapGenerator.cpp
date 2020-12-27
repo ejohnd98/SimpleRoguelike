@@ -6,7 +6,6 @@
 extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr<EntityFactory> entityFactory;
 extern std::shared_ptr<MapSystem> mapSystem;
-std::shared_ptr<MapSystem> mapHandler;
 
 const int stepLengthMod = 1; //time to show a step
 const int generationTimeMod = 2; //how many steps more to do
@@ -43,10 +42,9 @@ MapGenerator::MapGenerator(int seed) {
 	assert(!roomPrefabs.empty());
 
 	rand = std::make_shared<RandomUtil>(mapSeed);
-	mapHandler = std::make_shared<MapSystem>();
 }
 
-void MapGenerator::Reset() {
+void MapGenerator::Reset(bool clearMap) {
 	isStarted = false;
 	isFinished = false;
 
@@ -56,7 +54,9 @@ void MapGenerator::Reset() {
 	tunnelers.clear();
 	ChangeState(MapGenState::INIT);
 
-	mapSystem->Clear();
+	if (clearMap) {
+		mapSystem->Clear();
+	}
 	std::shared_ptr<Map> nextMap = std::make_shared<Map>();
 	mapSystem->SetMap(nextMap);
 	Begin(nextMap, genWidth, genHeight);
@@ -70,7 +70,7 @@ void MapGenerator::Begin(std::shared_ptr<Map> mapData, int w, int h, float tunne
 	map->height = h;
 	genWidth = w;
 	genHeight = h;
-	mapHandler->SetMap(mapData);
+	mapSystem->SetMap(mapData);
 
 	double lengthMod = 0.15f + 0.85f*((double)0.000125 * (double)w * (double)h);
 	roomGenLength = (int)(roomGenBaseLength * lengthMod * roomDensity);
@@ -254,9 +254,9 @@ bool MapGenerator::PopulateStep() {
 	for (int y = 0; y < map->height; y++) {
 		for (int x = 0; x < map->width; x++) {
 			int curr = bfs[y][x];
-			bool placeEnemy = rand->GetRandomBool(0.02f + 0.05f * (float)curr / (float)max);
-			if (placeEnemy && !mapHandler->BlocksMovement({ x,y })) {
-				mapHandler->PlaceEntity(entityFactory->CreateActor(actorTypes[rand->GetRandomBool(0.8f) ? 2 : 1]), { x,y });
+			bool placeEnemy = rand->GetRandomBool(0.01f + 0.02f * (float)curr / (float)max);
+			if (placeEnemy && !mapSystem->BlocksMovement({ x,y })) {
+				mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[rand->GetRandomBool(0.8f) ? 2 : 1]), { x,y });
 				debugGraphics[y][x] = 7;
 			}
 		}
@@ -268,14 +268,13 @@ bool MapGenerator::PopulateStep() {
 }
 
 void MapGenerator::FinishMap() {
-	mapHandler->map = nullptr;
 	isFinished = true;
 	isStarted = false;
 	ChangeState(MapGenState::FINISHED);
 
 	Position exit = map->exit;
 	if (bfs[exit.y][exit.x] == -1 || DEBUG_MAP_GEN) {
-		Reset();
+		Reset(true);
 	}
 }
 
@@ -344,14 +343,14 @@ void MapGenerator::ProcessFinishedMap() {
 			}
 			if (!DEBUG_MAP_GEN) {
 				if (tile == LayoutInfo::DOOR) {
-					mapHandler->PlaceEntity(entityFactory->CreateProp(propTypes[0]), { x,y });
+					mapSystem->PlaceEntity(entityFactory->CreateProp(propTypes[0]), { x,y });
 				}
 				if (tile == LayoutInfo::ENTRANCE) {
-					mapHandler->PlaceEntity(entityFactory->CreateProp(propTypes[2]), { x,y });
+					mapSystem->PlaceEntity(entityFactory->CreateProp(propTypes[2]), { x,y });
 					map->entrance = {x,y};
 				}
 				if (tile == LayoutInfo::EXIT) {
-					mapHandler->PlaceEntity(entityFactory->CreateProp(propTypes[1]), { x,y });
+					mapSystem->PlaceEntity(entityFactory->CreateProp(propTypes[1]), { x,y });
 					map->exit = { x,y };
 				}
 			}
@@ -364,7 +363,7 @@ bool MapGenerator::RoomFits(RoomPrefab room, Position pos) {
 		int mapY = pos.y + y;
 		for (int x = 0; x < room.width; x++) {
 			int mapX = pos.x + x;
-			if (!mapHandler->ValidPosition({ mapX, mapY })) {
+			if (!mapSystem->ValidPosition({ mapX, mapY })) {
 				return false;
 			}
 			auto roomTile = room.cells[y][x];
@@ -462,7 +461,7 @@ void MapGenerator::HandlePossibleDoors() {
 		if (mapLayout[pos.y][pos.x] == LayoutInfo::DOOR && adjacentFloors >= 3) {
 			PlaceFloor(pos);
 		}
-		if (mapLayout[pos.y][pos.x] == LayoutInfo::DOOR && adjacentFloors == 2 && (mapHandler->ValidPosition(pos + Position{1,1}) && mapHandler->ValidPosition(pos + Position{ -1,-1 }))
+		if (mapLayout[pos.y][pos.x] == LayoutInfo::DOOR && adjacentFloors == 2 && (mapSystem->ValidPosition(pos + Position{1,1}) && mapSystem->ValidPosition(pos + Position{ -1,-1 }))
 			&& (!(mapLayout[pos.y + 1][pos.x] == LayoutInfo::FLOOR && mapLayout[pos.y - 1][pos.x] == LayoutInfo::FLOOR)
 				&& !(mapLayout[pos.y][pos.x + 1] == LayoutInfo::FLOOR && mapLayout[pos.y][pos.x - 1] == LayoutInfo::FLOOR))) {
 			PlaceFloor(pos);
@@ -483,7 +482,7 @@ void MapGenerator::UpdateTunneler(Tunneler& tunneler) {
 		if (i == 2) { offset = { 1, 0 }; }
 		if (i == 3) { offset = { 0, 1 }; }
 		Position nextPos = tunneler.currentPos + offset;
-		if (!mapHandler->ValidPosition(nextPos)) {
+		if (!mapSystem->ValidPosition(nextPos)) {
 			continue;
 		}
 		float newDist = nextPos.Dist(tunneler.targetPos);
@@ -508,7 +507,7 @@ void MapGenerator::UpdateTunneler(Tunneler& tunneler) {
 
 	tunneler.direction = newDirection;
 	auto nextPos = tunneler.NextPos();
-	if (mapHandler->ValidPosition(nextPos)) {
+	if (mapSystem->ValidPosition(nextPos)) {
 		if (mapLayout[nextPos.y][nextPos.x] == LayoutInfo::EMPTY || mapLayout[nextPos.y][nextPos.x] == LayoutInfo::WALL || mapLayout[nextPos.y][nextPos.x] == LayoutInfo::POSSIBLE_WALL) {
 			PlaceFloor(nextPos);
 		}
@@ -616,7 +615,7 @@ int MapGenerator::AdjacentWalls(Position pos) {
 	int count = 0;
 	auto adjacents = pos.Adjacents();
 	for (Position adj : adjacents) {
-		if (!mapHandler->ValidPosition(adj)
+		if (!mapSystem->ValidPosition(adj)
 			|| (mapLayout[adj.y][adj.x] == LayoutInfo::WALL || mapLayout[adj.y][adj.x] == LayoutInfo::EMPTY || mapLayout[adj.y][adj.x] == LayoutInfo::POSSIBLE_WALL)) {
 			count++;
 		}

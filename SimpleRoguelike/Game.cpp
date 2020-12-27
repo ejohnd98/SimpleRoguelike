@@ -43,10 +43,7 @@ bool Game::InitGame() {
 	dungeonSystem->SetDungeon(dungeon);
 
 	dunGen = std::make_shared<DungeonGenerator>(randomUtil->GetRandomInt(0,9000000));
-	dunGen->Begin(dungeon, 1);
-
-	//PUT FOLLOWING INTO DUNGEON GENERATOR
-	//generate map
+	dunGen->Begin(dungeon, 5);
 
 	//Game setup
 	tickCounter = 0;
@@ -54,7 +51,7 @@ bool Game::InitGame() {
 	return true;
 }
 void Game::CloseGame() {
-	mapSystem->Clear();
+	//mapSystem->Clear();
 	mapGen = nullptr;
 }
 

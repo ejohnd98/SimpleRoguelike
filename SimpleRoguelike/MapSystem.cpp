@@ -25,6 +25,11 @@ void MapSystem::Clear() {
 
 void MapSystem::SetMap(std::shared_ptr<Map> mapData) {
 	map = mapData;
+	if (mapData->mapId < 0) {
+		totalMaps++;
+		mapData->mapId = totalMaps;
+	}
+	currentMapId = mapData->mapId;
 }
 
 void MapSystem::PlaceEntity(Entity entity, Position newPos) {
@@ -35,6 +40,7 @@ void MapSystem::PlaceEntity(Entity entity, Position newPos) {
 	Position& pos = ecs->GetComponent<Position>(entity);
 	Renderable& res = ecs->GetComponent<Renderable>(entity);
 	res.position = newPos.ToFloat();
+	res.mapId = currentMapId;
 	pos = newPos;
 }
 

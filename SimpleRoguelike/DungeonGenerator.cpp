@@ -14,7 +14,7 @@ const int stepLengthMod = 1; //time to show a step
 const int generationTimeMod = 2; //how many steps more to do
 const int displayResultLength = 150 * stepLengthMod;
 
-const int speedUp = 1;
+const int speedUp = 4;
 
 DungeonGenerator::DungeonGenerator(int seed) {
 	dungeonSeed = seed;
@@ -26,7 +26,7 @@ void DungeonGenerator::Reset() {
 	isFinished = false;
 
 	counter = 0;
-	ChangeState(DunGenState::INIT);
+	ChangeState(DunGenState::INIT_MAP_GEN);
 
 	std::shared_ptr<Dungeon> nextDungeon = std::make_shared<Dungeon>();
 	dungeonSystem->SetDungeon(nextDungeon);
@@ -35,12 +35,14 @@ void DungeonGenerator::Reset() {
 
 void DungeonGenerator::Begin(std::shared_ptr<Dungeon> dungeonData, int levels) {
 	genLevels = levels;
+	dungeonData->floorCount = levels;
 	currentLevel = 0;
 	dungeon = dungeonData;
 	isStarted = true;
 	isFinished = false;
+	//mapGen = std::make_shared<MapGenerator>(rand->GetRandomInt(0, 9000000));
 
-	dunGenState = DunGenState::INIT;
+	dunGenState = DunGenState::INIT_MAP_GEN;
 }
 
 void DungeonGenerator::GenerationStep() {
@@ -54,7 +56,7 @@ void DungeonGenerator::GenerationStep() {
 		while (!madeProgress && timeOut < 1000) {
 			timeOut++;
 			switch (dunGenState) {
-			case DunGenState::INIT: {
+			case DunGenState::INIT_MAP_GEN: {
 				madeProgress = InitStep();
 				break;
 			}
@@ -64,8 +66,19 @@ void DungeonGenerator::GenerationStep() {
 			}
 			case DunGenState::DISPLAYING: {
 				madeProgress = true;
+				
 				if (counter >= displayResultLength) {
-					FinishDungeon();
+					dungeon->floors.push_back(mapGen->map);
+					printf("dungeon floors vector size: %d\n", dungeon->floors.size());
+					currentLevel++;
+
+					if (currentLevel < genLevels) {
+						ChangeState(DunGenState::INIT_MAP_GEN);
+					}
+					else {
+						FinishDungeon();
+					}
+					
 				}
 				break;
 			}
@@ -89,9 +102,10 @@ bool DungeonGenerator::InitStep() {
 	mapSystem->SetMap(map);
 
 	mapGen = std::make_shared<MapGenerator>(rand->GetRandomInt(0, 9000000));
-	mapGen->Begin(map, 50, 30);
+	//mapGen->Reset(false);
+	mapGen->Begin(map, 40, 25);
 
-	dungeon->floors.push_back(map);
+	
 
 	ChangeState(DunGenState::MAP_GEN);
 
@@ -113,7 +127,7 @@ bool DungeonGenerator::MapGenStep() {
 void DungeonGenerator::FinishDungeon() {
 	isFinished = true;
 	isStarted = false;
-	ChangeState(DunGenState::FINISHED);
+	mapSystem->SetMap(dungeon->floors[0]);
 }
 
 bool DungeonGenerator::IsStarted() {

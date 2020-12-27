@@ -4,7 +4,8 @@
 #include "InteractionHandler.h"
 #include "ECS.h"
 
-extern std::shared_ptr <ECS> ecs;
+extern std::shared_ptr<ECS> ecs;
+extern std::shared_ptr<DungeonSystem> dungeonSystem;
 extern std::shared_ptr<MapSystem> mapSystem;
 extern std::shared_ptr<AnimationSystem> animationSystem; //shouldn't need later (temp)
 extern std::shared_ptr<TurnSystem> turnSystem;
@@ -51,11 +52,13 @@ bool InteractionHandler::PerformAction(Entity entity, Position target, InteractT
 					}
 					case PropFunction::STAIRS_DOWN: {
 						printf("STAIRS DOWN\n");
+						dungeonSystem->GoToFloorIndex(dungeonSystem->currentFloor + 1);
 						actionPerformed = true;
 						break;
 					}
 					case PropFunction::STAIRS_UP: {
 						printf("STAIRS UP\n");
+						dungeonSystem->GoToFloorIndex(dungeonSystem->currentFloor - 1);
 						actionPerformed = true;
 						break;
 					}

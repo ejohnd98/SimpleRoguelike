@@ -6,6 +6,7 @@
 #include "ECS.h"
 
 extern std::shared_ptr <ECS> ecs;
+extern std::shared_ptr <MapSystem> mapSystem;
 
 std::unordered_map<InteractType, int> interactionDebtMap{
 	{InteractType::WAIT, 100},
@@ -56,6 +57,10 @@ bool TurnSystem::PlayerActsNext() {
 void TurnSystem::DecreaseDebt(int amount) {
 	for (auto const& entity : entities) //iterate through all actors
 	{
+		Renderable& r = ecs->GetComponent<Renderable>(entity);
+		if (r.mapId != mapSystem->currentMapId) {
+			continue;
+		}
 		Actor& actor = ecs->GetComponent<Actor>(entity);
 
 		if (actor.actionDebt > 0) { //if actor has debt, decrease by given amount
