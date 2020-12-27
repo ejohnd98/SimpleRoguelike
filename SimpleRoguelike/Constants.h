@@ -9,7 +9,7 @@ using Sprite = std::uint16_t;
 using Tileset = std::string;
 using ComponentType = std::uint8_t;
 
-const Entity MAX_ENTITIES = 5000;
+const Entity MAX_ENTITIES = 10000;
 const Entity NULL_ENTITY = 0;
 const ComponentType MAX_COMPONENTS = 32;
 

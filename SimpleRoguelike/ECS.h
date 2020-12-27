@@ -17,6 +17,7 @@
 #include "AnimationSystem.h"
 #include "DamageSystem.h"
 #include "LogSystem.h"
+#include "MemorySystem.h"
 
 #include "InteractionHandler.h"
 #include "Pathfinding.h"

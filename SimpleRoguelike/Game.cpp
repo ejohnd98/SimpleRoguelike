@@ -18,7 +18,7 @@ int tickCounter;
 extern std::shared_ptr <ECS> ecs;
 extern std::shared_ptr<TurnSystem> turnSystem;
 extern std::shared_ptr<MapSystem> mapSystem;
-extern std::shared_ptr <DungeonSystem> dungeonSystem;
+extern std::shared_ptr<DungeonSystem> dungeonSystem;
 extern std::shared_ptr<PlayerSystem> playerSystem;
 extern std::shared_ptr<AISystem> aiSystem;
 extern std::shared_ptr<RendererSystem> rendererSystem;
@@ -27,6 +27,7 @@ extern std::shared_ptr<LogSystem> logSystem;
 extern std::shared_ptr<EntityFactory> entityFactory;
 extern std::shared_ptr<FieldOfView> fov;
 extern std::shared_ptr<RandomUtil> randomUtil;
+extern std::shared_ptr<MemorySystem> memorySystem;
 
 Game::Game(){
 	InitGame();
@@ -43,7 +44,7 @@ bool Game::InitGame() {
 	dungeonSystem->SetDungeon(dungeon);
 
 	dunGen = std::make_shared<DungeonGenerator>(randomUtil->GetRandomInt(0,9000000));
-	dunGen->Begin(dungeon, 5);
+	dunGen->Begin(dungeon, 10);
 
 	//Game setup
 	tickCounter = 0;
@@ -61,6 +62,7 @@ void Game::InitMapTest() {
 	mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[0], true), playerPos);
 
 	fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
+	memorySystem->CleanUpEntities();
 }
 
 bool Game::StillProcessing() {
@@ -92,6 +94,7 @@ void Game::Advance(bool sameStep) {
 				tickCounter++;
 				if (tickCounter % 10 == 0) {
 					AdvanceTurn();
+					memorySystem->CleanUpEntities();
 					//animationSystem->PlayPendingAnimations();
 					logSystem->PushLogs();
 				}

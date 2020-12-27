@@ -32,6 +32,7 @@ std::shared_ptr<AISystem> aiSystem;
 std::shared_ptr<AnimationSystem> animationSystem;
 std::shared_ptr<DamageSystem> damageSystem;
 std::shared_ptr<LogSystem> logSystem;
+std::shared_ptr<MemorySystem> memorySystem;
 
 std::shared_ptr<Game> game;
 std::shared_ptr<Pathfinding> pathfinding;
@@ -124,6 +125,11 @@ bool Initialize()
 	logSystem = ecs->RegisterSystem<LogSystem>();
 	signature.reset();
 	ecs->SetSystemSignature<LogSystem>(signature);
+
+	//Register Memory System
+	memorySystem = ecs->RegisterSystem<MemorySystem>();
+	signature.reset();
+	ecs->SetSystemSignature<MemorySystem>(signature);
 
 	//Register Interaction System
 	interactionHandler = std::make_shared<InteractionHandler>();

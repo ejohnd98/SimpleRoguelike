@@ -254,7 +254,7 @@ bool MapGenerator::PopulateStep() {
 	for (int y = 0; y < map->height; y++) {
 		for (int x = 0; x < map->width; x++) {
 			int curr = bfs[y][x];
-			bool placeEnemy = rand->GetRandomBool(0.01f + 0.02f * (float)curr / (float)max);
+			bool placeEnemy = rand->GetRandomBool(0.02f + 0.03f * (float)curr / (float)max);
 			if (placeEnemy && !mapSystem->BlocksMovement({ x,y })) {
 				mapSystem->PlaceEntity(entityFactory->CreateActor(actorTypes[rand->GetRandomBool(0.8f) ? 2 : 1]), { x,y });
 				debugGraphics[y][x] = 7;
@@ -443,7 +443,9 @@ void MapGenerator::HandlePossibleDoors() {
 			if (i == 1) { offset = { 0, -1 }; }
 			if (i == 2) { offset = { 1, 0 }; }
 			if (i == 3) { offset = { 0, 1 }; }
-
+			if (!mapSystem->ValidPosition({ pos.y + offset.y, pos.x + offset.x })) {
+				continue;
+			}
 			auto tile = mapLayout[pos.y + offset.y][pos.x + offset.x];
 			if (tile == LayoutInfo::DOOR) {
 				adjacentDoors++;

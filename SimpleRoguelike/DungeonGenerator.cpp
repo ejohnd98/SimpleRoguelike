@@ -14,7 +14,7 @@ const int stepLengthMod = 1; //time to show a step
 const int generationTimeMod = 2; //how many steps more to do
 const int displayResultLength = 150 * stepLengthMod;
 
-const int speedUp = 4;
+const int speedUp = 8;
 
 DungeonGenerator::DungeonGenerator(int seed) {
 	dungeonSeed = seed;
@@ -103,7 +103,7 @@ bool DungeonGenerator::InitStep() {
 
 	mapGen = std::make_shared<MapGenerator>(rand->GetRandomInt(0, 9000000));
 	//mapGen->Reset(false);
-	mapGen->Begin(map, 40, 25);
+	mapGen->Begin(map, 40, 30);
 
 	
 
