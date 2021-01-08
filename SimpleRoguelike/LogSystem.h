@@ -5,11 +5,6 @@
 
 #include "System.h"
 
-enum class LogType {
-	ATTACK,
-	ATTACK_AND_KILL
-};
-
 class LogSystem : public System
 {
 public:

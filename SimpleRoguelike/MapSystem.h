@@ -16,6 +16,9 @@ public:
 	bool BlocksSight(Position pos);
 	bool BlocksMovement(Position pos, bool ignoreActors = true);
 	Entity GetEntityAt(Position pos);
+	Item GetItemAt(Position pos);
+	void PlaceItemAt(Item item, Position pos);
+	void RemoveItem(Position pos);
 	void ClearVisible(bool includeVisited = false);
 	void SetVisible(int x, int y);
 	void SetKnown(int x, int y);

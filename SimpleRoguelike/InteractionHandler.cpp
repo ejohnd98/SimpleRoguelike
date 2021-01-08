@@ -10,6 +10,7 @@ extern std::shared_ptr<MapSystem> mapSystem;
 extern std::shared_ptr<AnimationSystem> animationSystem; //shouldn't need later (temp)
 extern std::shared_ptr<TurnSystem> turnSystem;
 extern std::shared_ptr<DamageSystem> damageSystem;
+extern std::shared_ptr<LogSystem> logSystem;
 
 bool InteractionHandler::PerformAction(Entity entity, Position target, InteractType interactType) {
 	bool actionPerformed = false;
@@ -54,12 +55,24 @@ bool InteractionHandler::PerformAction(Entity entity, Position target, InteractT
 						printf("STAIRS DOWN\n");
 						dungeonSystem->GoToFloorIndex(dungeonSystem->currentFloor + 1);
 						actionPerformed = true;
+
+						EventInfo evnt;
+						evnt.descended = true;
+						evnt.newFloor = dungeonSystem->currentFloor;
+						evnt.type = EventType::MOVE_FLOORS;
+						logSystem->AddLog(evnt);
 						break;
 					}
 					case PropFunction::STAIRS_UP: {
 						printf("STAIRS UP\n");
 						dungeonSystem->GoToFloorIndex(dungeonSystem->currentFloor - 1);
 						actionPerformed = true;
+
+						EventInfo evnt;
+						evnt.descended = false;
+						evnt.newFloor = dungeonSystem->currentFloor;
+						evnt.type = EventType::MOVE_FLOORS;
+						logSystem->AddLog(evnt);
 						break;
 					}
 					default:
@@ -68,6 +81,22 @@ bool InteractionHandler::PerformAction(Entity entity, Position target, InteractT
 			}
 			
 			break;
+		case InteractType::PICK_UP: {
+			Item item = mapSystem->GetItemAt(target);
+			if (!item.empty) {
+				auto& inv = ecs->GetComponent<Inventory>(entity);
+				if (inv.AddItem(item)) {
+					mapSystem->RemoveItem(target);
+					actionPerformed = true;
+
+					EventInfo evnt;
+					evnt.item = item;
+					evnt.type = EventType::PICK_UP_ITEM;
+					logSystem->AddLog(evnt);
+				}
+			}
+			break;
+		}
 		case InteractType::CLOSE:
 			if (other != NULL_ENTITY && ecs->HasComponent<Openable>(other)) {
 				auto& openable = ecs->GetComponent<Openable>(other);

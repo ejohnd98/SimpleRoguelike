@@ -14,6 +14,7 @@ std::unordered_map<InteractType, int> interactionDebtMap{
 	{InteractType::ATTACK, 100},
 	{InteractType::PROP, 100},
 	{InteractType::CLOSE, 100},
+	{InteractType::PICK_UP, 100},
 };
 
 void TurnSystem::Init() {

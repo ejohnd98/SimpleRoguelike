@@ -11,7 +11,9 @@
 
 enum class EventType {
 	NULL_EVENT,
-	ATTACK
+	ATTACK,
+	MOVE_FLOORS,
+	PICK_UP_ITEM
 };
 
 enum class EaseType {
@@ -33,6 +35,7 @@ enum class InteractType {
 	MOVE,
 	ATTACK,
 	PROP,
+	PICK_UP,
 	CLOSE
 };
 
@@ -371,6 +374,32 @@ struct Openable {
 	bool locked = false;
 };
 
+struct Item {
+	std::string name = "untitled item";
+
+	Sprite sprite = 0;
+	Tileset tileset = MAIN_TILESET;
+
+	bool equipable = false;
+	bool consumable = false;
+
+	bool empty = true;
+};
+
+struct Inventory {
+	int size = 0;
+	std::vector<Item> items;
+	bool openUse = false;
+
+	bool AddItem(Item item) {
+		if (items.size() < size) {
+			items.push_back(item);
+			return true;
+		}
+		return false;
+	}
+};
+
 struct Map {
 	int mapId = -1;
 	int width = 40;
@@ -382,6 +411,7 @@ struct Map {
 	Sprite floorSprite = 1;
 
 	std::unordered_map<Position, Entity> positionEntityMap;
+	std::unordered_map<Position, Item> positionItemMap;
 
 	Position entrance, exit;
 
@@ -407,6 +437,11 @@ struct EventInfo {
 
 	int damageDealt = -1;
 	bool killed = false;
+
+	int newFloor = -1;
+	bool descended = false;
+
+	Item item;
 };
 
 struct PropInfo {

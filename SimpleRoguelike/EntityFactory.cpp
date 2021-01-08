@@ -9,6 +9,7 @@ Entity EntityFactory::CreateActor(ActorType type, bool playerControlled) {
 
 	ecs->AddComponent(actor, Actor{});
 	ecs->AddComponent(actor, type.stats);
+	ecs->AddComponent(actor, Inventory{ type.inventorySize });
 
 	if (playerControlled) {
 		ecs->AddComponent(actor, PlayerControlled{});

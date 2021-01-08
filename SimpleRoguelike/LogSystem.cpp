@@ -21,6 +21,19 @@ void LogSystem::AddLog(EventInfo eventInfo) {
 			AddLog({ log });
 			break;
 		}
+		case EventType::MOVE_FLOORS: {
+			std::string log = {
+				(eventInfo.descended ? "<red>You descended to floor " : "<red>You ascended to floor ") + std::to_string(eventInfo.newFloor)
+			};
+			AddLog({ log });
+			break;
+		}
+		case EventType::PICK_UP_ITEM: {
+			std::string log = {
+				"You picked up <blue>" + eventInfo.item.name };
+			AddLog({ log });
+			break;
+		}
 		default:
 			break;
 	}

@@ -82,6 +82,22 @@ Entity MapSystem::GetEntityAt(Position pos) {
 	return NULL_ENTITY;
 }
 
+Item MapSystem::GetItemAt(Position pos) {
+	if (map->positionItemMap.find(pos) != map->positionItemMap.end()) {
+		return map->positionItemMap[pos];
+	}
+	return Item{};
+}
+
+void MapSystem::PlaceItemAt(Item item, Position pos) {
+	assert(ValidPosition(pos));
+	map->positionItemMap[pos] = item;
+}
+
+void MapSystem::RemoveItem(Position pos) {
+	map->positionItemMap.erase(pos);
+}
+
 bool MapSystem::BlocksSight(Position pos) {
 	if (!ValidPosition(pos) || map->GetCell(pos.x, pos.y)) {
 		return true;

@@ -68,6 +68,7 @@ bool Initialize()
 	ecs->RegisterComponent<PropInfo>();
 	ecs->RegisterComponent<Stats>();
 	ecs->RegisterComponent<Active>();
+	ecs->RegisterComponent<Inventory>();
 
 	//Create random Utils;
 	randomUtil = std::make_shared<RandomUtil>((unsigned int)std::time(0));
@@ -178,6 +179,10 @@ Command InputToCommand() { //hardcoded inputs currently
 	if (keys[SDL_GetScancodeFromKey(SDLK_SPACE)]) {
 		return Command::WAIT;
 	}
+	if (keys[SDL_GetScancodeFromKey(SDLK_e)]) {
+		return Command::PICK_UP;
+	}
+
 	return Command::NONE;
 }
 

@@ -63,6 +63,13 @@ void Game::InitMapTest() {
 
 	fov->CalculateVisibleCells(playerSystem->GetPlayerEntity());
 	memorySystem->CleanUpEntities();
+	Item testItem;
+	testItem.name = "Test Item";
+	testItem.sprite = 49;
+	testItem.tileset = MAIN_TILESET;
+	testItem.empty = false;
+
+	mapSystem->PlaceItemAt(testItem, mapSystem->map->entrance + Position{ 1,1 });
 }
 
 bool Game::StillProcessing() {
@@ -129,7 +136,7 @@ void Game::Advance(bool sameStep) {
 				if (playerSystem->DetermineAction(nextCommand)) { //only remove player from queue if they performed an action
 					turnSystem->PopNextActor();
 					state = GameState::RUNNING;
-					animationSystem->PlayPendingAnimations(); //play animation from player separately from enemies
+					//animationSystem->PlayPendingAnimations(); //play animation from player separately from enemies
 					state = GameState::ANIMATING;
 				}
 				nextCommand = Command::NONE;

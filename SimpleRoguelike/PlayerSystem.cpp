@@ -16,6 +16,7 @@ void PlayerSystem::Init() {
 
 bool PlayerSystem::DetermineAction(Command command) {
 	bool performedAction = false;
+	Position pos = ecs->GetComponent<Position>(GetPlayerEntity());
 	switch (command) {
 	case Command::MOVE_UP:
 		performedAction = InteractWithCell(Position{ 0, -1 });
@@ -31,6 +32,9 @@ bool PlayerSystem::DetermineAction(Command command) {
 		break;
 	case Command::WAIT:
 		performedAction = interactionHandler->PerformAction(GetPlayerEntity(), {}, InteractType::WAIT);
+		break;
+	case Command::PICK_UP:
+		performedAction = interactionHandler->PerformAction(GetPlayerEntity(), pos, InteractType::PICK_UP);
 		break;
 	}
 	return performedAction;

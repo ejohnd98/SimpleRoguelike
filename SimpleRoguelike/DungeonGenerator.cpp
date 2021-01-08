@@ -14,7 +14,7 @@ const int stepLengthMod = 1; //time to show a step
 const int generationTimeMod = 2; //how many steps more to do
 const int displayResultLength = 150 * stepLengthMod;
 
-const int speedUp = 8;
+const int speedUp = 64;
 
 DungeonGenerator::DungeonGenerator(int seed) {
 	dungeonSeed = seed;

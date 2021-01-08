@@ -17,5 +17,4 @@ void MemorySystem::CleanUpEntities() {
 			removed++;
 		}
 	}
-	printf("total entities: %d\ncleaned up: %d\n", count, removed);
 }

@@ -159,6 +159,11 @@ void RendererSystem::RenderMap(std::shared_ptr<Map> map) {
 			}
 		}
 	}
+
+	for (std::pair<Position, Item> element : map->positionItemMap) {
+		RenderTile(element.first.ToFloat(), element.second.sprite, element.second.tileset, PIXEL_MULT, false, {});
+	}
+
 	for (int y = renderY1; y <= renderY2; y++) {
 		for (int x = renderX1; x <= renderX2; x++) {
 			if (!mapSystem->ValidPosition({ x, y }) || (!mapSystem->IsVisible(x, y) && !mapSystem->IsKnown(x, y))) { //if position is invalid or not visible/known

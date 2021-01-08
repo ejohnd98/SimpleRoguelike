@@ -6,5 +6,6 @@ enum class Command {
 	MOVE_DOWN,
 	MOVE_RIGHT,
 	MOVE_LEFT,
-	WAIT
+	WAIT,
+	PICK_UP
 };
