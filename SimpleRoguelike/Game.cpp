@@ -103,7 +103,7 @@ void Game::Advance(bool sameStep) {
 					AdvanceTurn();
 					memorySystem->CleanUpEntities();
 					//animationSystem->PlayPendingAnimations();
-					logSystem->PushLogs();
+					logSystem->PushLogs(true);
 				}
 			}
 

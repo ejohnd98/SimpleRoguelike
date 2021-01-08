@@ -34,5 +34,6 @@ const std::unordered_map<std::string, SDL_Color> COLOR_MAP{
 		{"blue", SDL_Color{0,140,255,255}},
 		{"purple", SDL_Color{178,104,255,255}},
 		{"white", SDL_Color{255,255,255,255}},
+		{"grey", SDL_Color{125,125,125,255}},
 		{"black", SDL_Color{0,0,0,255}}
 };

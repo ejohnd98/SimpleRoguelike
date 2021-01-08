@@ -284,7 +284,7 @@ void RendererSystem::RenderUI() {
 			break;
 		}
 		RenderString({ 4, height }, { 503 - 8, 10 }, { 0, 2 },
-			log.text, (Tileset)"6x8_font", PIXEL_MULT, { 1, 1 });
+			log.text, (Tileset)"6x8_font", PIXEL_MULT, { 1, 1 }, log.old ? "grey" : "white");
 		height -= 10;
 	}
 
@@ -328,7 +328,7 @@ void RendererSystem::DrawUIRect(Position pos, Position size, Tileset tileset, in
 	}
 
 }
-void RendererSystem::RenderString(Position pos, Position area, Position spacing, std::string str, Tileset font, int scale, FloatPosition fontScale) {
+void RendererSystem::RenderString(Position pos, Position area, Position spacing, std::string str, Tileset font, int scale, FloatPosition fontScale, std::string defaultColor) {
 	int fontW = tilesets.at(font).GetTileWidth() * PIXEL_MULT * fontScale.x;
 	int fontH = tilesets.at(font).GetTileHeight() * PIXEL_MULT * fontScale.y;
 	Position screenPos = pos * scale;
@@ -339,7 +339,8 @@ void RendererSystem::RenderString(Position pos, Position area, Position spacing,
 	bool firstChar = true;
 	int formatLength = 0;
 	bool readingFormat = false;
-	SDL_Color color = COLOR_MAP.at("white");
+	SDL_Color color = COLOR_MAP.at(defaultColor);
+	SDL_SetTextureColorMod(tilesets.at(font).GetTexture(), color.r, color.g, color.b);
 	for (std::string::size_type i = 0; i < str.size(); ++i) {
 		int ascii = str[i];
 		if (firstChar && (ascii == 0 || ascii == 32 || ascii == 255)) {
@@ -357,7 +358,7 @@ void RendererSystem::RenderString(Position pos, Position area, Position spacing,
 					color = (*mapIt).second;
 				}
 				else {
-					color = COLOR_MAP.at("white");
+					color = COLOR_MAP.at(defaultColor);
 				}
 
 				SDL_SetTextureColorMod(tilesets.at(font).GetTexture(), color.r, color.g, color.b);

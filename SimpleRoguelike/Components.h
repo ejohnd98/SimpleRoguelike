@@ -428,6 +428,7 @@ struct Dungeon {
 
 struct TextLog {
 	std::string text;
+	bool old = false;
 };
 
 struct EventInfo {

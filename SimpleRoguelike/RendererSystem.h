@@ -29,7 +29,7 @@ private:
 	Position TilePosToScreenPos(FloatPosition tilePos);
 	void RenderUI();
 	void DrawUIRect(Position pos, Position size, Tileset tileset, int scale);
-	void RenderString(Position pos, Position area, Position spacing, std::string str, Tileset font, int scale, FloatPosition fontScale);
+	void RenderString(Position pos, Position area, Position spacing, std::string str, Tileset font, int scale, FloatPosition fontScale, std::string defaultColor = "white");
 	bool LoadMedia();
 	void LoadTilesetsFromPath(std::string pathName);
 	Position GetTilesetSizeFromName(std::string name);

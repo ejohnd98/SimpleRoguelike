@@ -43,11 +43,11 @@ void LogSystem::AddLog(TextLog log) {
 	pendingLogs.push(log);
 }
 
-void LogSystem::PushLogs() {
-	if (!pendingLogs.empty()) {
-		currentLogPosition = (currentLogPosition + 1) % MAX_STORED_LOGS;
-		currentLogs[currentLogPosition] = TextLog{"-------------------------------------------------------------------------"};
-		currentLogCount = std::min(MAX_STORED_LOGS, currentLogCount + 1);
+void LogSystem::PushLogs(bool advanceTurn) {
+	if (advanceTurn) {
+		for (int i = 0; i < currentLogs.size(); i++) {
+			currentLogs[i].old = true;
+		}
 	}
 	while (!pendingLogs.empty()) {
 		currentLogPosition = (currentLogPosition + 1) % MAX_STORED_LOGS;
