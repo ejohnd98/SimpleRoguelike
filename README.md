@@ -1,6 +1,7 @@
-[See here for a gif](https://ejohnd98.github.io/images/roguelike.gif)
+See here for a short video showing the level generation and some playing:
 
-The gif quality isn't the best, but shows roughly what things look like (as of August 8th 2020)
+https://user-images.githubusercontent.com/16963546/156270862-d98593c3-197d-4439-8213-d49a89c821b5.mp4
+
 
 ## About this Project
 This project was started in an effort to learn the basics of C++ while creating a simple roguelike. Generally, a roguelike is a tile and turn based game where the player delves into a procedurally generated dungeon filled with enemies and loot ([more in-depth description here](https://en.wikipedia.org/wiki/Roguelike)). 
